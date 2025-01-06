@@ -1,8 +1,6 @@
 #include "VFPhotoContainer.h"
 
 #include "Kismet/GameplayStatics.h"
-// #include "EnhancedInputSubsystems.h"
-// #include "InputMappingContext.h"
 
 #include "VFPhoto2D.h"
 #include "VFHelperComponent.h"
@@ -14,10 +12,8 @@ AVFPhotoContainer::AVFPhotoContainer()
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 	Container = CreateDefaultSubobject<USceneComponent>(TEXT("Container"));
 	Container->SetupAttachment(RootComponent);
-
-	// static ConstructorHelpers::FObjectFinder<UInputMappingContext> Selector(
-	// 	TEXT("/Game/ViewFinder/Input/PhotoContainer/IMC_PhotoContainer.IMC_PhotoContainer"));
-	// MappingContext = Selector.Object;
+	Container->SetRelativeLocation(FVector(100.0f, -50.0f, 0.f));
+	Container->SetRelativeRotation(FRotator(60.f, -30.0f, 0.f));
 
 	Helper = CreateDefaultSubobject<UVFHelperComponent>(TEXT("Helper"));
 	Helper->bCanBeTakenInPhoto = false;
@@ -137,19 +133,11 @@ void AVFPhotoContainer::SetEnabled(const bool &Enabled)
 
 	if (bEnabled)
 	{
-		// auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
-		// if (Subsystem)
-		// 	Subsystem->AddMappingContext(MappingContext, 2);
-		// EnableInput(PlayerController);
 		SetActorHiddenInGame(false);
 		UpdateCurrentPhoto();
 	}
 	else
 	{
-		// DisableInput(PlayerController);
-		// auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
-		// if (Subsystem)
-		// 	Subsystem->RemoveMappingContext(MappingContext);
 		SetActorHiddenInGame(true);
 		UpdateCurrentPhoto();
 	}

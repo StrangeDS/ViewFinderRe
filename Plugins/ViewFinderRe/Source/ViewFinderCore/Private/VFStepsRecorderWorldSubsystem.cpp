@@ -141,7 +141,8 @@ void UVFStepsRecorderWorldSubsystem::RegisterTransformRecordere(AVFTransfromReco
 
 void UVFStepsRecorderWorldSubsystem::UnregisterTickable(TScriptInterface<IVFStepsRecordInterface> Target)
 {
-    TickTargets.RemoveSwap(Target);
+    if (TickTargets.Contains(Target))
+        TickTargets.RemoveSwap(Target);
 }
 
 void UVFStepsRecorderWorldSubsystem::StartRewinding()

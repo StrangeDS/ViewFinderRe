@@ -3,11 +3,11 @@
 UVFViewFrustumComponent::UVFViewFrustumComponent()
 {
     SetComplexAsSimpleCollisionEnabled(false);
-	SetCollisionProfileName(TEXT("ViewFrustum"));
+    // 对比OverlapAll差异为: ViewFrustum物体与ViewFrustum物体为ignore
+    SetCollisionProfileName(TEXT("ViewFrustum"));
 
     static ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialSelector(
-        TEXT("/Game/ViewFinder/Material/MI_ViewFrustum.MI_ViewFrustum")
-        );
+        TEXT("/ViewFinderRe/Content/Materials/MI_ViewFrustum.MI_ViewFrustum"));
     Matirial = MaterialSelector.Object;
     SetMaterial(0, Matirial);
 }
@@ -28,7 +28,6 @@ void UVFViewFrustumComponent::GenerateViewFrustum_Implementation(float Angle, fl
 
     UVFGeometryFunctions::AppendFrustum(MeshObject, PrimitiveOptions, Angle, AspectRatio, StartDis, EndDis);
     UVFGeometryFunctions::SetDynamicMeshCollisionFromMesh(MeshObject, this, CollisionOptions);
-    
 }
 
 void UVFViewFrustumComponent::RegenerateViewFrustum(float Angle, float AspectRatio, float StartDis, float EndDis)

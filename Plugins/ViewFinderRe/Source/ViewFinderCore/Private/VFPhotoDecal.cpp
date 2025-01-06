@@ -17,7 +17,7 @@ AVFPhotoDecal::AVFPhotoDecal()
     Decal = CreateDefaultSubobject<UDecalComponent>(TEXT("Decal"));
     Decal->SetupAttachment(RootComponent);
     static ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialSelector(
-        TEXT("/Game/ViewFinder/Material/Decal/MDI_Photolize.MDI_Photolize"));
+        TEXT("/ViewFinderRe/Content/Materials/Decal/MDI_Photolize.MDI_Photolize"));
     Matirial = MaterialSelector.Object;
     Decal->SetDecalMaterial(Matirial);
 }

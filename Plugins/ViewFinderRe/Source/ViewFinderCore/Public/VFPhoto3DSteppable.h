@@ -8,6 +8,7 @@
 
 #include "VFPhoto3DSteppable.generated.h"
 
+// 实际上这里的操作无意义, Photo2DSteppable已经进行了调用. 考虑到以后可能的额外操作, 故还是保留.
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERCORE_API AVFPhoto3DSteppable : public AVFPhoto3D, public IVFStepsRecordInterface
 {

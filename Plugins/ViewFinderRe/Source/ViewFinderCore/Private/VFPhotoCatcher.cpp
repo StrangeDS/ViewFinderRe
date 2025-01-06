@@ -29,7 +29,7 @@ AVFPhotoCatcher::AVFPhotoCatcher()
 	StaticMesh->SetupAttachment(RootComponent);
 	StaticMesh->SetCollisionProfileName(TEXT("OverlapOnlyPawn"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshSelector(
-		TEXT("/Game/ViewFinder/StaticMesh/Camera_Temp.Camera_Temp"));
+		TEXT("/ViewFinderRe/Content/StaticMeshes/Camera_Temp.Camera_Temp"));
 	CatcherMesh = MeshSelector.Object;
 	StaticMesh->SetStaticMesh(CatcherMesh);
 
@@ -126,7 +126,7 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 	// 	UE_LOG(LogTemp, Warning, TEXT("%s"), *Comp->GetOwner()->GetName());
 	// }
 
-	UE_LOG(LogTemp, Warning, TEXT("TakeAPhoto_Implementation overlaps %i"), VFDMComps.Num());
+	UE_LOG(LogTemp, Log, TEXT("TakeAPhoto_Implementation overlaps %i"), VFDMComps.Num());
 
 	for (auto &Helper : HelpersRecorder)
 	{

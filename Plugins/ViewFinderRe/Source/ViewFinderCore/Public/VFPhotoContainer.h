@@ -57,10 +57,7 @@ public:
 	UFUNCTION(BlueprintPure, Category = "ViewFinder")
 	FORCEINLINE bool IsEnabled() { return bEnabled; };
 
-protected:
-	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	// TObjectPtr<class UInputMappingContext> MappingContext;
-
+public:
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
 	FVFPhotoContainerEnabled OnEnabled;
 	
