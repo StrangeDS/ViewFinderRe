@@ -32,6 +32,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void SetViewFrustumVisible(const bool &Visibility);
 
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	void ResetActorsToIgnore();
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	float ViewAngle = 90.0f;

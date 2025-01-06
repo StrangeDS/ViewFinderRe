@@ -17,7 +17,7 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	float TimeOfTakingPhoto = 0.1f;
+	float TimeOfTakingPhoto = 3.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	FTimerHandle TimerHandleOfTakingPhoto;

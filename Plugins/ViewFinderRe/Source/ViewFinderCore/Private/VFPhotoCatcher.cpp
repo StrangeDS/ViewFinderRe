@@ -45,7 +45,7 @@ void AVFPhotoCatcher::OnConstruction(const FTransform &Transform)
 {
 	Super::OnConstruction(Transform);
 
-	ActorsToIgnore.AddUnique(this);
+	ResetActorsToIgnore();
 	ViewFrustum->RegenerateViewFrustum(ViewAngle, AspectRatio, StartDis, EndDis);
 	PhotoCapture->FOVAngle = ViewAngle;
 	PhotoCapture->Init(StaticMesh->CreateDynamicMaterialInstance(0), AspectRatio);
@@ -200,4 +200,10 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 void AVFPhotoCatcher::SetViewFrustumVisible(const bool &Visibility)
 {
 	ViewFrustum->SetHiddenInGame(!Visibility);
+}
+
+void AVFPhotoCatcher::ResetActorsToIgnore()
+{
+    ActorsToIgnore.Reset();
+	ActorsToIgnore.AddUnique(this);
 }

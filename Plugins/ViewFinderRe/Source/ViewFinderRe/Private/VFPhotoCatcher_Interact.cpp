@@ -19,7 +19,6 @@ bool AVFPhotoCatcher_Interact::StartAiming_Implementation(APlayerController *Con
 		if (Subsystem)
 			Subsystem->AddMappingContext(AimingMappingContext, 1);
 	}
-	ActorsToIgnore.AddUnique(Controller->GetPawn());
 
 	return true;
 }
