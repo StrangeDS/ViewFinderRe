@@ -28,7 +28,7 @@ public:
 
 public:
 	virtual void BeginPlay() override;
-	
+
 	virtual void BeginDestroy() override;
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
@@ -41,6 +41,14 @@ public: // 注意: PROPERTY在CloneActorRuntime中不会被复制. 注意默认�
 	// 能否被放置的照片覆盖(差集)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	bool bCanBePlacedByPhoto = true;
+
+	// 是否使用替身
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	bool bReplacedWithStandIn = false;
+
+	// 替身类, 需实现
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder", meta = (EditCondition = "bReplacedWithStandIn"))
+	TSubclassOf<AActor> StandInClass;
 
 public:
 	bool NotifyDelegate(const FVFHelperDelegateType &Type);

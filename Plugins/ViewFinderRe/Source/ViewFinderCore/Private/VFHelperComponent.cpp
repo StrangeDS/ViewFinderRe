@@ -1,14 +1,21 @@
 #include "VFHelperComponent.h"
 
-UVFHelperComponent::UVFHelperComponent(const FObjectInitializer& ObjectInitializer)
+#include "VFStandInInterface.h"
+
+UVFHelperComponent::UVFHelperComponent(const FObjectInitializer &ObjectInitializer)
 {
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-
 void UVFHelperComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (bReplacedWithStandIn)
+	{
+		check(StandInClass.Get());
+		check(StandInClass.Get()->ImplementsInterface(UVFStandInInterface::StaticClass()));
+	}
 }
 
 void UVFHelperComponent::BeginDestroy()
@@ -24,7 +31,7 @@ void UVFHelperComponent::BeginDestroy()
 	Super::BeginDestroy();
 }
 
-void UVFHelperComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UVFHelperComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
