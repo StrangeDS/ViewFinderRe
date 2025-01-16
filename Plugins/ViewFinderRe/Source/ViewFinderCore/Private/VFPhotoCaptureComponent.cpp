@@ -8,6 +8,10 @@ UVFPhotoCaptureComponent::UVFPhotoCaptureComponent()
 	bCaptureEveryFrame = false;
 	bCaptureOnMovement = false;
 	bAlwaysPersistRenderingState = false;
+
+	// ShowFlags设置(需要吗?)
+	ShowFlags.SetVolumetricFog(false);
+	ShowFlags.SetFog(false);
 }
 
 void UVFPhotoCaptureComponent::BeginPlay()
@@ -36,6 +40,8 @@ void UVFPhotoCaptureComponent::Init(UMaterialInstanceDynamic *Instance,
 	AspectRatio = AspectRatioIn;
 	TextureName = TextureNameIn;
 	RatioName = RatioNameIn;
+
+	MaterialInstance->GetTextureParameterValue(TextureName, OriginalTexture);
 }
 
 void UVFPhotoCaptureComponent::StartDraw()

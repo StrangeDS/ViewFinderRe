@@ -53,5 +53,5 @@ public:
 	TObjectPtr<UMaterialInstanceDynamic> MaterialInstance;
 
 	UPROPERTY(VisibleAnywhere, Category = "ViewFinder")
-	TObjectPtr<UTexture> OriginalTexture;
+	UTexture* OriginalTexture = nullptr;
 };

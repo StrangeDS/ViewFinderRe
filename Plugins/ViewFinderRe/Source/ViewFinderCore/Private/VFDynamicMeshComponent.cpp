@@ -62,7 +62,10 @@ void UVFDynamicMeshComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
     SetCollisionEnabled(Source->GetCollisionEnabled());
 
     // 复制材质
-    SetMaterial(0, Source->GetMaterial(0));
+    for (int i = 0; i < Source->GetNumMaterials(); i++)
+    {
+        SetMaterial(i, Source->GetMaterial(i));
+    }
 
     // TODO: 传递事件. 暂使用Actor接口
 }

@@ -1,13 +1,16 @@
 #include "VFPhotoCatcher_Fixed.h"
 
 #include "VFPhoto2D.h"
+#include "VFPhotoCaptureComponent.h"
 
 AVFPhoto2D *AVFPhotoCatcher_Fixed::TakeAPhoto_Implementation()
 {
     GetWorldTimerManager().ClearTimer(TimerHandleOfTakingPhoto);
+    PhotoCapture->StartDraw();
     GetWorldTimerManager().SetTimer(
         TimerHandleOfTakingPhoto, [this]()
         {
+            PhotoCapture->EndDraw();
             auto Photo = Super::TakeAPhoto_Implementation();
             Photo->AddActorLocalTransform(PhotoSpawnPoint);
         },
