@@ -2,6 +2,7 @@
 
 #include "VFDynamicMeshComponent.h"
 #include "VFDynamicMeshPoolWorldSubsystem.h"
+#include "VFStandInInterface.h"
 
 // 非递归拷贝Actor, 需要递归可参考AVFPhoto2D::CopyPhoto3D()
 AActor *UVFFunctions::CloneActorRuntime(AActor *Original)
@@ -22,34 +23,14 @@ AActor *UVFFunctions::CloneActorRuntime(AActor *Original)
 	return Copy;
 }
 
-bool UVFFunctions::CheckPawnComps(TArray<UPrimitiveComponent *> &Components, TSubclassOf<AVFPawnStandIn> PawnStandInClass, bool NeedStandIn)
+AActor *UVFFunctions::ReplaceWithStandIn(AActor *SourceActor, TSubclassOf<AActor> StandInActorClass)
 {
-	TArray<APawn *> Pawns;
-
-	for (auto It = Components.CreateIterator(); It; ++It)
-	{
-		auto Comp = *It;
-		if (auto Pawn = Cast<APawn>(Comp->GetOwner()))
-		{
-			Pawns.AddUnique(Pawn);
-			It.RemoveCurrent();
-		}
-	}
-
-	if (!NeedStandIn)
-		return Pawns.Num() > 0;
-
-	for (const auto &Pawn : Pawns)
-	{
-		auto StandIn = Pawn->GetWorld()->SpawnActor<AVFPawnStandIn>(
-			PawnStandInClass,
-			Pawn->GetActorLocation(),
-			Pawn->GetControlRotation());
-		StandIn->SetTargetPawn(Pawn);
-		Components.Add(StandIn->GetVFDMComp());
-	}
-
-	return Pawns.Num() > 0;
+	auto StandIn = SourceActor->GetWorld()->SpawnActor<AActor>(
+		StandInActorClass,
+		SourceActor->GetActorLocation(),
+		SourceActor->GetActorRotation());
+	IVFStandInInterface::Execute_SetSourceActor(StandIn, SourceActor);
+	return StandIn;
 }
 
 // 对于已有VFDMComp的, 其实很简单, 它们其余的静态网格体在上次就已经被筛掉,

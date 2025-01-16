@@ -82,31 +82,51 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 		UPrimitiveComponent::StaticClass(),
 		ActorsToIgnore,
 		OverlapComps);
-	
-	// 对Pawn的特殊处理
-	UVFFunctions::CheckPawnComps(OverlapComps, VFPawnStandInClass, true);
 
 	// Helper筛选
 	TMap<UPrimitiveComponent *, UVFHelperComponent *> HelperMap;
 	UVFFunctions::GetCompsToHelpersMapping<UPrimitiveComponent>(OverlapComps, HelperMap);
 
+	// Helper相关处理
+	// 捕捉的忽略对象也在此处理
 	PhotoCapture->HiddenComponents.Reset();
-	for (auto It = OverlapComps.CreateIterator(); It; It++)
+	PhotoCapture->HiddenActors.Reset();
 	{
-		auto Comp = *It;
-		auto Helper = HelperMap.Find(Comp); // 可能为nullptr
-		if (bOnlyOverlapWithHelps && !Helper)
+		TArray<UPrimitiveComponent *> StandInComps;
+		for (auto It = OverlapComps.CreateIterator(); It; It++)
 		{
-			PhotoCapture->HiddenComponents.AddUnique(Comp);
-			It.RemoveCurrent();
+			auto Comp = *It;
+			auto *Helper = HelperMap.Find(Comp); // 可能为nullptr
+			if (bOnlyOverlapWithHelps && !Helper)
+			{
+				PhotoCapture->HiddenComponents.Add(Comp);
+				It.RemoveCurrent();
+			}
+			else if (Helper && !HelperMap[Comp]->bCanBeTakenInPhoto)
+			{
+				PhotoCapture->HiddenComponents.Add(Comp);
+				It.RemoveCurrent();
+			}
+			else if (Helper && HelperMap[Comp]->bReplacedWithStandIn)	// StandIn处理
+			{
+				auto Actor = Comp->GetOwner();
+				if (!PhotoCapture->HiddenActors.Contains(Actor))
+				{
+					PhotoCapture->HiddenActors.Add(Actor);
+
+					auto StandIn = UVFFunctions::ReplaceWithStandIn(Actor, HelperMap[Comp]->StandInClass);
+					auto StandInComp = IVFStandInInterface::Execute_GetPrimitiveComp(StandIn);
+					StandInComps.Add(StandInComp);
+				}
+				It.RemoveCurrent();
+			}
 		}
-		else if (Helper && !HelperMap[Comp]->bCanBeTakenInPhoto)
-		{
-			PhotoCapture->HiddenComponents.AddUnique(Comp);
-			It.RemoveCurrent();
-		}
+
+		OverlapComps.Append(StandInComps);
 	}
 
+	HelperMap.Reset();	// (替身相关)需要重新生成.
+	UVFFunctions::GetCompsToHelpersMapping<UPrimitiveComponent>(OverlapComps, HelperMap);
 	TSet<UVFHelperComponent *> HelpersRecorder;
 	GetMapHelpers(HelperMap, HelpersRecorder);
 

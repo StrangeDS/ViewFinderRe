@@ -50,6 +50,7 @@ void AVFPawnStandIn::BeginDestroy()
 
 void AVFPawnStandIn::SetTargetPawn(APawn *Pawn)
 {
+	check(Pawn);
 	TargetPawn = Pawn;
 }
 
@@ -68,4 +69,16 @@ void AVFPawnStandIn::TeleportTargetPawn()
 void AVFPawnStandIn::Hide()
 {
 	SetActorHiddenInGame(true);
+}
+
+void AVFPawnStandIn::SetSourceActor_Implementation(AActor *Source)
+{
+	IVFStandInInterface::SetSourceActor_Implementation(Source);
+
+	SetTargetPawn(Cast<APawn>(Source));
+}
+
+UPrimitiveComponent *AVFPawnStandIn::GetPrimitiveComp_Implementation()
+{
+	return DynamicMesh;
 }

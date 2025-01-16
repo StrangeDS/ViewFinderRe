@@ -13,6 +13,7 @@
 #include "VFInteractInterface.h"
 #include "VFPhotoContainer.h"
 #include "VFHelperComponent.h"
+#include "VFPawnStandIn.h"
 
 FVFPawnTransformInfo::FVFPawnTransformInfo(APawn *Pawn, float TimeIn)
 	: Location(Pawn->GetActorLocation()),
@@ -42,6 +43,8 @@ AVFCharacter::AVFCharacter()
 
 	Helper = CreateDefaultSubobject<UVFHelperComponent>("Helper");
 	Helper->bCanBePlacedByPhoto = false;
+	Helper->bReplacedWithStandIn = true;
+	Helper->StandInClass = AVFPawnStandIn::StaticClass();
 }
 
 void AVFCharacter::BeginPlay()

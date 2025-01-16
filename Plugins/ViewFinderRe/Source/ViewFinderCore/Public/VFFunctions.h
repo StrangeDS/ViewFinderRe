@@ -21,10 +21,9 @@ public:
 	static AActor *CloneActorRuntime(AActor *Original);
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	static bool CheckPawnComps(
-		TArray<UPrimitiveComponent *> &Components,
-		TSubclassOf<AVFPawnStandIn> PawnStandInClass,
-		bool NeedStandIn = false);
+	static AActor *ReplaceWithStandIn(
+		AActor *SourceActor,
+		TSubclassOf<AActor> StandInActorClass);
 
 	/// @brief 检验未处理过的的Actor, 处理为: 将其相关基元替换为VFDMComp, 关闭隐藏其它基元组件.
 	/// @param OverlapsComps
@@ -40,7 +39,7 @@ public:
 	/// @brief 复制VFDMComp列表的Actor
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	static TArray<AActor *> CopyActorFromVFDMComps(
-		UWorld* World,
+		UWorld *World,
 		UPARAM(ref) const TArray<UVFDynamicMeshComponent *> &Components,
 		UPARAM(ref) TArray<UVFDynamicMeshComponent *> &CopiedComps);
 
