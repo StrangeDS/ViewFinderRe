@@ -36,37 +36,37 @@ void UVFHelperComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-bool UVFHelperComponent::NotifyDelegate(const FVFHelperDelegateType &Type)
+bool UVFHelperComponent::NotifyDelegate(UObject *Sender, const FVFHelperDelegateType &Type)
 {
 	bool IsHandled = false;
 	switch (Type)
 	{
 	case FVFHelperDelegateType::OriginalBeforeTakenInPhoto:
-		OnOriginalBeforeTakenInPhoto.Broadcast();
+		OnOriginalBeforeTakenInPhoto.Broadcast(Sender);
 		IsHandled = true;
 		break;
 	case FVFHelperDelegateType::OriginalBeforeCopyingToPhoto:
-		OnOriginalBeforeCopyingToPhoto.Broadcast();
+		OnOriginalBeforeCopyingToPhoto.Broadcast(Sender);
 		IsHandled = true;
 		break;
 	case FVFHelperDelegateType::OriginalAfterCutByPhoto:
-		OnOriginalAfterCutByPhoto.Broadcast();
+		OnOriginalAfterCutByPhoto.Broadcast(Sender);
 		IsHandled = true;
 		break;
 	case FVFHelperDelegateType::OriginalAfterTakingPhoto:
-		OnOriginalAfterTakingPhoto.Broadcast();
+		OnOriginalAfterTakingPhoto.Broadcast(Sender);
 		IsHandled = true;
 		break;
 	case FVFHelperDelegateType::CopyAfterCopiedForPhoto:
-		OnCopyAfterCopiedForPhoto.Broadcast();
+		OnCopyAfterCopiedForPhoto.Broadcast(Sender);
 		IsHandled = true;
 		break;
 	case FVFHelperDelegateType::CopyBeforeFoldedInPhoto:
-		OnCopyBeforeFoldedInPhoto.Broadcast();
+		OnCopyBeforeFoldedInPhoto.Broadcast(Sender);
 		IsHandled = true;
 		break;
 	case FVFHelperDelegateType::CopyAfterPlacedByPhoto:
-		OnCopyAfterPlacedByPhoto.Broadcast();
+		OnCopyAfterPlacedByPhoto.Broadcast(Sender);
 		IsHandled = true;
 		break;
 	default:

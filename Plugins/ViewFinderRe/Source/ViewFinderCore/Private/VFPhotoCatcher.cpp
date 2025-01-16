@@ -132,7 +132,7 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 
 	for (auto &Helper : HelpersRecorder)
 	{
-		Helper->NotifyDelegate(FVFHelperDelegateType::OriginalBeforeTakenInPhoto);
+		Helper->NotifyDelegate(this, FVFHelperDelegateType::OriginalBeforeTakenInPhoto);
 	}
 
 	// 基元组件下创建对应VFDynamicMeshComponent
@@ -150,7 +150,7 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 
 	for (auto &Helper : HelpersRecorder)
 	{
-		Helper->NotifyDelegate(FVFHelperDelegateType::OriginalBeforeCopyingToPhoto);
+		Helper->NotifyDelegate(this, FVFHelperDelegateType::OriginalBeforeCopyingToPhoto);
 	}
 	// 复制对应Actor
 	TArray<UVFDynamicMeshComponent *> CopiedComps;
@@ -171,7 +171,7 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 
 	for (auto &Helper : CopiedHelpersRecorder)
 	{
-		Helper->NotifyDelegate(FVFHelperDelegateType::CopyAfterCopiedForPhoto);
+		Helper->NotifyDelegate(this, FVFHelperDelegateType::CopyAfterCopiedForPhoto);
 	}
 
 	// 原VFDynamicMeshComponent做切割
@@ -183,7 +183,7 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 		}
 		for (auto &Helper : HelpersRecorder)
 		{
-			Helper->NotifyDelegate(FVFHelperDelegateType::OriginalAfterCutByPhoto);
+			Helper->NotifyDelegate(this, FVFHelperDelegateType::OriginalAfterCutByPhoto);
 		}
 	}
 
@@ -191,10 +191,6 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 	for (auto &Comp : CopiedComps)
 	{
 		Comp->IntersectMeshWithDMComp(ViewFrustum);
-	}
-	for (auto &Helper : CopiedHelpersRecorder)
-	{
-		Helper->NotifyDelegate(FVFHelperDelegateType::CopyBeforeFoldedInPhoto);
 	}
 
 	// 创建照片, 后续处理
@@ -204,6 +200,12 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 		ViewFrustum->GetComponentRotation());
 	Photo2D->SetPhoto3D(Photo3D);
 	Photo3D->RecordProperty(ViewFrustum, bOnlyOverlapWithHelps, ObjectTypesToOverlap);
+	
+	for (auto &Helper : CopiedHelpersRecorder)
+	{
+		Helper->NotifyDelegate(Photo3D, FVFHelperDelegateType::CopyBeforeFoldedInPhoto);
+	}
+	
 	Photo2D->FoldUp();
 
 	Photo2D->AspectRatio = AspectRatio;
@@ -211,7 +213,7 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 
 	for (auto &Helper : HelpersRecorder)
 	{
-		Helper->NotifyDelegate(FVFHelperDelegateType::OriginalAfterTakingPhoto);
+		Helper->NotifyDelegate(this, FVFHelperDelegateType::OriginalAfterTakingPhoto);
 	}
 
 	return Photo2D;
@@ -226,4 +228,9 @@ void AVFPhotoCatcher::ResetActorsToIgnore()
 {
     ActorsToIgnore.Reset();
 	ActorsToIgnore.AddUnique(this);
+}
+
+FQuat AVFPhotoCatcher::GetFrustumQuat()
+{
+    return ViewFrustum->GetComponentQuat();
 }

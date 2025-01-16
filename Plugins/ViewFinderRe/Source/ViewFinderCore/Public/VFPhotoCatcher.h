@@ -35,6 +35,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void ResetActorsToIgnore();
 
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	FQuat GetFrustumQuat();
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	float ViewAngle = 90.0f;

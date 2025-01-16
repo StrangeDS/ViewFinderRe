@@ -26,14 +26,18 @@ public:
 	virtual void BeginDestroy() override;
 
 public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	FQuat ViewQuat = FQuat::Identity;
+
+public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void SetTargetPawn(APawn *Pawn);
 
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")
-	void TeleportTargetPawn();
+	void TeleportTargetPawn(UObject* Sender);
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void Hide();
+	void Hide(UObject* Sender);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<class APawn> TargetPawn;

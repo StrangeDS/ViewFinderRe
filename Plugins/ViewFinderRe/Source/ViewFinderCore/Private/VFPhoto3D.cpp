@@ -92,7 +92,7 @@ void AVFPhoto3D::PlaceDown()
 	}
 	for (auto &Helper : HelpersRecorder)
 	{
-		Helper->NotifyDelegate(FVFHelperDelegateType::OriginalAfterCutByPhoto);
+		Helper->NotifyDelegate(this, FVFHelperDelegateType::OriginalAfterCutByPhoto);
 	}
 
 	TArray<AActor *> Actors;
@@ -108,7 +108,7 @@ void AVFPhoto3D::PlaceDown()
 	{
 		if (auto Helper = Actor->GetComponentByClass<UVFHelperComponent>())
 		{
-			Helper->NotifyDelegate(FVFHelperDelegateType::CopyAfterPlacedByPhoto);
+			Helper->NotifyDelegate(this, FVFHelperDelegateType::CopyAfterPlacedByPhoto);
 		}
 	}
 }

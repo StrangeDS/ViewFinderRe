@@ -138,7 +138,7 @@ static AActor *CopyActor(AActor *Actor)
 	return Res;
 }
 
-void AVFPhoto2D::CopyPhoto3D()
+void AVFPhoto2D::CopyPhoto3D(UObject* Sender)
 {
 	if (!Photo3D)
 		return;

@@ -2,6 +2,8 @@
 
 #include "Kismet/GameplayStatics.h"
 
+#include "VFPhoto3D.h"
+#include "VFPhotoCatcher.h"
 #include "VFDynamicMeshComponent.h"
 #include "VFHelperComponent.h"
 
@@ -34,7 +36,7 @@ void AVFPawnStandIn::BeginPlay()
 	StaticMesh->SetCollisionProfileName(TEXT("NoCollision"));
 	DynamicMesh->SetCollisionProfileName(TEXT("NoCollision"));
 
-	Helper->OnOriginalAfterTakingPhoto.AddUniqueDynamic(this, &AVFPawnStandIn::Hide);
+	Helper->OnOriginalBeforeCopyingToPhoto.AddUniqueDynamic(this, &AVFPawnStandIn::Hide);
 	Helper->OnCopyAfterPlacedByPhoto.AddUniqueDynamic(this, &AVFPawnStandIn::TeleportTargetPawn);
 }
 
@@ -54,20 +56,27 @@ void AVFPawnStandIn::SetTargetPawn(APawn *Pawn)
 	TargetPawn = Pawn;
 }
 
-void AVFPawnStandIn::TeleportTargetPawn()
+void AVFPawnStandIn::TeleportTargetPawn(UObject* Sender)
 {
 	if (!TargetPawn)
 	{
 		TargetPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 	}
 
+	auto Photo3D = Cast<AVFPhoto3D>(Sender);
+	auto Quat = Photo3D->GetActorQuat() * ViewQuat;
 	TargetPawn->SetActorLocation(GetActorLocation());
-	TargetPawn->FaceRotation(GetActorRotation());
+	TargetPawn->FaceRotation(Quat.Rotator());
+	if (auto Controller = TargetPawn->GetController())
+		Controller->SetControlRotation(Quat.Rotator());
+
 	SetActorHiddenInGame(true);
 }
 
-void AVFPawnStandIn::Hide()
+void AVFPawnStandIn::Hide(UObject* Sender)
 {
+	auto PhotoCathcer = Cast<AVFPhotoCatcher>(Sender);
+	ViewQuat = PhotoCathcer->GetFrustumQuat().Inverse() * TargetPawn->GetViewRotation().Quaternion();
 	SetActorHiddenInGame(true);
 }
 

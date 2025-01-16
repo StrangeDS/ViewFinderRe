@@ -53,7 +53,7 @@ public:
 	virtual void PlaceDown();
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void CopyPhoto3D();
+	void CopyPhoto3D(UObject* Sender);
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
