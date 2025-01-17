@@ -5,11 +5,6 @@
 
 #include "VFTransformRecordVolume.h"
 
-static bool IsTransformEqual(const FTransform &A, const FTransform &B)
-{
-	return A.Rotator() == B.Rotator() && A.GetLocation() == B.GetLocation() && A.GetScale3D() == B.GetScale3D();
-}
-
 static FTransform Lerp(const FTransform &A, const FTransform &B, float delta)
 {
 	FRotator Rot = FMath::Lerp(A.Rotator(), B.Rotator(), delta);
@@ -24,7 +19,7 @@ bool FVFTransCompInfo::operator==(const FVFTransCompInfo &Other) const
 		return false;
 	if (Velocity != Other.Velocity)
 		return false;
-	return IsTransformEqual(Transform, Other.Transform);
+	return Transform.Equals(Other.Transform);
 }
 
 AVFTransfromRecorderActor::AVFTransfromRecorderActor()
