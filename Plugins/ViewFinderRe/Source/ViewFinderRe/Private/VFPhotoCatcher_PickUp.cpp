@@ -19,8 +19,7 @@ bool AVFPhotoCatcher_PickUp::Interact_Implementation(APlayerController *Controll
     if (auto ToAttach = Pawn->GetComponentByClass<UCameraComponent>())
     {
         PickUp(ToAttach);
-        // ToDo: 查找角色身上的Container.
-        TArray<AActor*> AttahcedActors;
+        TArray<AActor *> AttahcedActors;
         Pawn->GetAttachedActors(AttahcedActors);
         for (const auto &Actor : AttahcedActors)
         {
@@ -56,25 +55,30 @@ void AVFPhotoCatcher_PickUp::CloseToPreview_Implementation()
 {
     Super::CloseToPreview_Implementation();
 
+    GetWorldTimerManager().ClearTimer(PreviewTimeHandle);
     GetWorldTimerManager().SetTimer(
-        PreviewTimeHandle, [this]()
-        {
-            bReady = true;
-            SetViewFrustumVisible(true);
-            PhotoCapture->StartDraw();
-        },
-        TimeOfClose,
-        false);
+        PreviewTimeHandle,
+        this,
+        &AVFPhotoCatcher_PickUp::CloseToPreview_Move,
+        PreviewMoveInterval,
+        true);
 }
 
 void AVFPhotoCatcher_PickUp::LeaveFromPreview_Implementation()
 {
     Super::LeaveFromPreview_Implementation();
 
-    GetWorldTimerManager().ClearTimer(PreviewTimeHandle);
     bReady = false;
     PhotoCapture->EndDraw();
     SetViewFrustumVisible(false);
+
+    GetWorldTimerManager().ClearTimer(PreviewTimeHandle);
+    GetWorldTimerManager().SetTimer(
+        PreviewTimeHandle,
+        this,
+        &AVFPhotoCatcher_PickUp::LeaveFromPreview_Move,
+        PreviewMoveInterval,
+        true);
 }
 
 void AVFPhotoCatcher_PickUp::PickUp_Implementation(USceneComponent *ToAttach)
@@ -83,7 +87,7 @@ void AVFPhotoCatcher_PickUp::PickUp_Implementation(USceneComponent *ToAttach)
         return;
 
     AttachToComponent(ToAttach, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-    RootComponent->SetRelativeLocation(FVector(10.0f, 20.0f, 0.0f)); // 用于测试
+    RootComponent->SetRelativeTransform(IdleTrans);
 
     if (HoldingMappingContext)
     {
@@ -115,4 +119,48 @@ void AVFPhotoCatcher_PickUp::DropDown_Implementation()
     PlayerController = nullptr;
     bPickedUp = false;
     EnableInteract(true);
+}
+
+static FTransform Lerp(const FTransform &A, const FTransform &B, float Alpha)
+{
+    auto Location = FMath::Lerp(A.GetTranslation(), B.GetTranslation(), Alpha);
+    auto Rotation = FMath::Lerp(A.GetRotation(), B.GetRotation(), Alpha);
+    auto Scale3D = FMath::Lerp(A.GetScale3D(), B.GetScale3D(), Alpha);
+    return FTransform(Rotation, Location, Scale3D);
+}
+
+void AVFPhotoCatcher_PickUp::CloseToPreview_Move()
+{
+    auto TransCur = RootComponent->GetRelativeTransform();
+    bReady = TransCur.Equals(PreviewTrans);
+    if (bReady)
+    {
+        GetWorldTimerManager().ClearTimer(PreviewTimeHandle);
+
+        SetViewFrustumVisible(true);
+        PhotoCapture->StartDraw();
+    }
+    else
+    {
+        auto Rate = GetWorldTimerManager().GetTimerRate(PreviewTimeHandle);
+        Rate = 1 - Rate / TimeOfClose;
+        auto TransTarget = Lerp(TransCur, PreviewTrans, Rate);
+        RootComponent->SetRelativeTransform(TransTarget);
+    }
+}
+
+void AVFPhotoCatcher_PickUp::LeaveFromPreview_Move()
+{
+    auto TransCur = RootComponent->GetRelativeTransform();
+    if (TransCur.Equals(IdleTrans))
+    {
+        GetWorldTimerManager().ClearTimer(PreviewTimeHandle);
+    }
+    else
+    {
+        auto Rate = GetWorldTimerManager().GetTimerRate(PreviewTimeHandle);
+        Rate = 1 - Rate / TimeOfLeave;
+        auto TransTarget = Lerp(TransCur, IdleTrans, Rate);
+        RootComponent->SetRelativeTransform(TransTarget);
+    }
 }

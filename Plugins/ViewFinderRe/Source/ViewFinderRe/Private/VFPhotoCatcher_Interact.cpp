@@ -53,15 +53,7 @@ void AVFPhotoCatcher_Interact::EnableInteract_Implementation(bool Enabled)
 		return;
 
 	bInteractingEnabled = Enabled;
-	if (bInteractingEnabled)
-	{
-		StaticMesh->SetCollisionEnabled(CollisionEnabledRecord);
-	}
-	else
-	{
-		CollisionEnabledRecord = StaticMesh->GetCollisionEnabled();
-		StaticMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	}
+	SetActorEnableCollision(bInteractingEnabled);
 }
 
 void AVFPhotoCatcher_Interact::CloseToPreview_Implementation()
@@ -72,7 +64,7 @@ void AVFPhotoCatcher_Interact::CloseToPreview_Implementation()
 	}
 
 	Pawn->DisableInput(PlayerController);
-	PlayerController->SetViewTargetWithBlend(this, TimeOfClose);
+	// PlayerController->SetViewTargetWithBlend(this, TimeOfClose);
 }
 
 void AVFPhotoCatcher_Interact::LeaveFromPreview_Implementation()
@@ -83,6 +75,6 @@ void AVFPhotoCatcher_Interact::LeaveFromPreview_Implementation()
 		return;
 	}
 
-	PlayerController->SetViewTargetWithBlend(Pawn, TimeOfLeave);
+	// PlayerController->SetViewTargetWithBlend(Pawn, TimeOfLeave);
 	Pawn->EnableInput(PlayerController);
 }
