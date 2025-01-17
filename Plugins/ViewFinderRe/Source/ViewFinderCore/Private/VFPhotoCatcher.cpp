@@ -48,7 +48,6 @@ void AVFPhotoCatcher::OnConstruction(const FTransform &Transform)
 	ResetActorsToIgnore();
 	ViewFrustum->RegenerateViewFrustum(ViewAngle, AspectRatio, StartDis, EndDis);
 	PhotoCapture->FOVAngle = ViewAngle;
-	PhotoCapture->Init(StaticMesh->CreateDynamicMaterialInstance(0), AspectRatio);
 	PhotoCapture->CustomNearClippingPlane = StartDis;
 }
 
@@ -61,6 +60,8 @@ void AVFPhotoCatcher::BeginPlay()
 
 	Super::BeginPlay();
 
+	// 需根据网格体材质插槽
+	PhotoCapture->Init(StaticMesh->CreateDynamicMaterialInstance(1), AspectRatio);
 	SetViewFrustumVisible(false);
 }
 

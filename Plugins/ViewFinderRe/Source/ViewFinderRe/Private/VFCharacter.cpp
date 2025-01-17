@@ -232,7 +232,6 @@ void AVFCharacter::Interact()
 
 void AVFCharacter::Switch()
 {
-	UE_LOG(LogTemp, Warning, TEXT("AVFCharacter::Switch"));
 	Container->SetEnabled(!Container->IsEnabled());
 }
 
