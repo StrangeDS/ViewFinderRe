@@ -26,6 +26,8 @@ bool AVFPhotoCatcher_PickUp::Interact_Implementation(APlayerController *Controll
             if (Actor->GetClass()->IsChildOf(AVFPhotoContainer::StaticClass()))
             {
                 Container = Cast<AVFPhotoContainer>(Actor);
+                Container->SetEnabled(false);
+                Container->OnEnabled.AddUniqueDynamic(this, &AVFPhotoCatcher_PickUp::SetActorHiddenInGame);
                 return true;
             }
         }
@@ -114,6 +116,9 @@ void AVFPhotoCatcher_PickUp::DropDown_Implementation()
     ResetActorsToIgnore();
     ActorsToIgnore.AddUnique(GetAttachParentActor());
     DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+    
+    Container->OnEnabled.RemoveDynamic(this, &AVFPhotoCatcher_PickUp::SetActorHiddenInGame);
+    Container = nullptr;
 
     Pawn = nullptr;
     PlayerController = nullptr;
