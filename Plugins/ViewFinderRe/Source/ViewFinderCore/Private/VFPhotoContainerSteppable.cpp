@@ -42,9 +42,9 @@ void AVFPhotoContainerSteppable::PlaceCurrentPhoto()
     Super::PlaceCurrentPhoto();
 }
 
-void AVFPhotoContainerSteppable::PrepareCurrentPhoto(float Time)
+void AVFPhotoContainerSteppable::PrepareCurrentPhoto()
 {
-    Super::PrepareCurrentPhoto(Time);
+    Super::PrepareCurrentPhoto();
 
     if (!StepRecorder->bIsRewinding)
     {

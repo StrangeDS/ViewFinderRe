@@ -49,7 +49,7 @@ public:
 
 	virtual void PlaceCurrentPhoto() override;
 
-	virtual void PrepareCurrentPhoto(float Time = -1.0f) override;
+	virtual void PrepareCurrentPhoto() override;
 
 	virtual void GiveUpPreparing() override;
 

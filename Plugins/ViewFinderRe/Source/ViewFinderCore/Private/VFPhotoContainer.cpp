@@ -16,7 +16,7 @@ AVFPhotoContainer::AVFPhotoContainer()
 	Container->SetRelativeRotation(FRotator(-30.0f, -30.0f, 0.f));
 
 	Preview = CreateDefaultSubobject<USceneComponent>(TEXT("Preview"));
-	Preview->SetRelativeLocation(FVector(50.0f, 0.f, 0.f));	// 需对齐AVFPhotoCatcher_PickUp::PreviewTrans
+	Preview->SetRelativeLocation(FVector(50.0f, 0.f, 0.f)); // 需对齐AVFPhotoCatcher_PickUp::PreviewTrans
 	Preview->SetupAttachment(RootComponent);
 
 	Helper = CreateDefaultSubobject<UVFHelperComponent>(TEXT("Helper"));
@@ -38,43 +38,53 @@ void AVFPhotoContainer::AddAPhoto(AVFPhoto2D *Photo)
 {
 	check(Photo);
 
-	Photo2Ds.EmplaceLast(Photo);
 	Photo->AttachToComponent(Container, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	Photo->SetActorEnableCollision(false);
+
+	Photo2Ds.EmplaceLast(Photo);
 
 	UpdateCurrentPhoto();
 }
 
-void AVFPhotoContainer::PrepareCurrentPhoto(float Time)
+void AVFPhotoContainer::PrepareCurrentPhoto()
 {
 	if (!CurrentPhoto2D)
 		return;
 
-	Time = Time >= 0.f ? Time : TimeOfSelect;
 	PlayerController->GetPawn()->DisableInput(PlayerController);
+
+	GetWorldTimerManager().ClearTimer(PrepareTimeHandle);
 	GetWorldTimerManager().SetTimer(
-		PrepareTimeHandle, [this]()
-		{
-            CurrentPhoto2D->Preview(GetActorTransform(), true);
-            bFocusOn = true; },
-		Time,
-		false);
+		PrepareTimeHandle,
+		this,
+		&AVFPhotoContainer::PrepareCurrentPhoto_Move,
+		PrepareMoveInterval,
+		true);
 }
 
 void AVFPhotoContainer::GiveUpPreparing()
 {
 	if (!CurrentPhoto2D)
-	 	return;
+		return;
 
-	GetWorldTimerManager().ClearTimer(PrepareTimeHandle);
-	CurrentPhoto2D->Preview(GetActorTransform(), false);
 	bFocusOn = false;
 	PlayerController->GetPawn()->EnableInput(PlayerController);
+	CurrentPhoto2D->Preview(Preview->GetComponentToWorld(), false);
+	Preview->SetRelativeRotation(FRotator::ZeroRotator);
+
+	GetWorldTimerManager().ClearTimer(PrepareTimeHandle);
+	GetWorldTimerManager().SetTimer(
+		PrepareTimeHandle,
+		this,
+		&AVFPhotoContainer::GiveUpPreparing_Move,
+		PrepareMoveInterval,
+		true);
 }
 
 void AVFPhotoContainer::PlaceCurrentPhoto()
 {
 	if (!CurrentPhoto2D)
-	 	return;
+		return;
 
 	CurrentPhoto2D->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	CurrentPhoto2D->PlaceDown();
@@ -108,6 +118,8 @@ void AVFPhotoContainer::ChangeCurrentPhoto(const bool Next)
 
 void AVFPhotoContainer::UpdateCurrentPhoto()
 {
+	GetWorldTimerManager().ClearTimer(PrepareTimeHandle);
+
 	if (CurrentPhoto2D)
 		CurrentPhoto2D->SetActorHiddenInGame(true);
 
@@ -122,6 +134,24 @@ void AVFPhotoContainer::UpdateCurrentPhoto()
 	{
 		SetEnabled(false);
 	}
+}
+
+void AVFPhotoContainer::RotateCurrentPhoto(float Delta)
+{
+	if (!bFocusOn)
+		return;
+
+	CurrentPhoto2D->GetRootComponent()->AddRelativeRotation(FRotator(0.f, 0.f, Delta));
+}
+
+void AVFPhotoContainer::AlignCurrentPhoto()
+{
+	if (!bFocusOn)
+		return;
+
+	auto Rotation = PlayerController->GetControlRotation();
+	Rotation.Pitch = 0.f;
+	PlayerController->SetControlRotation(Rotation);
 }
 
 void AVFPhotoContainer::SetEnabled(const bool &Enabled)
@@ -146,4 +176,49 @@ void AVFPhotoContainer::SetEnabled(const bool &Enabled)
 		UpdateCurrentPhoto();
 	}
 	OnEnabled.Broadcast(Enabled);
+}
+
+static FTransform Lerp(const FTransform &A, const FTransform &B, float Alpha)
+{
+	auto Location = FMath::Lerp(A.GetTranslation(), B.GetTranslation(), Alpha);
+	auto Rotation = FMath::Lerp(A.GetRotation(), B.GetRotation(), Alpha);
+	auto Scale3D = FMath::Lerp(A.GetScale3D(), B.GetScale3D(), Alpha);
+	return FTransform(Rotation, Location, Scale3D);
+}
+
+void AVFPhotoContainer::PrepareCurrentPhoto_Move()
+{
+	auto TransCur = CurrentPhoto2D->ActorToWorld();
+	auto TransTarget = Preview->GetComponentToWorld();
+	bFocusOn = TransCur.Equals(TransTarget);
+	if (bFocusOn)
+	{
+		GetWorldTimerManager().ClearTimer(PrepareTimeHandle);
+
+		CurrentPhoto2D->Preview(TransTarget, true);
+	}
+	else
+	{
+		auto Rate = GetWorldTimerManager().GetTimerRate(PrepareTimeHandle);
+		Rate = 1 - Rate / TimeOfPrepare;
+		auto TransNext = Lerp(TransCur, TransTarget, Rate);
+		CurrentPhoto2D->SetActorTransform(TransNext);
+	}
+}
+
+void AVFPhotoContainer::GiveUpPreparing_Move()
+{
+	auto TransCur = CurrentPhoto2D->ActorToWorld();
+	auto TransTarget = Container->GetComponentToWorld();
+	if (TransCur.Equals(TransTarget))
+	{
+		GetWorldTimerManager().ClearTimer(PrepareTimeHandle);
+	}
+	else
+	{
+		auto Rate = GetWorldTimerManager().GetTimerRate(PrepareTimeHandle);
+		Rate = 1 - Rate / TimeOfGivingUp;
+		auto TransNext = Lerp(TransCur, TransTarget, Rate);
+		CurrentPhoto2D->SetActorTransform(TransNext);
+	}
 }
