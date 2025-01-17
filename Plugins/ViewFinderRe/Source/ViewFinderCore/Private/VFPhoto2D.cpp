@@ -46,7 +46,8 @@ void AVFPhoto2D::SetActorHiddenInGame(bool bNewHidden)
 {
 	Super::SetActorHiddenInGame(bNewHidden);
 
-	SetActorEnableCollision(!bNewHidden);
+	if (bNewHidden)	// SetActorEnableCollision(true)需要手动开启
+		SetActorEnableCollision(false);
 }
 
 void AVFPhoto2D::SetPhoto3D(AVFPhoto3D *Photo)
@@ -110,6 +111,7 @@ void AVFPhoto2D::PlaceDown()
 		return;
 	State = EVFPhoto2DState::Placed;
 
+	Photo3D->SetActorTransform(GetActorTransform());
 	Photo3D->PlaceDown();
 	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);
