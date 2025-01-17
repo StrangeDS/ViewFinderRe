@@ -6,6 +6,7 @@
 
 #include "VFPhotoContainer.h"
 #include "VFPhotoCaptureComponent.h"
+#include "VFFunctions.h"
 
 bool AVFPhotoCatcher_PickUp::Interact_Implementation(APlayerController *Controller)
 {
@@ -126,14 +127,6 @@ void AVFPhotoCatcher_PickUp::DropDown_Implementation()
     EnableInteract(true);
 }
 
-static FTransform Lerp(const FTransform &A, const FTransform &B, float Alpha)
-{
-    auto Location = FMath::Lerp(A.GetTranslation(), B.GetTranslation(), Alpha);
-    auto Rotation = FMath::Lerp(A.GetRotation(), B.GetRotation(), Alpha);
-    auto Scale3D = FMath::Lerp(A.GetScale3D(), B.GetScale3D(), Alpha);
-    return FTransform(Rotation, Location, Scale3D);
-}
-
 void AVFPhotoCatcher_PickUp::CloseToPreview_Move()
 {
     auto TransCur = RootComponent->GetRelativeTransform();
@@ -149,7 +142,7 @@ void AVFPhotoCatcher_PickUp::CloseToPreview_Move()
     {
         auto Rate = GetWorldTimerManager().GetTimerRate(PreviewTimeHandle);
         Rate = 1 - Rate / TimeOfClose;
-        auto TransTarget = Lerp(TransCur, PreviewTrans, Rate);
+        auto TransTarget = UVFFunctions::TransformLerp(TransCur, PreviewTrans, Rate);
         RootComponent->SetRelativeTransform(TransTarget);
     }
 }
@@ -165,7 +158,7 @@ void AVFPhotoCatcher_PickUp::LeaveFromPreview_Move()
     {
         auto Rate = GetWorldTimerManager().GetTimerRate(PreviewTimeHandle);
         Rate = 1 - Rate / TimeOfLeave;
-        auto TransTarget = Lerp(TransCur, IdleTrans, Rate);
+        auto TransTarget = UVFFunctions::TransformLerp(TransCur, IdleTrans, Rate);
         RootComponent->SetRelativeTransform(TransTarget);
     }
 }

@@ -101,6 +101,14 @@ UVFDynamicMeshComponent *UVFFunctions::GetCloneVFDMComp(UVFDynamicMeshComponent 
 	return nullptr;
 }
 
+FTransform UVFFunctions::TransformLerp(const FTransform & A, const FTransform & B, float delta)
+{
+	FRotator Rot = FMath::Lerp(A.Rotator(), B.Rotator(), delta);
+	FVector Loc = FMath::Lerp(A.GetLocation(), B.GetLocation(), delta);
+	FVector Scaled = FMath::Lerp(A.GetScale3D(), B.GetScale3D(), delta);
+	return FTransform(Rot, Loc, Scaled);
+}
+
 TArray<AActor *> UVFFunctions::CopyActorFromVFDMComps(UWorld *World, const TArray<UVFDynamicMeshComponent *> &Components, TArray<UVFDynamicMeshComponent *> &CopiedComps)
 {
 	TRACE_CPUPROFILER_EVENT_SCOPE(TEXT("UVFFunctions::CopyActorFromVFDMComps()"));

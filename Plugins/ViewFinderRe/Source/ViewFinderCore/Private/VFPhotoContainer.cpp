@@ -4,6 +4,7 @@
 
 #include "VFPhoto2D.h"
 #include "VFHelperComponent.h"
+#include "VFFunctions.h"
 
 AVFPhotoContainer::AVFPhotoContainer()
 {
@@ -178,14 +179,6 @@ void AVFPhotoContainer::SetEnabled(const bool &Enabled)
 	OnEnabled.Broadcast(Enabled);
 }
 
-static FTransform Lerp(const FTransform &A, const FTransform &B, float Alpha)
-{
-	auto Location = FMath::Lerp(A.GetTranslation(), B.GetTranslation(), Alpha);
-	auto Rotation = FMath::Lerp(A.GetRotation(), B.GetRotation(), Alpha);
-	auto Scale3D = FMath::Lerp(A.GetScale3D(), B.GetScale3D(), Alpha);
-	return FTransform(Rotation, Location, Scale3D);
-}
-
 void AVFPhotoContainer::PrepareCurrentPhoto_Move()
 {
 	auto TransCur = CurrentPhoto2D->ActorToWorld();
@@ -201,7 +194,7 @@ void AVFPhotoContainer::PrepareCurrentPhoto_Move()
 	{
 		auto Rate = GetWorldTimerManager().GetTimerRate(PrepareTimeHandle);
 		Rate = 1 - Rate / TimeOfPrepare;
-		auto TransNext = Lerp(TransCur, TransTarget, Rate);
+		auto TransNext = UVFFunctions::TransformLerp(TransCur, TransTarget, Rate);
 		CurrentPhoto2D->SetActorTransform(TransNext);
 	}
 }
@@ -218,7 +211,7 @@ void AVFPhotoContainer::GiveUpPreparing_Move()
 	{
 		auto Rate = GetWorldTimerManager().GetTimerRate(PrepareTimeHandle);
 		Rate = 1 - Rate / TimeOfGivingUp;
-		auto TransNext = Lerp(TransCur, TransTarget, Rate);
+		auto TransNext = UVFFunctions::TransformLerp(TransCur, TransTarget, Rate);
 		CurrentPhoto2D->SetActorTransform(TransNext);
 	}
 }

@@ -4,14 +4,7 @@
 #include "Engine/StaticMeshActor.h"
 
 #include "VFTransformRecordVolume.h"
-
-static FTransform Lerp(const FTransform &A, const FTransform &B, float delta)
-{
-	FRotator Rot = FMath::Lerp(A.Rotator(), B.Rotator(), delta);
-	FVector Loc = FMath::Lerp(A.GetLocation(), B.GetLocation(), delta);
-	FVector Scaled = FMath::Lerp(A.GetScale3D(), B.GetScale3D(), delta);
-	return FTransform(Rot, Loc, Scaled);
-}
+#include "VFFunctions.h"
 
 bool FVFTransCompInfo::operator==(const FVFTransCompInfo &Other) const
 {
@@ -146,7 +139,7 @@ void AVFTransfromRecorderActor::TickBackward_Implementation(float Time)
 
 		auto Delta = StepRecorder->GetDeltaTime() / (StepRecorder->GetTime() - TimeLast);
 		Delta = FMath::Min(Delta, 1.0f);
-		Comp->SetWorldTransform(Lerp(Comp->GetComponentTransform(), Info.Transform, Delta));
+		Comp->SetWorldTransform(UVFFunctions::TransformLerp(Comp->GetComponentTransform(), Info.Transform, Delta));
 		Comp->ComponentVelocity = FMath::Lerp(Comp->GetComponentVelocity(), Info.Velocity, Delta);
 	}
 }
