@@ -23,6 +23,14 @@ FVFPawnTransformInfo::FVFPawnTransformInfo(APawn *Pawn, float TimeIn)
 {
 }
 
+FVFPawnTransformInfo::FVFPawnTransformInfo(const FVFPawnTransformInfo &Other, float TimeIn)
+	: Location(Other.Location),
+	  Velocity(Other.Velocity),
+	  Rotator(Other.Rotator),
+	  Time(TimeIn)
+{
+}
+
 bool FVFPawnTransformInfo::operator==(const FVFPawnTransformInfo &Other) const
 {
 	if (Location != Other.Location)
@@ -54,7 +62,7 @@ void AVFCharacter::BeginPlay()
 	StepRecorder = GetWorld()->GetSubsystem<UVFStepsRecorderWorldSubsystem>();
 	check(StepRecorder);
 	StepRecorder->RegisterTickable(this);
-	
+
 	Container = GetWorld()->SpawnActor<AVFPhotoContainer>(ContainerClass);
 	Container->AttachToComponent(Camera, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	Container->GetRootComponent()->SetRelativeLocation(FVector(50.f, -20.f, 0.f));
@@ -108,7 +116,7 @@ void AVFCharacter::PossessedBy(AController *NewController)
 		UE_LOG(LogTemp, Warning, TEXT("GetLocalPlayer 不存在"));
 		return;
 	}
-	
+
 	if (Container)
 		Container->SetPlayerController(PlayerController);
 
@@ -169,7 +177,7 @@ void AVFCharacter::TraceInteractable()
 	{
 		return;
 	}
-	
+
 	if (Object)
 		IVFInteractInterface::Execute_EndAiming(Object, PlayerController);
 
@@ -231,9 +239,27 @@ void AVFCharacter::Switch()
 
 void AVFCharacter::TickForward_Implementation(float Time)
 {
+	const static float Permitted = 0.1f;
+
 	FVFPawnTransformInfo Info(this, StepRecorder->Time);
-	if (Steps.IsEmpty() || Steps.Last() != Info)
+	if (Steps.IsEmpty())
 	{
+		Steps.Add(Info);
+		return;
+	}
+
+	if (Steps.Last() != Info)
+	{
+		// 对于瞬移采取以下解决方案:
+		// 连续运动时间差值应当 < Permitted,
+		// 瞬移则是长时间不动后的移动, 在瞬移前再重复给入一次信息.
+		auto LastInfo = Steps.Last();
+		if (Time - LastInfo.Time > Permitted)
+		{
+			FVFPawnTransformInfo RepeatInfo(LastInfo, StepRecorder->Time);
+			Steps.Add(RepeatInfo);
+		}
+
 		Steps.Add(Info);
 	}
 }
@@ -245,6 +271,14 @@ void AVFCharacter::TickBackward_Implementation(float Time)
 		auto &StepInfo = Steps.Last();
 		if (StepInfo.Time < Time)
 			break;
+
+		// 对于瞬移, 节点需要手动进行一次复位
+		SetActorLocation(StepInfo.Location);
+		if (GetRootComponent() && GetRootComponent()->IsSimulatingPhysics())
+			GetRootComponent()->ComponentVelocity = StepInfo.Velocity;
+		else
+			GetCharacterMovement()->Velocity = StepInfo.Velocity;
+		GetController()->SetControlRotation(StepInfo.Rotator);
 
 		Steps.Pop(false);
 	}

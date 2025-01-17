@@ -29,6 +29,8 @@ struct FVFPawnTransformInfo
 
 	FVFPawnTransformInfo(APawn *Pawn, float TimeIn);
 
+	FVFPawnTransformInfo(const FVFPawnTransformInfo& Other, float TimeIn);
+
 	bool operator==(const FVFPawnTransformInfo &Other) const;
 };
 
