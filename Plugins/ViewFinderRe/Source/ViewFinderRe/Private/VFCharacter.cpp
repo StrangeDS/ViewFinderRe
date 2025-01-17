@@ -65,7 +65,6 @@ void AVFCharacter::BeginPlay()
 
 	Container = GetWorld()->SpawnActor<AVFPhotoContainer>(ContainerClass);
 	Container->AttachToComponent(Camera, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	Container->GetRootComponent()->SetRelativeLocation(FVector(50.f, -20.f, 0.f));
 	if (PlayerController)
 		Container->SetPlayerController(PlayerController);
 }

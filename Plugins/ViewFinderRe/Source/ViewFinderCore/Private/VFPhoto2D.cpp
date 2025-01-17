@@ -21,7 +21,6 @@ AVFPhoto2D::AVFPhoto2D() : Super()
 		TEXT("/ViewFinderRe/Content/StaticMeshes/Photo.Photo"));
 	StaticMeshObject = MeshSelector.Object;
 	StaticMesh->SetStaticMesh(StaticMeshObject);
-	StaticMesh->SetRelativeRotation(FRotator(0.f, 90.0f, 0.f));
 
 	Helper = CreateDefaultSubobject<UVFHelperComponent>("Helper");
 	Helper->bCanBePlacedByPhoto = false;

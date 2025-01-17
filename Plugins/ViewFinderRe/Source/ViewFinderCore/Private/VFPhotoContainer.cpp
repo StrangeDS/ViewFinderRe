@@ -13,7 +13,11 @@ AVFPhotoContainer::AVFPhotoContainer()
 	Container = CreateDefaultSubobject<USceneComponent>(TEXT("Container"));
 	Container->SetupAttachment(RootComponent);
 	Container->SetRelativeLocation(FVector(100.0f, -50.0f, 0.f));
-	Container->SetRelativeRotation(FRotator(60.f, -30.0f, 0.f));
+	Container->SetRelativeRotation(FRotator(-30.0f, -30.0f, 0.f));
+
+	Preview = CreateDefaultSubobject<USceneComponent>(TEXT("Preview"));
+	Preview->SetRelativeLocation(FVector(50.0f, 0.f, 0.f));	// 需对齐AVFPhotoCatcher_PickUp::PreviewTrans
+	Preview->SetupAttachment(RootComponent);
 
 	Helper = CreateDefaultSubobject<UVFHelperComponent>(TEXT("Helper"));
 	Helper->bCanBeTakenInPhoto = false;
