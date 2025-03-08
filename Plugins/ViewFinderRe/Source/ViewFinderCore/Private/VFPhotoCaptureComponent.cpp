@@ -9,9 +9,10 @@ UVFPhotoCaptureComponent::UVFPhotoCaptureComponent()
 	bCaptureOnMovement = false;
 	bAlwaysPersistRenderingState = false;
 
-	// ShowFlags设置(需要吗?)
-	ShowFlags.SetVolumetricFog(false);
+	// ShowFlags设置
 	ShowFlags.SetFog(false);
+	ShowFlags.SetAtmosphere(false);
+	ShowFlags.SetVolumetricFog(false);
 }
 
 void UVFPhotoCaptureComponent::BeginPlay()
@@ -49,6 +50,7 @@ void UVFPhotoCaptureComponent::StartDraw()
 	if (!MaterialInstance)
 		return;
 
+	// 材质参数设置最好在外面进行
 	MaterialInstance->SetTextureParameterValue(TextureName, RenderTarget);
 	MaterialInstance->SetScalarParameterValue(RatioName, AspectRatio);
 	bCaptureEveryFrame = true;
