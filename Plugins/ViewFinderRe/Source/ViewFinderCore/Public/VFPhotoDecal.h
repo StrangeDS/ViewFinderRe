@@ -35,6 +35,7 @@ public:
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")
 	void SetManagedActorsEnabled(bool Enabled);
 
+public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<class UVFPhotoCaptureComponent> PhotoCapture;
 	
@@ -43,6 +44,10 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<class UDecalComponent> Decal;
+
+public:
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
+	bool bReplacing = false;
 
 	UPROPERTY()
 	TObjectPtr<UMaterialInterface> Matirial;

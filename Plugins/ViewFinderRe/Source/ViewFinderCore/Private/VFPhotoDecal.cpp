@@ -19,12 +19,11 @@ AVFPhotoDecal::AVFPhotoDecal()
         TEXT("/ViewFinderRe/Content/Materials/Decal/MDI_Photolize.MDI_Photolize"));
     Matirial = MaterialSelector.Object;
     Decal->SetDecalMaterial(Matirial);
+    Decal->SetHiddenInGame(true);
 }
 
 void AVFPhotoDecal::BeginPlay()
 {
-    Super::BeginPlay();
-
     // 只记录第一级的子Actor
     ManagedActors.Reset();
     GetAttachedActors(ManagedActors, false, false);
@@ -39,32 +38,42 @@ void AVFPhotoDecal::BeginPlay()
     MaterialInstance = Decal->CreateDynamicMaterialInstance();
     PhotoCapture->Init(MaterialInstance);
 
-    Replace();
+    // 蓝图的BeginPlay需要在MaterialInstance被创建后
+    Super::BeginPlay();
 }
 
 void AVFPhotoDecal::DrawDecal()
 {
-    SetDecalEnabled(false);
-
-    MaterialInstance->SetVectorParameterValue(TEXT("CameraPosition"), PhotoCapture->GetComponentLocation());
-    MaterialInstance->SetVectorParameterValue(TEXT("CameraFacing"), PhotoCapture->GetComponentRotation().Vector());
-    MaterialInstance->SetScalarParameterValue(TEXT("FOVAngle"), PhotoCapture->FOVAngle);
-    MaterialInstance->SetScalarParameterValue(TEXT("YofDecal"), Decal->DecalSize.Y);
+    if (ensure(MaterialInstance))
+    {
+        MaterialInstance->SetVectorParameterValue(TEXT("CameraPosition"), PhotoCapture->GetComponentLocation());
+        MaterialInstance->SetVectorParameterValue(TEXT("CameraFacing"), PhotoCapture->GetComponentRotation().Vector());
+        MaterialInstance->SetScalarParameterValue(TEXT("FOVAngle"), PhotoCapture->FOVAngle);
+        MaterialInstance->SetScalarParameterValue(TEXT("YofDecal"), Decal->DecalSize.Y);
+    }
 
     PhotoCapture->DrawAFrame();
 }
 
 void AVFPhotoDecal::Replace()
 {
+    if (bReplacing)
+        return;
+
+    bReplacing = true;
     DrawDecal();
-    SetDecalEnabled(true);
+    SetDecalEnabled(bReplacing);
 
     OnReplace.Broadcast();
 }
 
 void AVFPhotoDecal::Restore()
 {
-    SetDecalEnabled(false);
+    if (!bReplacing)
+        return;
+
+    bReplacing = false;
+    SetDecalEnabled(bReplacing);
 
     OnRestore.Broadcast();
 }
