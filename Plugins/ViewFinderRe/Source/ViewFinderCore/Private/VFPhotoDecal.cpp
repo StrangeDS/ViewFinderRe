@@ -1,6 +1,7 @@
 #include "VFPhotoDecal.h"
 
 #include "Components/DecalComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 #include "VFPhotoCaptureComponent.h"
 
@@ -10,8 +11,6 @@ AVFPhotoDecal::AVFPhotoDecal()
 
     PhotoCapture = CreateDefaultSubobject<UVFPhotoCaptureComponent>(TEXT("PhotoCapture"));
     PhotoCapture->SetupAttachment(RootComponent);
-    PhotoCapture->bCaptureEveryFrame = false;
-    PhotoCapture->bCaptureOnMovement = false;
     PhotoCapture->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList;
 
     Decal = CreateDefaultSubobject<UDecalComponent>(TEXT("Decal"));
@@ -36,12 +35,22 @@ void AVFPhotoDecal::BeginPlay()
         Actor->GetAttachedActors(ShowActors, false, true);
     }
     PhotoCapture->ShowOnlyActors = ShowActors;
-    PhotoCapture->Init(Decal->CreateDynamicMaterialInstance());
+
+    MaterialInstance = Decal->CreateDynamicMaterialInstance();
+    PhotoCapture->Init(MaterialInstance);
+
+    Replace();
 }
 
 void AVFPhotoDecal::DrawDecal()
 {
     SetDecalEnabled(false);
+
+    MaterialInstance->SetVectorParameterValue(TEXT("CameraPosition"), PhotoCapture->GetComponentLocation());
+    MaterialInstance->SetVectorParameterValue(TEXT("CameraFacing"), PhotoCapture->GetComponentRotation().Vector());
+    MaterialInstance->SetScalarParameterValue(TEXT("FOVAngle"), PhotoCapture->FOVAngle);
+    MaterialInstance->SetScalarParameterValue(TEXT("YofDecal"), Decal->DecalSize.Y);
+
     PhotoCapture->DrawAFrame();
 }
 

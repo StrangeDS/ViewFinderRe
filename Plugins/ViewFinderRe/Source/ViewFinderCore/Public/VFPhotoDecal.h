@@ -46,6 +46,9 @@ public:
 
 	UPROPERTY()
 	TObjectPtr<UMaterialInterface> Matirial;
+
+	UPROPERTY()
+	TObjectPtr<class UMaterialInstanceDynamic> MaterialInstance;
 	
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
 	FVFPhotoDecalDelegate OnReplace;
