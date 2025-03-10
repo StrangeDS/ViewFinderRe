@@ -2,26 +2,54 @@
 
 #include "CoreMinimal.h"
 #include "VFPhotoCatcher.h"
-
-#include "TimerManager.h"
-
 #include "VFPhotoCatcherOnBeginPlay.generated.h"
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERCORE_API AVFPhotoCatcherOnBeginPlay : public AVFPhotoCatcher
 {
 	GENERATED_BODY()
-	
+
 public:
 	AVFPhotoCatcherOnBeginPlay();
 
+	virtual void OnConstruction(const FTransform &Transform) override;
+
 	virtual void BeginPlay() override;
-	
+
+	virtual TArray<UPrimitiveComponent *> GetOverlapComps_Implementation() override;
+
+	void HideCurLevel();
+
+#if WITH_EDITORONLY_DATA
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	bool bOnlyCollectInSameLevel = true;
+#endif
+
+#if WITH_EDITOR
 public:
-	// 世界Transform
+	UFUNCTION(CallInEditor, Category = "ViewFinder")
+	void CollectCompsInLevels();
+
+	UFUNCTION(CallInEditor, Category = "ViewFinder")
+	void CollectCompsInSameLevel();
+
+	UFUNCTION(CallInEditor, Category = "ViewFinder")
+	void ClearCompsInEditor();
+
+	UFUNCTION(CallInEditor, Category = "ViewFinder")
+	void UpdateOnlyActorsCatched();
+#endif
+
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	TArray<TObjectPtr<UPrimitiveComponent>> CompsInEditor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	TArray<TObjectPtr<AActor>> OnlyActorsCatched;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder", meta = (MakeEditWidget))
 	FTransform PhotoSpawnPoint = FTransform::Identity;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	bool bOnlyCatchChildActors = false;
+	bool bHideChildActors = true;
 };
