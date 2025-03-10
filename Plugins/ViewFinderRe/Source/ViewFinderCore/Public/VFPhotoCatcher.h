@@ -26,6 +26,10 @@ public:
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
+	TArray<UPrimitiveComponent *> GetOverlapComps();
+	virtual TArray<UPrimitiveComponent *> GetOverlapComps_Implementation();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
 	AVFPhoto2D *TakeAPhoto();
 	virtual AVFPhoto2D *TakeAPhoto_Implementation();
 

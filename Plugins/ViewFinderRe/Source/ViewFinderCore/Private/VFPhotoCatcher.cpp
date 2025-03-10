@@ -70,11 +70,8 @@ void AVFPhotoCatcher::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
+TArray<UPrimitiveComponent *> AVFPhotoCatcher::GetOverlapComps_Implementation()
 {
-	TRACE_CPUPROFILER_EVENT_SCOPE(TEXT("AVFPhotoCatcher::TakeAPhoto_Implementation()"));
-
-	// 重叠检测
 	TArray<UPrimitiveComponent *> OverlapComps;
 	UKismetSystemLibrary::ComponentOverlapComponents(
 		ViewFrustum,
@@ -84,14 +81,21 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 		ActorsToIgnore,
 		OverlapComps);
 
+	return MoveTemp(OverlapComps);
+}
+
+AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
+{
+	TRACE_CPUPROFILER_EVENT_SCOPE(TEXT("AVFPhotoCatcher::TakeAPhoto_Implementation()"));
+
+	// 重叠检测
+	TArray<UPrimitiveComponent *> OverlapComps = GetOverlapComps();
+
 	// Helper筛选
 	TMap<UPrimitiveComponent *, UVFHelperComponent *> HelperMap;
 	UVFFunctions::GetCompsToHelpersMapping<UPrimitiveComponent>(OverlapComps, HelperMap);
 
 	// Helper相关处理
-	// 捕捉的忽略对象也在此处理
-	PhotoCapture->HiddenComponents.Reset();
-	PhotoCapture->HiddenActors.Reset();
 	{
 		TArray<UPrimitiveComponent *> StandInComps;
 		for (auto It = OverlapComps.CreateIterator(); It; It++)
@@ -108,7 +112,7 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 				PhotoCapture->HiddenComponents.Add(Comp);
 				It.RemoveCurrent();
 			}
-			else if (Helper && HelperMap[Comp]->bReplacedWithStandIn)	// StandIn处理
+			else if (Helper && HelperMap[Comp]->bReplacedWithStandIn) // StandIn处理
 			{
 				auto Actor = Comp->GetOwner();
 				if (!PhotoCapture->HiddenActors.Contains(Actor))
@@ -126,7 +130,7 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 		OverlapComps.Append(StandInComps);
 	}
 
-	HelperMap.Reset();	// (替身相关)需要重新生成.
+	HelperMap.Reset(); // (替身相关)需要重新生成.
 	UVFFunctions::GetCompsToHelpersMapping<UPrimitiveComponent>(OverlapComps, HelperMap);
 	TSet<UVFHelperComponent *> HelpersRecorder;
 	GetMapHelpers(HelperMap, HelpersRecorder);
@@ -201,12 +205,12 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 		ViewFrustum->GetComponentRotation());
 	Photo2D->SetPhoto3D(Photo3D);
 	Photo3D->RecordProperty(ViewFrustum, bOnlyOverlapWithHelps, ObjectTypesToOverlap);
-	
+
 	for (auto &Helper : CopiedHelpersRecorder)
 	{
 		Helper->NotifyDelegate(Photo3D, FVFHelperDelegateType::CopyBeforeFoldedInPhoto);
 	}
-	
+
 	Photo2D->FoldUp();
 
 	Photo2D->AspectRatio = AspectRatio;
@@ -227,11 +231,11 @@ void AVFPhotoCatcher::SetViewFrustumVisible(const bool &Visibility)
 
 void AVFPhotoCatcher::ResetActorsToIgnore()
 {
-    ActorsToIgnore.Reset();
+	ActorsToIgnore.Reset();
 	ActorsToIgnore.AddUnique(this);
 }
 
 FQuat AVFPhotoCatcher::GetFrustumQuat()
 {
-    return ViewFrustum->GetComponentQuat();
+	return ViewFrustum->GetComponentQuat();
 }
