@@ -8,21 +8,24 @@ UVFPhotoCaptureComponent::UVFPhotoCaptureComponent()
 	bCaptureEveryFrame = false;
 	bCaptureOnMovement = false;
 	bAlwaysPersistRenderingState = false;
-
-	// ShowFlags设置
-	ShowFlags.SetFog(false);
-	ShowFlags.SetAtmosphere(false);
-	ShowFlags.SetVolumetricFog(false);
+	PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_RenderScenePrimitives;
 }
 
 void UVFPhotoCaptureComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	RenderTarget = NewObject<UTextureRenderTarget2D>(this);
-	this->TextureTarget = RenderTarget;
-	RenderTarget->InitCustomFormat(Width, Width, PF_FloatRGBA, false);
-	RenderTarget->ClearColor = FLinearColor::Black;
+	if (this->TextureTarget)
+	{
+		RenderTarget = this->TextureTarget;
+	}
+	else
+	{
+		RenderTarget = NewObject<UTextureRenderTarget2D>(this);
+		this->TextureTarget = RenderTarget;
+		RenderTarget->InitCustomFormat(Width, Width, PF_FloatRGBA, true);
+		RenderTarget->ClearColor = FLinearColor::Black;
+	}
 
 	auto Actor = GetOwner();
 	while (Actor)
