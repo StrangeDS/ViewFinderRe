@@ -4,6 +4,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 
 #include "VFPhotoCaptureComponent.h"
+#include "VFViewFrustumComponent.h"
 
 AVFPhotoDecal::AVFPhotoDecal()
 {
@@ -11,7 +12,9 @@ AVFPhotoDecal::AVFPhotoDecal()
 
     PhotoCapture = CreateDefaultSubobject<UVFPhotoCaptureComponent>(TEXT("PhotoCapture"));
     PhotoCapture->SetupAttachment(RootComponent);
-    PhotoCapture->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList;
+
+    ViewFrustum = CreateDefaultSubobject<UVFViewFrustumComponent>(TEXT("ViewFrustum"));
+    ViewFrustum->SetupAttachment(PhotoCapture);
 
     Decal = CreateDefaultSubobject<UDecalComponent>(TEXT("Decal"));
     Decal->SetupAttachment(RootComponent);
@@ -22,21 +25,21 @@ AVFPhotoDecal::AVFPhotoDecal()
     Decal->SetHiddenInGame(true);
 }
 
+void AVFPhotoDecal::OnConstruction(const FTransform &Transform)
+{
+    Super::OnConstruction(Transform);
+
+    PhotoCapture->FOVAngle = ViewAngle;
+    ViewFrustum->RegenerateViewFrustum(ViewAngle, AspectRatio, StartDis, EndDis);
+}
+
 void AVFPhotoDecal::BeginPlay()
 {
-    // 只记录第一级的子Actor
-    ManagedActors.Reset();
-    GetAttachedActors(ManagedActors, false, false);
-
-    TArray<AActor *> ShowActors = ManagedActors;
-    for (auto &Actor : ManagedActors)
-    {
-        Actor->GetAttachedActors(ShowActors, false, true);
-    }
-    PhotoCapture->ShowOnlyActors = ShowActors;
-
     MaterialInstance = Decal->CreateDynamicMaterialInstance();
     PhotoCapture->Init(MaterialInstance);
+
+    ManagedActors.Reset();
+    GetAttachedActors(ManagedActors, true, true);
 
     // 蓝图的BeginPlay需要在MaterialInstance被创建后
     Super::BeginPlay();
@@ -50,6 +53,7 @@ void AVFPhotoDecal::DrawDecal()
         MaterialInstance->SetVectorParameterValue(TEXT("CameraFacing"), PhotoCapture->GetComponentRotation().Vector());
         MaterialInstance->SetScalarParameterValue(TEXT("FOVAngle"), PhotoCapture->FOVAngle);
         MaterialInstance->SetScalarParameterValue(TEXT("YofDecal"), Decal->DecalSize.Y);
+        MaterialInstance->SetScalarParameterValue(TEXT("AspectRatio"), AspectRatio);
     }
 
     PhotoCapture->DrawAFrame();
