@@ -2,15 +2,15 @@
 
 #include "CoreMinimal.h"
 #include "VFPhotoCatcher.h"
-#include "VFPhotoCatcherOnBeginPlay.generated.h"
+#include "VFPhotoCatcherPref.generated.h"
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
-class VIEWFINDERCORE_API AVFPhotoCatcherOnBeginPlay : public AVFPhotoCatcher
+class VIEWFINDERCORE_API AVFPhotoCatcherPref : public AVFPhotoCatcher
 {
 	GENERATED_BODY()
 
 public:
-	AVFPhotoCatcherOnBeginPlay();
+	AVFPhotoCatcherPref();
 
 	virtual void OnConstruction(const FTransform &Transform) override;
 

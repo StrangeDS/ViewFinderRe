@@ -1,29 +1,35 @@
-#include "VFPhotoCatcherOnBeginPlay.h"
+#include "VFPhotoCatcherPref.h"
 
 #include "VFPhoto2D.h"
 #include "VFPhotoCaptureComponent.h"
 
-AVFPhotoCatcherOnBeginPlay::AVFPhotoCatcherOnBeginPlay() : Super()
+AVFPhotoCatcherPref::AVFPhotoCatcherPref() : Super()
 {
     PhotoCapture->bCaptureEveryFrame = false;
     PhotoCapture->bCaptureOnMovement = false;
     PhotoCapture->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList;
 }
 
-void AVFPhotoCatcherOnBeginPlay::OnConstruction(const FTransform &Transform)
+void AVFPhotoCatcherPref::OnConstruction(const FTransform &Transform)
 {
     Super::OnConstruction(Transform);
 
 #if WITH_EDITOR
     CompsInEditor.Reset();
+
+#if WITH_EDITORONLY_DATA
     if (bOnlyCollectInSameLevel)
         CollectCompsInSameLevel();
     else
         CollectCompsInLevels();
+    return;
+#endif
+
+    CollectCompsInLevels();
 #endif
 }
 
-void AVFPhotoCatcherOnBeginPlay::BeginPlay()
+void AVFPhotoCatcherPref::BeginPlay()
 {
     Super::BeginPlay();
 
@@ -35,16 +41,16 @@ void AVFPhotoCatcherOnBeginPlay::BeginPlay()
                                                    HideCurLevel(); });
 }
 
-TArray<UPrimitiveComponent *> AVFPhotoCatcherOnBeginPlay::GetOverlapComps_Implementation()
+TArray<UPrimitiveComponent *> AVFPhotoCatcherPref::GetOverlapComps_Implementation()
 {
     if (CompsInEditor.IsEmpty())
     {
-        UE_LOG(LogTemp, Warning, TEXT("AVFPhotoCatcherOnBeginPlay(%s): 没有预处理碰撞组件"));
+        UE_LOG(LogTemp, Warning, TEXT("AVFPhotoCatcherPref(%s): 没有预处理碰撞组件"));
     }
     return CompsInEditor;
 }
 
-void AVFPhotoCatcherOnBeginPlay::HideCurLevel()
+void AVFPhotoCatcherPref::HideCurLevel()
 {
     const ULevel *ActorLevel = GetLevel();
     // GetLevel()打印的名字都是一样的, 但它们是不同的对象(指针是不同的)!
@@ -68,7 +74,7 @@ void AVFPhotoCatcherOnBeginPlay::HideCurLevel()
 }
 
 #if WITH_EDITOR
-void AVFPhotoCatcherOnBeginPlay::CollectCompsInLevels()
+void AVFPhotoCatcherPref::CollectCompsInLevels()
 {
     auto Comps = Super::GetOverlapComps_Implementation();
     for (auto &Comp : Comps)
@@ -78,7 +84,7 @@ void AVFPhotoCatcherOnBeginPlay::CollectCompsInLevels()
     UpdateOnlyActorsCatched();
 }
 
-void AVFPhotoCatcherOnBeginPlay::CollectCompsInSameLevel()
+void AVFPhotoCatcherPref::CollectCompsInSameLevel()
 {
     ULevel *Level = GetLevel();
     auto Comps = Super::GetOverlapComps_Implementation();
@@ -90,12 +96,12 @@ void AVFPhotoCatcherOnBeginPlay::CollectCompsInSameLevel()
     UpdateOnlyActorsCatched();
 }
 
-void AVFPhotoCatcherOnBeginPlay::ClearCompsInEditor()
+void AVFPhotoCatcherPref::ClearCompsInEditor()
 {
     CompsInEditor.Reset();
 }
 
-void AVFPhotoCatcherOnBeginPlay::UpdateOnlyActorsCatched()
+void AVFPhotoCatcherPref::UpdateOnlyActorsCatched()
 {
     OnlyActorsCatched.Reset();
     for (auto &Comp : CompsInEditor)
