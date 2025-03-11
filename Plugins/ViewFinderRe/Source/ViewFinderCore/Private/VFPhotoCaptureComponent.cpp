@@ -15,9 +15,9 @@ void UVFPhotoCaptureComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (this->TextureTarget)
+	if (IsValid(TextureTarget))
 	{
-		RenderTarget = this->TextureTarget;
+		RenderTarget = TextureTarget;
 	}
 	else
 	{

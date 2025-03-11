@@ -16,7 +16,7 @@ void AVFPhoto2DSteppable::FoldUp()
 {
     Super::FoldUp();
 
-    if (!StepRecorder->bIsRewinding)
+    if (StepRecorder && !StepRecorder->bIsRewinding)
     {
         StepRecorder->SubmitStep(
             this,
@@ -29,7 +29,7 @@ void AVFPhoto2DSteppable::PlaceDown()
 {
     Super::PlaceDown();
 
-    if (!StepRecorder->bIsRewinding)
+    if (StepRecorder && !StepRecorder->bIsRewinding)
     {
         StepRecorder->SubmitStep(
             this,
