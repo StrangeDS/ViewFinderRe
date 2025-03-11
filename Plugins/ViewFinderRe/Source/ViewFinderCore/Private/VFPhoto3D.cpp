@@ -61,7 +61,7 @@ void AVFPhoto3D::PlaceDown()
 		ViewFrustumRecorder->GetComponentToWorld(),
 		ObjectTypesToOverlap,
 		UPrimitiveComponent::StaticClass(),
-		{},
+		ActorsToIgnore,
 		OverlapComps);
 
 	TMap<UPrimitiveComponent *, UVFHelperComponent *> HelperMap;

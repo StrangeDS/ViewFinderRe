@@ -68,4 +68,8 @@ public: // 记录属性
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypesToOverlap;
+
+	// 一般情况下都为空
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	TArray<TObjectPtr<AActor>> ActorsToIgnore;
 };
