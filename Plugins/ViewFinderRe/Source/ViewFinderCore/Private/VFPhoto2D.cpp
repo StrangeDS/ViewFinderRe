@@ -18,7 +18,7 @@ AVFPhoto2D::AVFPhoto2D() : Super()
 	StaticMesh->SetupAttachment(RootComponent);
 	StaticMesh->SetCollisionProfileName(TEXT("IgnoreOnlyPawn"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshSelector(
-		TEXT("/ViewFinderRe/Content/StaticMeshes/Photo.Photo"));
+		TEXT("/ViewFinderRe/StaticMeshes/Photo.Photo"));
 	StaticMeshObject = MeshSelector.Object;
 	StaticMesh->SetStaticMesh(StaticMeshObject);
 

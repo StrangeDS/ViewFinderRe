@@ -16,7 +16,7 @@ AVFPawnStandIn::AVFPawnStandIn() : Super()
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	StaticMesh->SetupAttachment(RootComponent);
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshSelector(
-		TEXT("/ViewFinderRe/Content/StaticMeshes/Camera_Temp.Camera_Temp"));
+		TEXT("/ViewFinderRe/StaticMeshes/Camera_Temp.Camera_Temp"));
 	StaticMeshObject = MeshSelector.Object;
 	StaticMesh->SetStaticMesh(StaticMeshObject);
 
