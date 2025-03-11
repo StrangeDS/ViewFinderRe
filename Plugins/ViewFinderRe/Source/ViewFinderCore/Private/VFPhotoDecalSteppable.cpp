@@ -8,11 +8,11 @@ void AVFPhotoDecalSteppable::BeginPlay()
     Super::BeginPlay();
 }
 
-void AVFPhotoDecalSteppable::Replace()
+void AVFPhotoDecalSteppable::ReplaceWithDecal_Implementation()
 {
-    Super::Replace();
+    Super::ReplaceWithDecal_Implementation();
 
-    if (!StepRecorder->bIsRewinding)
+    if (StepRecorder && !StepRecorder->bIsRewinding)
     {
         StepRecorder->SubmitStep(
             this,
@@ -23,11 +23,11 @@ void AVFPhotoDecalSteppable::Replace()
     }
 }
 
-void AVFPhotoDecalSteppable::Restore()
+void AVFPhotoDecalSteppable::RestoreWithActors_Implementation()
 {
-    Super::Restore();
+    Super::RestoreWithActors_Implementation();
 
-    if (!StepRecorder->bIsRewinding)
+    if (StepRecorder && !StepRecorder->bIsRewinding)
     {
         StepRecorder->SubmitStep(
             this,
@@ -45,12 +45,15 @@ bool AVFPhotoDecalSteppable::StepBack_Implementation(FVFStepInfo &StepInfo)
     {
     case AVFPhotoDecalOperation::Replace:
     {
-        Restore();
+        RestoreWithActors();
         break;
     }
     case AVFPhotoDecalOperation::Restore:
     {
-        Replace();
+        // 拍照需要在下一帧进行(还原的网格还没更新)
+        GetWorldTimerManager().SetTimerForNextTick(
+            this,
+            &AVFPhotoDecalSteppable::ReplaceWithDecal);
         break;
     }
     default:

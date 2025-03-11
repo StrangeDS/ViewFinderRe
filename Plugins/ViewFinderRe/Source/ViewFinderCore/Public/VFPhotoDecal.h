@@ -25,11 +25,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void DrawDecal();
 
-	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")
-	virtual void Replace();
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, CallInEditor, Category = "ViewFinder")
+	void ReplaceWithDecal();
+	virtual void ReplaceWithDecal_Implementation();
 
-	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")
-	virtual void Restore();
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, CallInEditor, Category = "ViewFinder")
+	void RestoreWithActors();
+	virtual void RestoreWithActors_Implementation();
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void SetDecalEnabled(bool Enabled);
@@ -43,9 +45,6 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<class UVFViewFrustumComponent> ViewFrustum;
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TArray<AActor *> ManagedActors;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<class UDecalComponent> Decal;
@@ -63,8 +62,14 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	float EndDis = 1000.0f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	TArray<AActor *> ManagedActors;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	bool bOnlyCatchManagedActors = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	bool bReplacing = false;
 
 	UPROPERTY()

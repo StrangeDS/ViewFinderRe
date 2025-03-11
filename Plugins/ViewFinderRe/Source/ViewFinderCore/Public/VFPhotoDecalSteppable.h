@@ -25,9 +25,9 @@ class VIEWFINDERCORE_API AVFPhotoDecalSteppable : public AVFPhotoDecal, public I
 public:	
 	virtual void BeginPlay() override;
 
-	virtual void Replace() override;
+	virtual void ReplaceWithDecal_Implementation() override;
 	
-	virtual void Restore() override;
+	virtual void RestoreWithActors_Implementation() override;
 
 public:
 	virtual bool StepBack_Implementation(FVFStepInfo &StepInfo) override;

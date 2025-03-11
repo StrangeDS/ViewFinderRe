@@ -38,9 +38,6 @@ void AVFPhotoDecal::BeginPlay()
     MaterialInstance = Decal->CreateDynamicMaterialInstance();
     PhotoCapture->Init(MaterialInstance);
 
-    ManagedActors.Reset();
-    GetAttachedActors(ManagedActors, true, true);
-
     // 蓝图的BeginPlay需要在MaterialInstance被创建后
     Super::BeginPlay();
 }
@@ -51,15 +48,25 @@ void AVFPhotoDecal::DrawDecal()
     {
         MaterialInstance->SetVectorParameterValue(TEXT("CameraPosition"), PhotoCapture->GetComponentLocation());
         MaterialInstance->SetVectorParameterValue(TEXT("CameraFacing"), PhotoCapture->GetComponentRotation().Vector());
+        MaterialInstance->SetVectorParameterValue(TEXT("DecalSize"), Decal->DecalSize);
         MaterialInstance->SetScalarParameterValue(TEXT("FOVAngle"), PhotoCapture->FOVAngle);
-        MaterialInstance->SetScalarParameterValue(TEXT("YofDecal"), Decal->DecalSize.Y);
         MaterialInstance->SetScalarParameterValue(TEXT("AspectRatio"), AspectRatio);
     }
 
+    if (bOnlyCatchManagedActors)
+    {
+        PhotoCapture->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList;
+        PhotoCapture->ShowOnlyActors = ManagedActors;
+    }
+    else
+    {
+        PhotoCapture->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_RenderScenePrimitives;
+        PhotoCapture->ShowOnlyActors.Reset();
+    }
     PhotoCapture->DrawAFrame();
 }
 
-void AVFPhotoDecal::Replace()
+void AVFPhotoDecal::ReplaceWithDecal_Implementation()
 {
     if (bReplacing)
         return;
@@ -71,7 +78,7 @@ void AVFPhotoDecal::Replace()
     OnReplace.Broadcast();
 }
 
-void AVFPhotoDecal::Restore()
+void AVFPhotoDecal::RestoreWithActors_Implementation()
 {
     if (!bReplacing)
         return;
@@ -90,6 +97,10 @@ void AVFPhotoDecal::SetDecalEnabled(bool Enabled)
 
 void AVFPhotoDecal::SetManagedActorsEnabled(bool Enabled)
 {
+    if (ManagedActors.IsEmpty())
+    {
+        UE_LOG(LogTemp, Warning, TEXT("%s: No Actors has been managed."), __FUNCTIONW__);
+    }
     for (auto &Actor : ManagedActors)
     {
         Actor->SetActorHiddenInGame(!Enabled);
