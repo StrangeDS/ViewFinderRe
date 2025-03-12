@@ -12,44 +12,24 @@ class VIEWFINDERCORE_API AVFPhotoCatcherPref : public AVFPhotoCatcher
 public:
 	AVFPhotoCatcherPref();
 
-	virtual void OnConstruction(const FTransform &Transform) override;
-
 	virtual void BeginPlay() override;
 
 	virtual TArray<UPrimitiveComponent *> GetOverlapComps_Implementation() override;
 
 	void HideCurLevel();
 
-#if WITH_EDITORONLY_DATA
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
-	bool bOnlyCollectInSameLevel = true;
-#endif
-
 #if WITH_EDITOR
-public:
-	UFUNCTION(CallInEditor, Category = "ViewFinder")
-	void CollectCompsInLevels();
 
+	// 你可以用视锥收集后, 再手动删除不需要的Actor. 减少工作量.
 	UFUNCTION(CallInEditor, Category = "ViewFinder")
-	void CollectCompsInSameLevel();
+	void RecollectActorsWithFrustum();
 
-	UFUNCTION(CallInEditor, Category = "ViewFinder")
-	void ClearCompsInEditor();
-
-	UFUNCTION(CallInEditor, Category = "ViewFinder")
-	void UpdateOnlyActorsCatched();
 #endif
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
-	TArray<TObjectPtr<UPrimitiveComponent>> CompsInEditor;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	TArray<TObjectPtr<AActor>> OnlyActorsCatched;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder", meta = (MakeEditWidget))
 	FTransform PhotoSpawnPoint = FTransform::Identity;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	bool bHideChildActors = true;
 };

@@ -10,25 +10,6 @@ AVFPhotoCatcherPref::AVFPhotoCatcherPref() : Super()
     PhotoCapture->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList;
 }
 
-void AVFPhotoCatcherPref::OnConstruction(const FTransform &Transform)
-{
-    Super::OnConstruction(Transform);
-
-#if WITH_EDITOR
-    CompsInEditor.Reset();
-
-#if WITH_EDITORONLY_DATA
-    if (bOnlyCollectInSameLevel)
-        CollectCompsInSameLevel();
-    else
-        CollectCompsInLevels();
-    return;
-#endif
-
-    CollectCompsInLevels();
-#endif
-}
-
 void AVFPhotoCatcherPref::BeginPlay()
 {
     Super::BeginPlay();
@@ -37,17 +18,27 @@ void AVFPhotoCatcherPref::BeginPlay()
                                                {
                                                    auto Photo2D = TakeAPhoto();
                                                    Photo2D->AddActorLocalTransform(PhotoSpawnPoint);
-                                                   SetActorHiddenInGame(bHideChildActors);
+                                                   SetActorHiddenInGame(true);
                                                    HideCurLevel(); });
 }
 
 TArray<UPrimitiveComponent *> AVFPhotoCatcherPref::GetOverlapComps_Implementation()
 {
-    if (CompsInEditor.IsEmpty())
+    if (OnlyActorsCatched.IsEmpty())
     {
-        UE_LOG(LogTemp, Warning, TEXT("AVFPhotoCatcherPref(%s): 没有预处理碰撞组件"));
+        UE_LOG(LogTemp, Warning,
+               TEXT("%s(%s): 没有预处理碰撞组件."),
+               __FUNCTIONW__,
+               *GetName());
     }
-    return CompsInEditor;
+    auto Comps = Super::GetOverlapComps_Implementation();
+    for (auto It = Comps.CreateIterator(); It; ++It)
+    {
+        auto Actor = (*It)->GetOwner();
+        if (!OnlyActorsCatched.Contains(Actor))
+            It.RemoveCurrent();
+    }
+    return Comps;
 }
 
 void AVFPhotoCatcherPref::HideCurLevel()
@@ -74,40 +65,16 @@ void AVFPhotoCatcherPref::HideCurLevel()
 }
 
 #if WITH_EDITOR
-void AVFPhotoCatcherPref::CollectCompsInLevels()
-{
-    auto Comps = Super::GetOverlapComps_Implementation();
-    for (auto &Comp : Comps)
-    {
-        CompsInEditor.AddUnique(Comp);
-    }
-    UpdateOnlyActorsCatched();
-}
 
-void AVFPhotoCatcherPref::CollectCompsInSameLevel()
-{
-    ULevel *Level = GetLevel();
-    auto Comps = Super::GetOverlapComps_Implementation();
-    for (auto &Comp : Comps)
-    {
-        if (Comp->GetOwner()->GetLevel() == Level)
-            CompsInEditor.AddUnique(Comp);
-    }
-    UpdateOnlyActorsCatched();
-}
-
-void AVFPhotoCatcherPref::ClearCompsInEditor()
-{
-    CompsInEditor.Reset();
-}
-
-void AVFPhotoCatcherPref::UpdateOnlyActorsCatched()
+void AVFPhotoCatcherPref::RecollectActorsWithFrustum()
 {
     OnlyActorsCatched.Reset();
-    for (auto &Comp : CompsInEditor)
+    auto Comps = Super::GetOverlapComps_Implementation();
+    for (auto &Comp : Comps)
     {
         OnlyActorsCatched.AddUnique(Comp->GetOwner());
     }
     PhotoCapture->ShowOnlyActors = OnlyActorsCatched;
 }
+
 #endif
