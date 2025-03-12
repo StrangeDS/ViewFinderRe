@@ -45,7 +45,7 @@ void AVFTransfromRecorderActor::AddToRecord(USceneComponent *Component)
 
 void AVFTransfromRecorderActor::RemoveFromRecord(USceneComponent *Component)
 {
-	Components.Remove(Component);
+	Components.RemoveSwap(Component);
 }
 
 void AVFTransfromRecorderActor::ReCollectComponents_Implementation()

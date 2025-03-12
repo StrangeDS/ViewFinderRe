@@ -126,7 +126,6 @@ TArray<AActor *> UVFFunctions::CopyActorFromVFDMComps(UWorld *World, const TArra
 		if (!ActorsMap.Contains(Source))
 		{
 			AActor *Copy = CloneActorRuntime(Source);
-			// Copy->AttachToActor(Photo, FAttachmentTransformRules::KeepWorldTransform);
 			ActorsMap.Add(Source, Copy);
 		}
 		AActor *Copied = ActorsMap[Source];

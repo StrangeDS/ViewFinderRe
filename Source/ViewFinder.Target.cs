@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright StrangeDS. All Rights Reserved.
 
 using UnrealBuildTool;
 using System.Collections.Generic;

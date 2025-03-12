@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright StrangeDS. All Rights Reserved.
 
 #include "ViewFinder.h"
 #include "Modules/ModuleManager.h"
