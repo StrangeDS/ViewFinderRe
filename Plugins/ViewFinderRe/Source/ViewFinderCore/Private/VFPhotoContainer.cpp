@@ -125,16 +125,8 @@ void AVFPhotoContainer::UpdateCurrentPhoto()
 		CurrentPhoto2D->SetActorHiddenInGame(true);
 
 	CurrentPhoto2D = Photo2Ds.IsEmpty() ? nullptr : Photo2Ds.Last();
-
-	if (CurrentPhoto2D)
-	{
-		if (bEnabled)
-			CurrentPhoto2D->SetActorHiddenInGame(false);
-	}
-	else
-	{
-		SetEnabled(false);
-	}
+	if (CurrentPhoto2D && bEnabled)
+		CurrentPhoto2D->SetActorHiddenInGame(false);
 }
 
 void AVFPhotoContainer::RotateCurrentPhoto(float Delta)
@@ -155,28 +147,18 @@ void AVFPhotoContainer::AlignCurrentPhoto()
 	PlayerController->SetControlRotation(Rotation);
 }
 
-void AVFPhotoContainer::SetEnabled(const bool &Enabled)
+void AVFPhotoContainer::SetEnabled(const bool &EnabledIn)
 {
-	if (bEnabled == Enabled)
+	if (bEnabled == EnabledIn)
 		return;
-	bEnabled = Enabled;
-
-	if (Num() <= 0)
-		bEnabled = false;
+	bEnabled = EnabledIn;
 
 	check(PlayerController);
 
-	if (bEnabled)
-	{
-		SetActorHiddenInGame(false);
-		UpdateCurrentPhoto();
-	}
-	else
-	{
-		SetActorHiddenInGame(true);
-		UpdateCurrentPhoto();
-	}
-	OnEnabled.Broadcast(Enabled);
+	UpdateCurrentPhoto();
+	SetActorHiddenInGame(!bEnabled);
+
+	OnEnabled.Broadcast(bEnabled);
 }
 
 void AVFPhotoContainer::PrepareCurrentPhoto_Move()

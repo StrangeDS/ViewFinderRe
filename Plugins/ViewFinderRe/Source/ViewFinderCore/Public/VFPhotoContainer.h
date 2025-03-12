@@ -52,7 +52,7 @@ public:
 	void AlignCurrentPhoto();
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	virtual void SetEnabled(const bool &Enabled);
+	virtual void SetEnabled(const bool &EnabledIn);
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	FORCEINLINE void SetPlayerController(APlayerController *Controller) { PlayerController = Controller; };
