@@ -107,3 +107,20 @@ void AVFPhotoDecal::SetManagedActorsEnabled(bool Enabled)
         Actor->SetActorEnableCollision(Enabled);
     }
 }
+
+#if WITH_EDITOR
+
+#include "Kismet/KismetSystemLibrary.h"
+
+void AVFPhotoDecal::RecollectActorsWithFrustum()
+{
+    UKismetSystemLibrary::ComponentOverlapActors(
+        ViewFrustum,
+        ViewFrustum->GetComponentToWorld(),
+        {},
+        AActor::StaticClass(),
+        { this },
+        ManagedActors);
+}
+
+#endif
