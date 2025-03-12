@@ -14,7 +14,7 @@ void UVFDMSteppableComponent::BeginPlay()
     StepRecorder = GetWorld()->GetSubsystem<UVFStepsRecorderWorldSubsystem>();
     check(StepRecorder);
 
-    Steps.Reset();
+    Steps.Reserve(UVFStepsRecorderWorldSubsystem::SizeRecommended);
     Steps.Add(FVFDMCompStep{
         UVFDMCompStepOperation::BeginPlay,
         nullptr,

@@ -63,6 +63,8 @@ void AVFCharacter::BeginPlay()
 	check(StepRecorder);
 	StepRecorder->RegisterTickable(this);
 
+    Steps.Reserve(UVFStepsRecorderWorldSubsystem::SizeRecommended);
+
 	Container = GetWorld()->SpawnActor<AVFPhotoContainer>(ContainerClass);
 	Container->AttachToComponent(Camera, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	if (PlayerController)

@@ -28,6 +28,8 @@ void AVFTransfromRecorderActor::BeginPlay()
 	check(StepRecorder);
 	ReCollectComponents();
 	StepRecorder->RegisterTransformRecordere(this);
+	
+    Steps.Reserve(UVFStepsRecorderWorldSubsystem::SizeRecommended);
 }
 
 void AVFTransfromRecorderActor::Tick(float DeltaTime)

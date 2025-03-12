@@ -9,6 +9,8 @@ void AVFPhotoContainerSteppable::BeginPlay()
     StepRecorder = GetWorld()->GetSubsystem<UVFStepsRecorderWorldSubsystem>();
     check(StepRecorder);
     StepRecorder->RegisterTickable(this);
+    
+    Steps.Reserve(UVFStepsRecorderWorldSubsystem::SizeRecommended);
 }
 
 void AVFPhotoContainerSteppable::AddAPhoto(AVFPhoto2D *Photo)

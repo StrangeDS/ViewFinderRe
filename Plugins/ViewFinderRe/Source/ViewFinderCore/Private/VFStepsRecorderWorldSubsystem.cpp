@@ -22,6 +22,8 @@ void UVFStepsRecorderWorldSubsystem::Deinitialize()
 void UVFStepsRecorderWorldSubsystem::OnWorldBeginPlay(UWorld &InWorld)
 {
     Super::OnWorldBeginPlay(InWorld);
+
+    Infos.Reserve(SizeRecommended * 10);
 }
 
 void UVFStepsRecorderWorldSubsystem::Tick(float DeltaTime)
@@ -188,7 +190,3 @@ void UVFStepsRecorderWorldSubsystem::RewindToLastKey()
         }
     }
 }
-
-const float UVFStepsRecorderWorldSubsystem::TIME_MAX = 1.0e6;
-
-const float UVFStepsRecorderWorldSubsystem::TIME_MIN = 0.f;

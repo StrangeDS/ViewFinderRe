@@ -81,7 +81,7 @@ TArray<UPrimitiveComponent *> AVFPhotoCatcher::GetOverlapComps_Implementation()
 		ActorsToIgnore,
 		OverlapComps);
 
-	return MoveTemp(OverlapComps);
+	return OverlapComps;
 }
 
 AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()

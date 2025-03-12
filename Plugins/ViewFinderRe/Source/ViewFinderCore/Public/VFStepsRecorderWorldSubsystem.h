@@ -90,15 +90,22 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	float Time = TIME_MIN;
 
-	// 自定义tick时间
+	// 自定义tick间隔, 默认为20帧/秒
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	float TickInterval = 0.05f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	float TimeSinceLastTick = 0.f;
 	
-    const static float TIME_MAX;
-    const static float TIME_MIN;
+    static inline const float TIME_MAX = 1e6;				// 计时器时间的最大值(最大时间)
+	static inline const float TIME_MIN = 1e-6;				// 计时器时间的最小值(开始时间)
+	static inline const int SecondsOfAnHour = 60 * 60 * 20;	// 一小时帧数, 默认20帧(TickInterval)
+#if WITH_EDITOR
+	static inline const int SizeRecommended = SecondsOfAnHour / 6;
+#else
+	// 推荐数组大小. 更好的做法是写一个内存分配器: 直接给定10分, 1小时, 1天等阶梯式的内存大小.
+	static inline const int SizeRecommended = SecondsOfAnHour;		
+#endif
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
