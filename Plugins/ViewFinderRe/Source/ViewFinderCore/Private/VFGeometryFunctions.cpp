@@ -2,6 +2,16 @@
 
 // WITHOUT_GEOMETRY_SCRIPT开启后(默认), 将不依赖插件.
 // 关闭宏, 将依赖插件接口(考虑到后续更新)
+
+// 注意! 若使用插件, 需要:
+// 依赖模块 GeometryScriptingCore (解注释ViewFinderCore.Build.cs line 30)
+// 添加插件依赖 GeometryScripting:
+// 在 ViewFinderRe.uplugin 的"Plugins"中添加
+// {
+// 	"Name": "GeometryScripting",
+// 	"Enabled": true
+// }
+
 #define WITHOUT_GEOMETRY_SCRIPT 1
 
 #if WITHOUT_GEOMETRY_SCRIPT

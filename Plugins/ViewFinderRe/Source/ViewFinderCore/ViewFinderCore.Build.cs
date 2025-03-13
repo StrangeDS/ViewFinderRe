@@ -26,10 +26,8 @@ public class ViewFinderCore : ModuleRules
 			new string[]
 			{
 				"Core",
-				"PhysicsCore",
-				"GeometryCore",
-				"GeometryFramework",
-				"DynamicMesh"
+				"DynamicMesh",
+				// "GeometryScriptingCore",
 			}
 			);
 
@@ -40,7 +38,9 @@ public class ViewFinderCore : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"MeshConversionEngineTypes",
-				"ModelingComponents"
+				"ModelingComponents",
+				"GeometryCore",
+				"GeometryFramework"
 			}
 			);
 

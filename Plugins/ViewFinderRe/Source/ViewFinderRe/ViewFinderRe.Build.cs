@@ -36,7 +36,6 @@ public class ViewFinderRe : ModuleRules
 			{
 				"CoreUObject",
 				"Engine",
-				// "InputCore",
 				"EnhancedInput",
 				"UMG"
 			}

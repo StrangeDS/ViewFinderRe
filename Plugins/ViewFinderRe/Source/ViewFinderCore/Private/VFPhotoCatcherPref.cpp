@@ -1,5 +1,8 @@
 #include "VFPhotoCatcherPref.h"
 
+#include "Engine/LevelStreaming.h"
+#include "TimerManager.h"
+
 #include "VFPhoto2D.h"
 #include "VFPhotoCaptureComponent.h"
 
