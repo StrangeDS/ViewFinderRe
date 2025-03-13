@@ -4,6 +4,7 @@
 #include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
 
+#include "VFCommon.h"
 #include "VFPhotoContainer.h"
 #include "VFPhotoCaptureComponent.h"
 #include "VFFunctions.h"
@@ -34,7 +35,7 @@ bool AVFPhotoCatcher_PickUp::Interact_Implementation(APlayerController *Controll
         }
     }
 
-    UE_LOG(LogTemp, Warning, TEXT("AVFPhotoCatcher_PickUp::Interact_Implementation() has something wrong."));
+    VF_LOG(Warning, TEXT("%s has something wrong."), __FUNCTIONW__);
     return false;
 }
 

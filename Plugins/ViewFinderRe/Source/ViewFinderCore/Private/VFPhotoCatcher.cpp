@@ -2,6 +2,7 @@
 
 #include "Kismet/KismetSystemLibrary.h"
 
+#include "VFCommon.h"
 #include "VFDynamicMeshComponent.h"
 #include "VFPhoto2D.h"
 #include "VFPhoto3D.h"
@@ -148,10 +149,10 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 	// 			{ return A->GetOwner()->GetName() < B->GetOwner()->GetName(); });
 	// for (auto Comp: VFDMComps)
 	// {
-	// 	UE_LOG(LogTemp, Warning, TEXT("%s"), *Comp->GetOwner()->GetName());
+	// 	VF_LOG(Warning, TEXT("%s"), *Comp->GetOwner()->GetName());
 	// }
 
-	UE_LOG(LogTemp, Log, TEXT("TakeAPhoto_Implementation overlaps %i"), VFDMComps.Num());
+	VF_LOG(Log, TEXT("TakeAPhoto_Implementation overlaps %i"), VFDMComps.Num());
 
 	for (auto &Helper : HelpersRecorder)
 	{

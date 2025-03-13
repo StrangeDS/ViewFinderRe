@@ -3,6 +3,8 @@
 #include "Blueprint/UserWidget.h"
 #include "EnhancedInputSubsystems.h"
 
+#include "VFCommon.h"
+
 bool AVFPhotoCatcher_Interact::StartAiming_Implementation(APlayerController *Controller)
 {
 	if (!AimingHintUMGClass.Get())
@@ -58,8 +60,9 @@ void AVFPhotoCatcher_Interact::EnableInteract_Implementation(bool Enabled)
 
 void AVFPhotoCatcher_Interact::CloseToPreview_Implementation()
 {
-	if (!Pawn || !PlayerController) {
-		UE_LOG(LogTemp, Warning, TEXT("CloseToPreview_Implementation."));
+	if (!Pawn || !PlayerController)
+	{
+		VF_LOG(Warning, TEXT("%s: No Pawn or No PlayerController"), __FUNCTIONW__);
 		return;
 	}
 
@@ -69,9 +72,9 @@ void AVFPhotoCatcher_Interact::CloseToPreview_Implementation()
 
 void AVFPhotoCatcher_Interact::LeaveFromPreview_Implementation()
 {
-	if (!Pawn || !PlayerController) {
-		
-		UE_LOG(LogTemp, Warning, TEXT("LeaveFromPreview_Implementati"));
+	if (!Pawn || !PlayerController)
+	{
+		VF_LOG(Warning, TEXT("%s: No Pawn or No PlayerController"), __FUNCTIONW__);
 		return;
 	}
 

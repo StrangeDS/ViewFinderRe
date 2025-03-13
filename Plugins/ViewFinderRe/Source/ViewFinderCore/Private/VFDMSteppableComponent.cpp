@@ -1,5 +1,6 @@
 #include "VFDMSteppableComponent.h"
 
+#include "VFCommon.h"
 #include "VFDynamicMeshPoolWorldSubsystem.h"
 
 UVFDMSteppableComponent::UVFDMSteppableComponent(const FObjectInitializer &ObjectInitializer)
@@ -26,9 +27,10 @@ void UVFDMSteppableComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     if (Steps.Num() > 1)
     {
-        UE_LOG(LogTemp, Warning,
-               TEXT("%s UVFDMSteppableComponent::EndPlay has UDynamicMesh not return %i"),
+        VF_LOG(Warning,
+               TEXT("%s %s has UDynamicMesh not return %i"),
                *GetOwner()->GetName(),
+               __FUNCTIONW__,
                Steps.Num() - 1);
     }
 
@@ -58,7 +60,6 @@ void UVFDMSteppableComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
 {
     Super::CopyMeshFromComponent(Source);
 
-
     Steps.Add(FVFDMCompStep{
         UVFDMCompStepOperation::CopyMeshFromComponent,
         nullptr,
@@ -78,7 +79,6 @@ void UVFDMSteppableComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
 void UVFDMSteppableComponent::ReplaceMeshForComponent(UPrimitiveComponent *Source)
 {
     Super::ReplaceMeshForComponent(Source);
-
 
     Steps.Add(FVFDMCompStep{
         UVFDMCompStepOperation::ReplaceMeshForComponent,

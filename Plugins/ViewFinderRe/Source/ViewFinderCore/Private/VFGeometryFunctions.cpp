@@ -1,5 +1,7 @@
 #include "VFGeometryFunctions.h"
 
+#include "VFCommon.h"
+
 // WITHOUT_GEOMETRY_SCRIPT开启后(默认), 将不依赖插件.
 // 关闭宏, 将依赖插件接口(考虑到后续更新)
 
@@ -205,7 +207,7 @@ UDynamicMesh *UVFGeometryFunctions::CopyMeshFromStaticMesh(
 
 	if (!ensure(FromStaticMeshAsset->bAllowCPUAccess))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Mesh %s bAllowCPUAccess needs to be true."), *FromStaticMeshAsset->GetName());
+		VF_LOG(Warning, TEXT("Mesh %s bAllowCPUAccess needs to be true."), *FromStaticMeshAsset->GetName());
 #if !WITH_EDITOR
 		return ToDynamicMesh;
 #endif
@@ -231,7 +233,7 @@ UDynamicMesh *UVFGeometryFunctions::CopyMeshFromStaticMesh(
 	FStaticMeshLODResourcesToDynamicMesh Converter;
 	bool Result = Converter.Convert(LODResources, ConvertOptions, NewMesh);
 	if (!Result)
-		UE_LOG(LogTemp, Warning, TEXT("UVFGeometryFunctions::CopyMeshFromStaticMesh() may Get something wrong at Converter."));
+		VF_LOG(Warning, TEXT("%s may Get something wrong at Converter."), __FUNCTIONW__);
 
 	ToDynamicMesh->SetMesh(MoveTemp(NewMesh));
 	return ToDynamicMesh;
@@ -300,7 +302,7 @@ UDynamicMesh *UVFGeometryFunctions::ApplyMeshBoolean(
 			NewBoundaryEdges = MoveTemp(MeshBoolean.CreatedBoundaryEdges); }); });
 
 	if (!bSuccess) // bSuccess经常为False, 但实际并不影响
-		UE_LOG(LogTemp, Warning, TEXT("UVFGeometryFunctions::ApplyMeshBoolean() may Get something wrong at ProcessMesh."));
+		VF_LOG(Warning, TEXT("%s may Get something wrong at ProcessMesh."), __FUNCTIONW__);
 
 	// 逆Transform
 	MeshTransforms::ApplyTransformInverse(NewResultMesh, (FTransformSRT3d)TargetTransform, true);
@@ -347,7 +349,7 @@ UDynamicMesh *UVFGeometryFunctions::ApplyMeshSelfUnion(
 		NewBoundaryEdges = MoveTemp(Union.CreatedBoundaryEdges); }, EDynamicMeshChangeType::GeneralEdit, EDynamicMeshAttributeChangeFlags::Unknown, false);
 
 	if (!bSuccess)
-		UE_LOG(LogTemp, Warning, TEXT("UVFGeometryFunctions::ApplyMeshSelfUnion() fails to EditMesh."));
+		VF_LOG(Warning, TEXT("%s fails to EditMesh."), __FUNCTIONW__);
 
 	if (NewBoundaryEdges.Num() > 0 && Options.bFillHoles)
 	{
@@ -574,7 +576,7 @@ UDynamicMesh *UVFGeometryFunctions::CopyMeshFromComponent(
 	}
 
 	if (!bSuccess)
-		UE_LOG(LogTemp, Warning, TEXT("UVFGeometryFunctions::CopyMeshFromComponent() doesn't success."));
+		VF_LOG(Warning, TEXT("%s doesn't success."), __FUNCTIONW__);
 
 	// transform mesh to world
 	if (bSuccess && bTransformToWorld)

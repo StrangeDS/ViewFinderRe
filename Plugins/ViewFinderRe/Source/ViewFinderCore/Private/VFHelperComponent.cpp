@@ -1,5 +1,6 @@
 #include "VFHelperComponent.h"
 
+#include "VFCommon.h"
 #include "VFStandInInterface.h"
 
 UVFHelperComponent::UVFHelperComponent(const FObjectInitializer &ObjectInitializer)
@@ -70,7 +71,7 @@ bool UVFHelperComponent::NotifyDelegate(UObject *Sender, const FVFHelperDelegate
 		IsHandled = true;
 		break;
 	default:
-		UE_LOG(LogTemp, Warning, TEXT("UVFHelperComponent::NotifyDelegate() don't handle."));
+		VF_LOG(Warning, TEXT("%s don't handle."), __FUNCTIONW__);
 		break;
 	}
 	return IsHandled;

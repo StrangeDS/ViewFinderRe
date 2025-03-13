@@ -3,6 +3,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Engine/StaticMeshActor.h"
 
+#include "VFCommon.h"
 #include "VFTransformRecordVolume.h"
 #include "VFFunctions.h"
 
@@ -85,7 +86,7 @@ void AVFTransfromRecorderActor::TickForward_Implementation(float Time)
 		auto Comp = *It;
 		if (!Comp)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("AVFTransfromRecorderActor::TickForward_Implementation(): Comp销毁"));
+			VF_LOG(Warning, TEXT("%s: Comp销毁"), __FUNCTIONW__);
 			It.RemoveCurrent();
 			continue;
 		}
@@ -118,7 +119,7 @@ void AVFTransfromRecorderActor::TickBackward_Implementation(float Time)
 			auto Comp = Info.Component;
 			if (!CompInfoMap.Contains(Comp))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("AVFTransfromRecorderActor::TickBackward_Implementation(): Comp未找到"));
+				VF_LOG(Warning, TEXT("%s: Comp未找到"), __FUNCTIONW__);
 				continue;
 			}
 			CompInfoMap[Comp] = Info;
@@ -134,7 +135,7 @@ void AVFTransfromRecorderActor::TickBackward_Implementation(float Time)
 		auto &[Comp, Info] = *It;
 		if (!Comp) 
 		{
-			UE_LOG(LogTemp, Warning, TEXT("AVFTransfromRecorderActor::TickBackward_Implementation(): Comp销毁"));
+			VF_LOG(Warning, TEXT("%s: Comp销毁"), __FUNCTIONW__);
 			It.RemoveCurrent();
 			continue;
 		}

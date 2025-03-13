@@ -3,6 +3,7 @@
 #include "Engine/LevelStreaming.h"
 #include "TimerManager.h"
 
+#include "VFCommon.h"
 #include "VFPhoto2D.h"
 #include "VFPhotoCaptureComponent.h"
 
@@ -29,7 +30,7 @@ TArray<UPrimitiveComponent *> AVFPhotoCatcherPref::GetOverlapComps_Implementatio
 {
     if (OnlyActorsCatched.IsEmpty())
     {
-        UE_LOG(LogTemp, Warning,
+        VF_LOG(Warning,
                TEXT("%s(%s): 没有预处理碰撞组件."),
                __FUNCTIONW__,
                *GetName());
@@ -48,7 +49,7 @@ void AVFPhotoCatcherPref::HideCurLevel()
 {
     const ULevel *ActorLevel = GetLevel();
     // GetLevel()打印的名字都是一样的, 但它们是不同的对象(指针是不同的)!
-    // UE_LOG(LogTemp, Warning, TEXT("ActorLevel: %s, P: %p"), *ActorLevel->GetName(), ActorLevel);
+    // VF_LOG(Warning, TEXT("ActorLevel: %s, P: %p"), *ActorLevel->GetName(), ActorLevel);
 
     // 使用ULevelStreaming来进行隐藏
     UWorld *World = GetWorld();
@@ -59,7 +60,7 @@ void AVFPhotoCatcherPref::HideCurLevel()
         {
             if (!StreamingLevel->GetShouldBeVisibleFlag())
             {
-                UE_LOG(LogTemp, Warning, TEXT("已经被隐藏了."));
+                VF_LOG(Warning, TEXT("已经被隐藏了."));
             }
             StreamingLevel->SetShouldBeVisible(false);
             break;

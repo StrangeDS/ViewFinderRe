@@ -10,6 +10,7 @@
 
 #include "Kismet/KismetSystemLibrary.h"
 
+#include "VFCommon.h"
 #include "VFInteractInterface.h"
 #include "VFPhotoContainer.h"
 #include "VFHelperComponent.h"
@@ -91,10 +92,6 @@ void AVFCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCompone
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AVFCharacter::Interact);
 		EnhancedInputComponent->BindAction(SwitchAction, ETriggerEvent::Started, this, &AVFCharacter::Switch);
 	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("'%s' Failed to find an Enhanced Input Component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
-	}
 }
 
 void AVFCharacter::BeginDestroy()
@@ -109,12 +106,12 @@ void AVFCharacter::PossessedBy(AController *NewController)
 	PlayerController = Cast<APlayerController>(Controller);
 	if (!PlayerController)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("PlayerController 不存在"));
+		VF_LOG(Warning, TEXT("%s: PlayerController 不存在"), __FUNCTIONW__);
 		return;
 	}
 	if (!PlayerController->GetLocalPlayer())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GetLocalPlayer 不存在"));
+		VF_LOG(Warning, TEXT("%s: GetLocalPlayer 不存在"), __FUNCTIONW__);
 		return;
 	}
 

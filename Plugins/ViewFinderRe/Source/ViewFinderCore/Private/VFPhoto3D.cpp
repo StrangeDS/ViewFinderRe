@@ -2,10 +2,11 @@
 
 #include "Components/StaticMeshComponent.h"
 
+#include "Kismet/KismetSystemLibrary.h"
+
+#include "VFCommon.h"
 #include "VFDynamicMeshComponent.h"
 #include "VFViewFrustumComponent.h"
-
-#include "Kismet/KismetSystemLibrary.h"
 #include "VFFunctions.h"
 
 AVFPhoto3D::AVFPhoto3D() : Super()
@@ -84,7 +85,7 @@ void AVFPhoto3D::PlaceDown()
 	}
 
 	auto VFDMComps = UVFFunctions::CheckVFDMComps(OverlapComps, VFDMCompClass);
-	UE_LOG(LogTemp, Log, TEXT("PlaceDown overlaps %i"), VFDMComps.Num());
+	VF_LOG(Log, TEXT("PlaceDown overlaps %i"), VFDMComps.Num());
 
 	for (auto Comp : VFDMComps)
 	{

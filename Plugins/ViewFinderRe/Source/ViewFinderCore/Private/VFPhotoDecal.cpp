@@ -3,6 +3,7 @@
 #include "Components/DecalComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 
+#include "VFCommon.h"
 #include "VFPhotoCaptureComponent.h"
 #include "VFViewFrustumComponent.h"
 
@@ -99,7 +100,7 @@ void AVFPhotoDecal::SetManagedActorsEnabled(bool Enabled)
 {
     if (ManagedActors.IsEmpty())
     {
-        UE_LOG(LogTemp, Warning, TEXT("%s: No Actors has been managed."), __FUNCTIONW__);
+        VF_LOG(Warning, TEXT("%s: No Actors has been managed."), __FUNCTIONW__);
     }
     for (auto &Actor : ManagedActors)
     {
