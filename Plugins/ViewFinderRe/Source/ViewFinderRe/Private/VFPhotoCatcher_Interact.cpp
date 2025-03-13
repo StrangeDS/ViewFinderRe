@@ -60,24 +60,16 @@ void AVFPhotoCatcher_Interact::EnableInteract_Implementation(bool Enabled)
 
 void AVFPhotoCatcher_Interact::CloseToPreview_Implementation()
 {
-	if (!Pawn || !PlayerController)
-	{
-		VF_LOG(Warning, TEXT("%s: No Pawn or No PlayerController"), __FUNCTIONW__);
-		return;
-	}
+	check(Pawn && PlayerController);
 
 	Pawn->DisableInput(PlayerController);
-	// PlayerController->SetViewTargetWithBlend(this, TimeOfClose);
+	PlayerController->SetViewTargetWithBlend(this, TimeOfClose);
 }
 
 void AVFPhotoCatcher_Interact::LeaveFromPreview_Implementation()
 {
-	if (!Pawn || !PlayerController)
-	{
-		VF_LOG(Warning, TEXT("%s: No Pawn or No PlayerController"), __FUNCTIONW__);
-		return;
-	}
+	check(Pawn && PlayerController);
 
-	// PlayerController->SetViewTargetWithBlend(Pawn, TimeOfLeave);
+	PlayerController->SetViewTargetWithBlend(Pawn, TimeOfLeave);
 	Pawn->EnableInput(PlayerController);
 }

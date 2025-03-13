@@ -47,11 +47,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void LeaveFromPreview_Move();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
-	FTransform IdleTrans = FTransform(FRotator::ZeroRotator, FVector(50.0f, 30.0f, -20.0f));
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder", meta=(MakeEditWidget))
+	FTransform IdleTrans = FTransform(FRotator::ZeroRotator, FVector(100.0f, 20.0f, -20.0f));
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
-	FTransform PreviewTrans = FTransform(FRotator::ZeroRotator, FVector(50.f, 0.f, 0.f));
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder", meta=(MakeEditWidget))
+	FTransform PreviewTrans = FTransform(FRotator::ZeroRotator, FVector(20.f, 0.f, 0.f));
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
 	FTimerHandle PreviewTimeHandle;

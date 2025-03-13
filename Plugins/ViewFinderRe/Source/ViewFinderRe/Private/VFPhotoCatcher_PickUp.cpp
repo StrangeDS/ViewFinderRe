@@ -57,7 +57,7 @@ AVFPhoto2D *AVFPhotoCatcher_PickUp::TakeAPhoto_Implementation()
 
 void AVFPhotoCatcher_PickUp::CloseToPreview_Implementation()
 {
-    Super::CloseToPreview_Implementation();
+	Pawn->DisableInput(PlayerController);
 
     GetWorldTimerManager().ClearTimer(PreviewTimeHandle);
     GetWorldTimerManager().SetTimer(
@@ -70,7 +70,7 @@ void AVFPhotoCatcher_PickUp::CloseToPreview_Implementation()
 
 void AVFPhotoCatcher_PickUp::LeaveFromPreview_Implementation()
 {
-    Super::LeaveFromPreview_Implementation();
+	Pawn->EnableInput(PlayerController);
 
     bReady = false;
     PhotoCapture->EndDraw();
