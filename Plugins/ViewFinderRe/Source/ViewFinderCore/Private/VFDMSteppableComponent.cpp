@@ -6,6 +6,7 @@
 UVFDMSteppableComponent::UVFDMSteppableComponent(const FObjectInitializer &ObjectInitializer)
     : UVFDynamicMeshComponent(ObjectInitializer)
 {
+    LocalPool = CreateDefaultSubobject<UDynamicMeshPool>("LocalPool");
 }
 
 void UVFDMSteppableComponent::BeginPlay()
@@ -25,35 +26,17 @@ void UVFDMSteppableComponent::BeginPlay()
 
 void UVFDMSteppableComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-    if (Steps.Num() > 1)
-    {
-        VF_LOG(Warning,
-               TEXT("%s %s has UDynamicMesh not return %i"),
-               *GetOwner()->GetName(),
-               __FUNCTIONW__,
-               Steps.Num() - 1);
-    }
-
-    while (!Steps.IsEmpty())
-    {
-        auto &StepInfo = Steps.Last();
-        if (StepInfo.Mesh)
-            MeshPool->ReturnComputingMesh(StepInfo.Mesh);
-        Steps.Pop(false);
-    }
+    Steps.Empty();
+    LocalPool->ReturnAllMeshes();
 
     Super::EndPlay(EndPlayReason);
 }
 
 UDynamicMesh *UVFDMSteppableComponent::RequestACopiedMesh()
 {
-    if (ensure(MeshPool))
-    {
-        auto CopyiedMesh = MeshPool->RequestComputingMesh();
+        auto CopyiedMesh = LocalPool->RequestMesh();
         CopyiedMesh->SetMesh(MeshObject->GetMeshRef());
         return CopyiedMesh;
-    }
-    return nullptr;
 }
 
 void UVFDMSteppableComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
@@ -166,7 +149,6 @@ void UVFDMSteppableComponent::TickBackward_Implementation(float Time)
         case UVFDMCompStepOperation::UnionMeshWithDMComp:
         {
             MeshObject->SetMesh(StepInfo.Mesh->GetMeshRef());
-            MeshPool->ReturnComputingMesh(StepInfo.Mesh);
             break;
         }
         default:

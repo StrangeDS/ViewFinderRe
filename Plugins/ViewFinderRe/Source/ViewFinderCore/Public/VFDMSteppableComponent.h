@@ -26,7 +26,7 @@ USTRUCT(BlueprintType)
 struct FVFDMCompStep
 {
 	GENERATED_BODY()
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	UVFDMCompStepOperation Operation = UVFDMCompStepOperation::None;
 
@@ -43,7 +43,7 @@ class VIEWFINDERCORE_API UVFDMSteppableComponent : public UVFDynamicMeshComponen
 	GENERATED_BODY()
 
 public:
-	UVFDMSteppableComponent(const FObjectInitializer& ObjectInitializer);
+	UVFDMSteppableComponent(const FObjectInitializer &ObjectInitializer);
 
 	virtual void BeginPlay() override;
 
@@ -53,14 +53,14 @@ public:
 	UDynamicMesh *RequestACopiedMesh();
 
 public:
-	virtual void CopyMeshFromComponent(UPrimitiveComponent* Source) override;
-	
+	virtual void CopyMeshFromComponent(UPrimitiveComponent *Source) override;
+
 	virtual void ReplaceMeshForComponent(UPrimitiveComponent *Source) override;
-	
+
 	virtual void IntersectMeshWithDMComp(UDynamicMeshComponent *Tool) override;
 
 	virtual void SubtractMeshWithDMComp(UDynamicMeshComponent *Tool) override;
-	
+
 	virtual void UnionMeshWithDMComp(UDynamicMeshComponent *Tool) override;
 
 public:
@@ -71,4 +71,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TArray<FVFDMCompStep> Steps;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	TObjectPtr<UDynamicMeshPool> LocalPool;
 };
