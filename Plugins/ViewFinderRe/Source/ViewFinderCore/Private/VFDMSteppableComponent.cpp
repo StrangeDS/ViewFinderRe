@@ -6,7 +6,7 @@
 UVFDMSteppableComponent::UVFDMSteppableComponent(const FObjectInitializer &ObjectInitializer)
     : UVFDynamicMeshComponent(ObjectInitializer)
 {
-    LocalPool = CreateDefaultSubobject<UDynamicMeshPool>("LocalPool");
+    LocalPool = CreateDefaultSubobject<UDynamicMeshPool>(TEXT("LocalPool"));
 }
 
 void UVFDMSteppableComponent::BeginPlay()
@@ -16,7 +16,7 @@ void UVFDMSteppableComponent::BeginPlay()
     StepRecorder = GetWorld()->GetSubsystem<UVFStepsRecorderWorldSubsystem>();
     check(StepRecorder);
 
-    Steps.Reserve(UVFStepsRecorderWorldSubsystem::SizeRecommended);
+    Steps.Reserve(200);
     Steps.Add(FVFDMCompStep{
         UVFDMCompStepOperation::BeginPlay,
         nullptr,
@@ -26,17 +26,31 @@ void UVFDMSteppableComponent::BeginPlay()
 
 void UVFDMSteppableComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-    Steps.Empty();
+    StepRecorder->UnregisterTickable(this);
+    StepRecorder = nullptr;
+    Steps.Reset();
     LocalPool->ReturnAllMeshes();
 
     Super::EndPlay(EndPlayReason);
 }
 
+void UVFDMSteppableComponent::DestroyComponent(bool bPromoteChildren)
+{
+    auto World = GetWorld();
+
+    Super::DestroyComponent(bPromoteChildren);
+
+    if (auto CompsPool = World->GetSubsystem<UVFDynamicMeshPoolWorldSubsystem>())
+    {
+        CompsPool->ReturnComp(this);
+    }
+}
+
 UDynamicMesh *UVFDMSteppableComponent::RequestACopiedMesh()
 {
-        auto CopyiedMesh = LocalPool->RequestMesh();
-        CopyiedMesh->SetMesh(MeshObject->GetMeshRef());
-        return CopyiedMesh;
+    auto CopyiedMesh = LocalPool->RequestMesh();
+    CopyiedMesh->SetMesh(MeshObject->GetMeshRef());
+    return CopyiedMesh;
 }
 
 void UVFDMSteppableComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
@@ -119,13 +133,6 @@ void UVFDMSteppableComponent::TickBackward_Implementation(float Time)
         }
         case UVFDMCompStepOperation::CopyMeshFromComponent:
         {
-            // Source不保存的做法
-            // auto SourceVFDMComp = GetSourceVFDMComp();
-            // if (SourceVFDMComp)
-            // {
-            //     SetComponentToWorld(SourceVFDMComp->GetComponentToWorld());
-            //     SourceVFDMComp->UnionMeshWithDMComp(this);
-            // }
             break;
         }
         case UVFDMCompStepOperation::RegisterToTransformRecorder:

@@ -7,13 +7,7 @@
 
 #include "VFDynamicMeshPoolWorldSubsystem.generated.h"
 
-UENUM(BlueprintType)
-enum class EVFMeshType : uint8
-{
-	None = 0,
-	Placing,
-	Computing
-};
+class UVFDynamicMeshComponent;
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERCORE_API UVFDynamicMeshPoolWorldSubsystem : public UWorldSubsystem
@@ -23,22 +17,32 @@ class VIEWFINDERCORE_API UVFDynamicMeshPoolWorldSubsystem : public UWorldSubsyst
 	UVFDynamicMeshPoolWorldSubsystem();
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	UDynamicMesh *RequestPlacingMesh(UPrimitiveComponent *PrimitiveComponent);
+	virtual void Deinitialize() override;
 
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void ReturnPlacingMesh(UDynamicMesh *DynamicMesh);
+public:
+	// 获取组件
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder | DMCompPool")
+	UVFDynamicMeshComponent *GetOrCreateComp(
+		UObject *Outer,
+		const TSubclassOf<UVFDynamicMeshComponent> &CompClass);
 
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	UDynamicMesh *RequestComputingMesh(UPrimitiveComponent *PrimitiveComponent = nullptr);
+	// 归还组件
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder | DMCompPool")
+	void ReturnComp(UVFDynamicMeshComponent *Comp);
 
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void ReturnComputingMesh(UDynamicMesh *DynamicMesh);
+	// 清理地址
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder | DMCompPool")
+	void ClearComps(bool bForceGarbage = true);
 
-protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<UDynamicMeshPool> PlacingPool;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder | DMCompPool")
+	TArray<TObjectPtr<UVFDynamicMeshComponent>> AvailableComps;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<UDynamicMeshPool> ComputingPool;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder | DMCompPool")
+	TArray<TObjectPtr<UVFDynamicMeshComponent>> AllComps;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder | DMCompPool")
+	int SizeOfPool = 10000;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder | DMCompPool")
+	bool bUsingPool = false;
 };

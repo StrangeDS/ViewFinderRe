@@ -16,12 +16,6 @@ void UVFDynamicMeshComponent::BeginPlay()
     MeshPool = GetWorld()->GetSubsystem<UVFDynamicMeshPoolWorldSubsystem>();
 }
 
-// void UVFDynamicMeshComponent::SetDynamicMeshFromPool(UDynamicMesh *Mesh, EVFMeshType Type)
-// {
-//     MeshType = Type;
-//     SetDynamicMesh(Mesh);
-// }
-
 void UVFDynamicMeshComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
 {
     check(Source);
@@ -73,7 +67,7 @@ void UVFDynamicMeshComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
 void UVFDynamicMeshComponent::ReplaceMeshForComponent(UPrimitiveComponent *Source)
 {
     CopyMeshFromComponent(Source);
-    
+
     Source->SetSimulatePhysics(false);
     Source->SetCollisionProfileName("NoCollision");
     Source->SetCollisionEnabled(ECollisionEnabled::NoCollision);

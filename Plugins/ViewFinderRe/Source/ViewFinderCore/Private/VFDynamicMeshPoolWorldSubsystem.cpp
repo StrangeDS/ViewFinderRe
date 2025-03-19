@@ -1,51 +1,61 @@
 #include "VFDynamicMeshPoolWorldSubsystem.h"
 
+#include "VFCommon.h"
+#include "VFDynamicMeshComponent.h"
 #include "VFGeometryFunctions.h"
 
 UVFDynamicMeshPoolWorldSubsystem::UVFDynamicMeshPoolWorldSubsystem()
 {
-    PlacingPool = CreateDefaultSubobject<UDynamicMeshPool>(TEXT("PlacingPool"));
-    ComputingPool = CreateDefaultSubobject<UDynamicMeshPool>(TEXT("ComputingPool"));
 }
 
-// 基于UDynamicMeshPool::RequestMesh()，但其中有1000的默认上限，超出上限会将池中所有回收。
-UDynamicMesh *UVFDynamicMeshPoolWorldSubsystem::RequestPlacingMesh(UPrimitiveComponent *PrimitiveComponent)
+void UVFDynamicMeshPoolWorldSubsystem::Deinitialize()
 {
-    if (!PrimitiveComponent) return nullptr;
+    ClearComps();
 
-    UDynamicMesh *Mesh = PlacingPool->RequestMesh();
-
-    UVFGeometryFunctions::CopyMeshFromComponent(
-        PrimitiveComponent,
-        Mesh,
-        FVF_GeometryScriptCopyMeshFromComponentOptions(),
-        true);
-
-    return Mesh;
+    Super::Deinitialize();
 }
 
-void UVFDynamicMeshPoolWorldSubsystem::ReturnPlacingMesh(UDynamicMesh* DynamicMesh)
+UVFDynamicMeshComponent *UVFDynamicMeshPoolWorldSubsystem::GetOrCreateComp(
+    UObject *Outer,
+    const TSubclassOf<UVFDynamicMeshComponent> &CompClass)
 {
-    PlacingPool->ReturnMesh(DynamicMesh);
+    UVFDynamicMeshComponent *CompRes = nullptr;
+    if (!Outer || !CompClass)
+        return CompRes;
+
+    if (bUsingPool)
+    {
+        for (auto Comp : AvailableComps)
+        {
+            if (Comp->GetClass() == CompClass)
+            {
+                CompRes = Comp.Get();
+                AvailableComps.RemoveSwap(Comp);
+                CompRes->Rename(nullptr, Outer);
+                return CompRes;
+            }
+        }
+    }
+
+    CompRes = NewObject<UVFDynamicMeshComponent>(Outer, CompClass, NAME_None);
+    AllComps.Add(CompRes);
+
+    return CompRes;
 }
 
-// 基于UDynamicMeshPool::RequestMesh()，但其中有1000的默认上限，超出上限会将池中所有回收。
-UDynamicMesh *UVFDynamicMeshPoolWorldSubsystem::RequestComputingMesh(UPrimitiveComponent *PrimitiveComponent)
+void UVFDynamicMeshPoolWorldSubsystem::ReturnComp(UVFDynamicMeshComponent *Comp)
 {
-    UDynamicMesh *Mesh = ComputingPool->RequestMesh();
-    if (!PrimitiveComponent)
-        return Mesh;
+    if (!bUsingPool || !AllComps.Contains(Comp))
+        return;
 
-    UVFGeometryFunctions::CopyMeshFromComponent(
-        PrimitiveComponent,
-        Mesh,
-        FVF_GeometryScriptCopyMeshFromComponentOptions(),
-        true);
-
-    return Mesh;
+    Comp->Rename(nullptr, this);
+    AvailableComps.AddUnique(Comp);
 }
 
-void UVFDynamicMeshPoolWorldSubsystem::ReturnComputingMesh(UDynamicMesh* DynamicMesh)
+void UVFDynamicMeshPoolWorldSubsystem::ClearComps(bool bForceGarbage)
 {
-    ComputingPool->ReturnMesh(DynamicMesh);
+    AllComps.Reset(SizeOfPool);
+    AvailableComps.Reset(SizeOfPool);
+    if (bForceGarbage)
+        GEngine->ForceGarbageCollection(true);
 }
