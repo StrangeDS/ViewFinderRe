@@ -179,6 +179,13 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 	{
 		Helper->NotifyDelegate(this, FVFHelperDelegateType::CopyAfterCopiedForPhoto);
 	}
+	
+	// 创建照片, 被切割前拍照
+	AVFPhoto2D *Photo2D = GetWorld()->SpawnActor<AVFPhoto2D>(
+		VFPhoto2DClass.Get(),
+		ViewFrustum->GetComponentLocation(),
+		ViewFrustum->GetComponentRotation());
+	Photo2D->SetPhoto(PhotoCapture);
 
 	// 原VFDynamicMeshComponent做切割
 	if (bCuttingOrignal)
@@ -199,11 +206,7 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 		Comp->IntersectMeshWithDMComp(ViewFrustum);
 	}
 
-	// 创建照片, 后续处理
-	AVFPhoto2D *Photo2D = GetWorld()->SpawnActor<AVFPhoto2D>(
-		VFPhoto2DClass.Get(),
-		ViewFrustum->GetComponentLocation(),
-		ViewFrustum->GetComponentRotation());
+	// Photo2D和Photo3D的后续处理
 	Photo2D->SetPhoto3D(Photo3D);
 	Photo3D->RecordProperty(ViewFrustum, bOnlyOverlapWithHelps, ObjectTypesToOverlap);
 
@@ -215,7 +218,6 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 	Photo2D->FoldUp();
 
 	Photo2D->AspectRatio = AspectRatio;
-	Photo2D->SetPhoto(PhotoCapture);
 
 	for (auto &Helper : HelpersRecorder)
 	{

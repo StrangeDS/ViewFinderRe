@@ -18,7 +18,9 @@ class VIEWFINDERCORE_API UVFFunctions : public UBlueprintFunctionLibrary
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	static AActor *CloneActorRuntime(AActor *Original);
+	static AActor *CloneActorRuntime(
+		AActor *Original,
+		TArray<UVFDynamicMeshComponent *> &CopiedComps);
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	static AActor *ReplaceWithStandIn(
@@ -32,9 +34,6 @@ public:
 	static TArray<UVFDynamicMeshComponent *> CheckVFDMComps(
 		const TArray<UPrimitiveComponent *> &Components,
 		TSubclassOf<UVFDynamicMeshComponent> VFDMCompClass);
-
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	static UVFDynamicMeshComponent *GetCloneVFDMComp(UVFDynamicMeshComponent *Target, AActor *Copied);
 
 	/// @brief 复制VFDMComp列表的Actor
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")

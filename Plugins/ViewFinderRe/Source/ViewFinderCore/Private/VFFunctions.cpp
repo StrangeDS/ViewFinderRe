@@ -4,13 +4,61 @@
 #include "VFDynamicMeshPoolWorldSubsystem.h"
 #include "VFStandInInterface.h"
 
+static USceneComponent *GetComponentByName(AActor *Actor, const FName &Name)
+{
+	check(Actor);
+	TArray<USceneComponent *> Comps;
+	Actor->GetComponents<USceneComponent>(Comps);
+	for (auto &Comp : Comps)
+	{
+		if (Comp->GetFName() == Name)
+			return Comp;
+	}
+	check(false);
+	return nullptr;
+}
+
+static UVFDynamicMeshComponent *NewVFDMComp(UObject *Outer, const TSubclassOf<UVFDynamicMeshComponent> &Class)
+{
+	check(Outer && Class);
+	auto World = Outer->GetWorld();
+	check(World);
+
+	UVFDynamicMeshComponent *Comp = nullptr;
+	if (auto CompsPool = World->GetSubsystem<UVFDynamicMeshPoolWorldSubsystem>())
+	{
+		Comp = CompsPool->GetOrCreateComp(Outer, Class);
+	}
+	else
+	{
+		Comp = NewObject<UVFDynamicMeshComponent>(Outer, Class);
+	}
+	return Comp;
+}
+
+// Actor会在UVFDynamicMeshComponent被卸载后才进行复制, 而后组件又被装回.
+// 这意味着, UVFDynamicMeshComponent上不能有复制的层级关系. 若有, 请考虑根据层级还原.
 // 非递归拷贝Actor, 需要递归可参考AVFPhoto2D::CopyPhoto3D()
-AActor *UVFFunctions::CloneActorRuntime(AActor *Original)
+AActor *UVFFunctions::CloneActorRuntime(
+	AActor *Original,
+	TArray<UVFDynamicMeshComponent *> &CopiedComps)
 {
 	if (!Original || !Original->GetWorld())
 		return nullptr;
 	UWorld *World = Original->GetWorld();
 
+	// 卸载VFDynamicComps
+	TMap<UVFDynamicMeshComponent *, USceneComponent *> Parents;
+	TArray<UVFDynamicMeshComponent *> DMComps;
+	Original->GetComponents<UVFDynamicMeshComponent>(DMComps);
+	for (auto &DMComp : DMComps)
+	{
+		Parents.Add(DMComp, DMComp->GetAttachParent());
+		Original->RemoveInstanceComponent(DMComp);
+		DMComp->UnregisterComponent();
+	}
+
+	// 复制Actor
 	FActorSpawnParameters Parameters;
 	Parameters.Template = Original;
 	Parameters.CustomPreSpawnInitalization = [](AActor *Actor)
@@ -18,8 +66,29 @@ AActor *UVFFunctions::CloneActorRuntime(AActor *Original)
 		Actor->GetRootComponent()->SetMobility(EComponentMobility::Movable);
 	};
 	AActor *Copy = World->SpawnActor<AActor>(Original->GetClass(), Parameters);
-	// 手动设置transform是必要的, 否则会将Original相对于其父Actor(Photo3D)的相对Transform视为绝对Transform.
+	// 手动设置transform是必要的
+	// 否则会将Original相对于其父Actor(Photo3D)的相对Transform视为绝对Transform.
 	Copy->SetActorTransform(Original->GetActorTransform());
+
+	for (auto &DMComp : DMComps)
+	{
+		// 还原组件
+		auto Parent = Parents[DMComp];
+		Original->AddInstanceComponent(DMComp);
+		DMComp->AttachToComponent(Parent, FAttachmentTransformRules::SnapToTargetIncludingScale);
+		DMComp->RegisterComponent();
+
+		UVFDynamicMeshComponent *CopiedComp = NewVFDMComp(Copy, DMComp->GetClass());
+		CopiedComps.Add(CopiedComp);
+		// 同步层级
+		Copy->AddInstanceComponent(CopiedComp);
+		CopiedComp->RegisterComponent();
+		CopiedComp->AttachToComponent(
+			GetComponentByName(Copy, Parent->GetFName()),
+			FAttachmentTransformRules::SnapToTargetIncludingScale);
+		CopiedComp->CopyMeshFromComponent(DMComp);
+	}
+
 	return Copy;
 }
 
@@ -69,14 +138,13 @@ TArray<UVFDynamicMeshComponent *> UVFFunctions::CheckVFDMComps(
 				// 只挂载被包含的组件
 				if (Components.Contains(PrimComp))
 				{
-					// UWorld *World = Actor->GetWorld();
-					// UVFDynamicMeshPoolWorldSubsystem *PoolSystem = World->GetSubsystem<UVFDynamicMeshPoolWorldSubsystem>();
+					UWorld *World = Actor->GetWorld();
+					auto PoolSystem = World->GetSubsystem<UVFDynamicMeshPoolWorldSubsystem>();
+					UVFDynamicMeshComponent *VFDMComp = NewVFDMComp(Actor, VFDMCompClass);
 
-					UVFDynamicMeshComponent *VFDMComp = NewObject<UVFDynamicMeshComponent>(Actor, VFDMCompClass.Get());
-
+					Actor->AddInstanceComponent(VFDMComp);
 					VFDMComp->RegisterComponent();
 					VFDMComp->AttachToComponent(PrimComp, FAttachmentTransformRules::SnapToTargetIncludingScale);
-					Actor->AddInstanceComponent(VFDMComp);
 					VFDMComp->ReplaceMeshForComponent(PrimComp);
 
 					Result.Add(VFDMComp);
@@ -87,21 +155,7 @@ TArray<UVFDynamicMeshComponent *> UVFFunctions::CheckVFDMComps(
 	return Result;
 }
 
-UVFDynamicMeshComponent *UVFFunctions::GetCloneVFDMComp(UVFDynamicMeshComponent *Target, AActor *Copied)
-{
-	TArray<UVFDynamicMeshComponent *> VFDMComps;
-	Copied->GetComponents<UVFDynamicMeshComponent>(VFDMComps);
-	for (const auto &VFDMComp : VFDMComps)
-	{
-		if (VFDMComp->GetName() == Target->GetFName())
-		{
-			return VFDMComp;
-		}
-	}
-	return nullptr;
-}
-
-FTransform UVFFunctions::TransformLerp(const FTransform & A, const FTransform & B, float delta)
+FTransform UVFFunctions::TransformLerp(const FTransform &A, const FTransform &B, float delta)
 {
 	FRotator Rot = FMath::Lerp(A.Rotator(), B.Rotator(), delta);
 	FVector Loc = FMath::Lerp(A.GetLocation(), B.GetLocation(), delta);
@@ -109,7 +163,10 @@ FTransform UVFFunctions::TransformLerp(const FTransform & A, const FTransform & 
 	return FTransform(Rot, Loc, Scaled);
 }
 
-TArray<AActor *> UVFFunctions::CopyActorFromVFDMComps(UWorld *World, const TArray<UVFDynamicMeshComponent *> &Components, TArray<UVFDynamicMeshComponent *> &CopiedComps)
+TArray<AActor *> UVFFunctions::CopyActorFromVFDMComps(
+	UWorld *World,
+	const TArray<UVFDynamicMeshComponent *> &Components,
+	TArray<UVFDynamicMeshComponent *> &CopiedComps)
 {
 	TRACE_CPUPROFILER_EVENT_SCOPE(TEXT("UVFFunctions::CopyActorFromVFDMComps()"));
 	CopiedComps.Reset();
@@ -125,17 +182,10 @@ TArray<AActor *> UVFFunctions::CopyActorFromVFDMComps(UWorld *World, const TArra
 		// Actor的拷贝份, 纳入映射.
 		if (!ActorsMap.Contains(Source))
 		{
-			AActor *Copy = CloneActorRuntime(Source);
+			AActor *Copy = CloneActorRuntime(Source, CopiedComps);
 			ActorsMap.Add(Source, Copy);
 		}
 		AActor *Copied = ActorsMap[Source];
-	}
-
-	for (UVFDynamicMeshComponent *Component : Components)
-	{
-		auto CopiedComp = GetCloneVFDMComp(Component, ActorsMap[Component->GetOwner()]);
-		CopiedComp->CopyMeshFromComponent(Component);
-		CopiedComps.Emplace(CopiedComp);
 	}
 
 	TArray<AActor *> Result;

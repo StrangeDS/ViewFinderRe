@@ -46,7 +46,7 @@ void AVFPhoto2D::SetActorHiddenInGame(bool bNewHidden)
 {
 	Super::SetActorHiddenInGame(bNewHidden);
 
-	if (bNewHidden)	// SetActorEnableCollision(true)需要手动开启
+	if (bNewHidden) // SetActorEnableCollision(true)需要手动开启
 		SetActorEnableCollision(false);
 }
 
@@ -120,14 +120,10 @@ void AVFPhoto2D::PlaceDown()
 // 递归拷贝Actor
 static AActor *CopyActor(AActor *Actor)
 {
-	auto Res = UVFFunctions::CloneActorRuntime(Actor);
+	TArray<UVFDynamicMeshComponent *> _CopiedComps;
+	auto Res = UVFFunctions::CloneActorRuntime(Actor, _CopiedComps);
 	TArray<UVFDynamicMeshComponent *> VFDMComps;
 	Actor->GetComponents<UVFDynamicMeshComponent>(VFDMComps);
-	for (auto &VFDMComp : VFDMComps)
-	{
-		auto CopiedComp = UVFFunctions::GetCloneVFDMComp(VFDMComp, Res);
-		CopiedComp->CopyMeshFromComponent(VFDMComp);
-	}
 
 	// 深搜子Actors
 	TArray<AActor *> ChildActors;
@@ -139,7 +135,7 @@ static AActor *CopyActor(AActor *Actor)
 	return Res;
 }
 
-void AVFPhoto2D::CopyPhoto3D(UObject* Sender)
+void AVFPhoto2D::CopyPhoto3D(UObject *Sender)
 {
 	if (!Photo3D)
 		return;
