@@ -28,6 +28,20 @@ void UVFStepsRecorderWorldSubsystem::OnWorldBeginPlay(UWorld &InWorld)
 
 void UVFStepsRecorderWorldSubsystem::Tick(float DeltaTime)
 {
+    if (TargetsNeedToAdd.Num() > 0)
+    {
+        TickTargets.Append(TargetsNeedToAdd);
+        TargetsNeedToAdd.Reset();
+    }
+    else if (TargetsNeedToRemove.Num() > 0)
+    {
+        TickTargets.RemoveAll(
+            [this](
+                const TScriptInterface<IVFStepsRecordInterface> &Target)
+            { return TargetsNeedToRemove.Contains(Target); });
+        TargetsNeedToRemove.Reset();
+    }
+
     TimeSinceLastTick += bIsRewinding ? DeltaTime * RewindCurFactor : DeltaTime;
     while (TimeSinceLastTick > TickInterval)
     {
@@ -131,7 +145,7 @@ void UVFStepsRecorderWorldSubsystem::UnrecordTransform(USceneComponent *Componen
 void UVFStepsRecorderWorldSubsystem::RegisterTickable(TScriptInterface<IVFStepsRecordInterface> Target)
 {
     check(Target.GetObject()->Implements<UVFStepsRecordInterface>());
-    TickTargets.AddUnique(Target);
+    TargetsNeedToAdd.AddUnique(Target);
 }
 
 void UVFStepsRecorderWorldSubsystem::RegisterTransformRecordere(AVFTransfromRecorderActor *Recorder)
@@ -143,8 +157,11 @@ void UVFStepsRecorderWorldSubsystem::RegisterTransformRecordere(AVFTransfromReco
 
 void UVFStepsRecorderWorldSubsystem::UnregisterTickable(TScriptInterface<IVFStepsRecordInterface> Target)
 {
-    if (TickTargets.Contains(Target))
-        TickTargets.RemoveSwap(Target);
+    check(Target.GetObject()->Implements<UVFStepsRecordInterface>());
+    if (ensure(TickTargets.Contains(Target)))
+    {
+        TargetsNeedToRemove.AddUnique(Target);
+    }
 }
 
 void UVFStepsRecorderWorldSubsystem::StartRewinding()

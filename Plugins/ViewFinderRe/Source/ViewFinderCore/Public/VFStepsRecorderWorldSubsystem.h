@@ -65,6 +65,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TArray<TScriptInterface<IVFStepsRecordInterface>> TickTargets;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	TArray<TScriptInterface<IVFStepsRecordInterface>> TargetsNeedToAdd;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	TArray<TScriptInterface<IVFStepsRecordInterface>> TargetsNeedToRemove;
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void StartRewinding();
