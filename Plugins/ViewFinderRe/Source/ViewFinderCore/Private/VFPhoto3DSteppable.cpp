@@ -51,6 +51,11 @@ bool AVFPhoto3DSteppable::StepBack_Implementation(FVFStepInfo &StepInfo)
         Destroy();
         break;
     }
+    case EVFPhoto3DState::FirstFold:
+    {
+        // Nothing to do.
+        break;
+    }
     case EVFPhoto3DState::Folded:
     {
         PlaceDown();

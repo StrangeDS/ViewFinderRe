@@ -301,8 +301,8 @@ UDynamicMesh *UVFGeometryFunctions::ApplyMeshBoolean(
 			bSuccess = MeshBoolean.Compute();
 			NewBoundaryEdges = MoveTemp(MeshBoolean.CreatedBoundaryEdges); }); });
 
-	if (!bSuccess) // bSuccess经常为False, 但实际并不影响
-		VF_LOG(Warning, TEXT("%s may Get something wrong at ProcessMesh."), __FUNCTIONW__);
+	// if (!bSuccess) // bSuccess经常为False, 但实际并不影响
+	// 	VF_LOG(Warning, TEXT("%s may Get something wrong at ProcessMesh."), __FUNCTIONW__);
 
 	// 逆Transform
 	MeshTransforms::ApplyTransformInverse(NewResultMesh, (FTransformSRT3d)TargetTransform, true);
