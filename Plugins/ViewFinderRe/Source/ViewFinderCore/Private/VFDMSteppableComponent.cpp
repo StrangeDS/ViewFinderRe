@@ -1,7 +1,7 @@
 #include "VFDMSteppableComponent.h"
 
 #include "VFCommon.h"
-#include "VFDynamicMeshPoolWorldSubsystem.h"
+#include "VFDMCompPoolWorldSubsystem.h"
 
 UVFDMSteppableComponent::UVFDMSteppableComponent(const FObjectInitializer &ObjectInitializer)
     : UVFDynamicMeshComponent(ObjectInitializer)
@@ -40,7 +40,7 @@ void UVFDMSteppableComponent::DestroyComponent(bool bPromoteChildren)
 
     Super::DestroyComponent(bPromoteChildren);
 
-    if (auto CompsPool = World->GetSubsystem<UVFDynamicMeshPoolWorldSubsystem>())
+    if (auto CompsPool = World->GetSubsystem<UVFDMCompPoolWorldSubsystem>())
     {
         CompsPool->ReturnComp(this);
     }

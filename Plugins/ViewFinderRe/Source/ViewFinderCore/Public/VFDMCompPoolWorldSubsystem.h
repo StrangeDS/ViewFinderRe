@@ -5,16 +5,16 @@
 
 #include "UDynamicMesh.h"
 
-#include "VFDynamicMeshPoolWorldSubsystem.generated.h"
+#include "VFDMCompPoolWorldSubsystem.generated.h"
 
 class UVFDynamicMeshComponent;
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
-class VIEWFINDERCORE_API UVFDynamicMeshPoolWorldSubsystem : public UWorldSubsystem
+class VIEWFINDERCORE_API UVFDMCompPoolWorldSubsystem : public UWorldSubsystem
 {
 	GENERATED_BODY()
 
-	UVFDynamicMeshPoolWorldSubsystem();
+	UVFDMCompPoolWorldSubsystem();
 
 public:
 	virtual void Deinitialize() override;

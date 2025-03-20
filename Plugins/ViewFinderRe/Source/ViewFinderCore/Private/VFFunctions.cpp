@@ -1,7 +1,7 @@
 #include "VFFunctions.h"
 
 #include "VFDynamicMeshComponent.h"
-#include "VFDynamicMeshPoolWorldSubsystem.h"
+#include "VFDMCompPoolWorldSubsystem.h"
 #include "VFStandInInterface.h"
 
 static USceneComponent *GetComponentByName(AActor *Actor, const FName &Name)
@@ -25,7 +25,7 @@ static UVFDynamicMeshComponent *NewVFDMComp(UObject *Outer, const TSubclassOf<UV
 	check(World);
 
 	UVFDynamicMeshComponent *Comp = nullptr;
-	if (auto CompsPool = World->GetSubsystem<UVFDynamicMeshPoolWorldSubsystem>())
+	if (auto CompsPool = World->GetSubsystem<UVFDMCompPoolWorldSubsystem>())
 	{
 		Comp = CompsPool->GetOrCreateComp(Outer, Class);
 	}
@@ -139,7 +139,7 @@ TArray<UVFDynamicMeshComponent *> UVFFunctions::CheckVFDMComps(
 				if (Components.Contains(PrimComp))
 				{
 					UWorld *World = Actor->GetWorld();
-					auto PoolSystem = World->GetSubsystem<UVFDynamicMeshPoolWorldSubsystem>();
+					auto PoolSystem = World->GetSubsystem<UVFDMCompPoolWorldSubsystem>();
 					UVFDynamicMeshComponent *VFDMComp = NewVFDMComp(Actor, VFDMCompClass);
 
 					Actor->AddInstanceComponent(VFDMComp);

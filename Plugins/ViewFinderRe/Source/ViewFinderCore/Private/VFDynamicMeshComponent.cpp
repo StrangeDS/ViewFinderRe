@@ -1,6 +1,6 @@
 #include "VFDynamicMeshComponent.h"
 
-#include "VFDynamicMeshPoolWorldSubsystem.h"
+#include "VFDMCompPoolWorldSubsystem.h"
 #include "VFGeometryFunctions.h"
 
 UVFDynamicMeshComponent::UVFDynamicMeshComponent(const FObjectInitializer &ObjectInitializer)
@@ -13,7 +13,7 @@ void UVFDynamicMeshComponent::BeginPlay()
 {
     Super::BeginPlay();
 
-    MeshPool = GetWorld()->GetSubsystem<UVFDynamicMeshPoolWorldSubsystem>();
+    MeshPool = GetWorld()->GetSubsystem<UVFDMCompPoolWorldSubsystem>();
 }
 
 void UVFDynamicMeshComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)

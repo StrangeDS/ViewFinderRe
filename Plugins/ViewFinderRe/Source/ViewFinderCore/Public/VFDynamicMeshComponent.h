@@ -63,5 +63,5 @@ protected:
 
 protected:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<class UVFDynamicMeshPoolWorldSubsystem> MeshPool;
+	TObjectPtr<class UVFDMCompPoolWorldSubsystem> MeshPool;
 };

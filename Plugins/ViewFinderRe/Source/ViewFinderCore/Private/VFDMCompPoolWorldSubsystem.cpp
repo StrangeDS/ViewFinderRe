@@ -1,21 +1,21 @@
-#include "VFDynamicMeshPoolWorldSubsystem.h"
+#include "VFDMCompPoolWorldSubsystem.h"
 
 #include "VFCommon.h"
 #include "VFDynamicMeshComponent.h"
 #include "VFGeometryFunctions.h"
 
-UVFDynamicMeshPoolWorldSubsystem::UVFDynamicMeshPoolWorldSubsystem()
+UVFDMCompPoolWorldSubsystem::UVFDMCompPoolWorldSubsystem()
 {
 }
 
-void UVFDynamicMeshPoolWorldSubsystem::Deinitialize()
+void UVFDMCompPoolWorldSubsystem::Deinitialize()
 {
     ClearComps();
 
     Super::Deinitialize();
 }
 
-UVFDynamicMeshComponent *UVFDynamicMeshPoolWorldSubsystem::GetOrCreateComp(
+UVFDynamicMeshComponent *UVFDMCompPoolWorldSubsystem::GetOrCreateComp(
     UObject *Outer,
     const TSubclassOf<UVFDynamicMeshComponent> &CompClass)
 {
@@ -43,7 +43,7 @@ UVFDynamicMeshComponent *UVFDynamicMeshPoolWorldSubsystem::GetOrCreateComp(
     return CompRes;
 }
 
-void UVFDynamicMeshPoolWorldSubsystem::ReturnComp(UVFDynamicMeshComponent *Comp)
+void UVFDMCompPoolWorldSubsystem::ReturnComp(UVFDynamicMeshComponent *Comp)
 {
     if (!bUsingPool || !AllComps.Contains(Comp))
         return;
@@ -52,7 +52,7 @@ void UVFDynamicMeshPoolWorldSubsystem::ReturnComp(UVFDynamicMeshComponent *Comp)
     AvailableComps.AddUnique(Comp);
 }
 
-void UVFDynamicMeshPoolWorldSubsystem::ClearComps(bool bForceGarbage)
+void UVFDMCompPoolWorldSubsystem::ClearComps(bool bForceGarbage)
 {
     AllComps.Reset(SizeOfPool);
     AvailableComps.Reset(SizeOfPool);
