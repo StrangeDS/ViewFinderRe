@@ -125,8 +125,8 @@ void AVFPhotoContainer::UpdateCurrentPhoto()
 		CurrentPhoto2D->SetActorHiddenInGame(true);
 
 	CurrentPhoto2D = Photo2Ds.IsEmpty() ? nullptr : Photo2Ds.Last();
-	if (CurrentPhoto2D && bEnabled)
-		CurrentPhoto2D->SetActorHiddenInGame(false);
+	if (CurrentPhoto2D)
+		CurrentPhoto2D->SetActorHiddenInGame(!bEnabled);
 }
 
 void AVFPhotoContainer::RotateCurrentPhoto(float Delta)
@@ -134,7 +134,8 @@ void AVFPhotoContainer::RotateCurrentPhoto(float Delta)
 	if (!bFocusOn)
 		return;
 
-	CurrentPhoto2D->GetRootComponent()->AddRelativeRotation(FRotator(0.f, 0.f, Delta));
+	CurrentPhoto2D->GetRootComponent()->AddRelativeRotation(FRotator(0.f, 0.f, Delta * RotateFactor));
+	CurrentPhoto2D->Preview(CurrentPhoto2D->GetActorTransform(), true);
 }
 
 void AVFPhotoContainer::AlignCurrentPhoto()

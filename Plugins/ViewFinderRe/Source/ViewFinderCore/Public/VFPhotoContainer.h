@@ -92,19 +92,24 @@ public:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
 	FTimerHandle PrepareTimeHandle;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	float TimeOfPrepare = 0.5f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	float TimeOfGivingUp = 0.1f;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	float RotateFactor = -2.0f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	float PrepareMoveInterval = 0.02f;
 
 protected:
+	// Photo2D的实际位置
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<USceneComponent> Container;
 
+	// 预览Photo2D的位置
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<USceneComponent> Preview;
 
