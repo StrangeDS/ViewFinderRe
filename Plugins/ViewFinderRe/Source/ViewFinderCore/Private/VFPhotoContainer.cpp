@@ -25,16 +25,6 @@ AVFPhotoContainer::AVFPhotoContainer()
 	Helper->bCanBePlacedByPhoto = false;
 }
 
-void AVFPhotoContainer::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
-void AVFPhotoContainer::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
 void AVFPhotoContainer::AddAPhoto(AVFPhoto2D *Photo)
 {
 	check(Photo);

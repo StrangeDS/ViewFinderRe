@@ -60,11 +60,11 @@ public:
 template <typename T>
 inline FString IVFStepsRecordInterface::EnumToString(T &&Step)
 {
-    return FString::FromInt((int)Step);
+	return FString::FromInt((int)Step);
 }
 
 template <typename T>
 inline T IVFStepsRecordInterface::StringToEnum(FString &String)
 {
-    return (T)FCString::Atoi(*String);
+	return (T)FCString::Atoi(*String);
 }

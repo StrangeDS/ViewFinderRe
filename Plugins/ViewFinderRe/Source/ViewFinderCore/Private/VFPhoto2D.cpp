@@ -37,11 +37,6 @@ void AVFPhoto2D::BeginPlay()
 	RenderTarget->ClearColor = FLinearColor::Black;
 }
 
-void AVFPhoto2D::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
 void AVFPhoto2D::SetActorHiddenInGame(bool bNewHidden)
 {
 	Super::SetActorHiddenInGame(bNewHidden);

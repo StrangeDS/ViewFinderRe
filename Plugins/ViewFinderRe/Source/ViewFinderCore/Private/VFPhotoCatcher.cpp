@@ -179,7 +179,7 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 	{
 		Helper->NotifyDelegate(this, FVFHelperDelegateType::CopyAfterCopiedForPhoto);
 	}
-	
+
 	// 创建照片, 被切割前拍照
 	AVFPhoto2D *Photo2D = GetWorld()->SpawnActor<AVFPhoto2D>(
 		VFPhoto2DClass.Get(),

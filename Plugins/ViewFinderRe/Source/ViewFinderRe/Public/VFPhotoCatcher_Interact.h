@@ -14,7 +14,7 @@ UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERRE_API AVFPhotoCatcher_Interact : public AVFPhotoCatcherSteppable, public IVFInteractInterface
 {
 	GENERATED_BODY()
-	
+
 public:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
 	bool bInteractingEnabled = true;
@@ -38,7 +38,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
 	void CloseToPreview();
 	virtual void CloseToPreview_Implementation();
-	
+
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
 	void LeaveFromPreview();
 	virtual void LeaveFromPreview_Implementation();

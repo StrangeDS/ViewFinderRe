@@ -57,7 +57,7 @@ AVFPhoto2D *AVFPhotoCatcher_PickUp::TakeAPhoto_Implementation()
 
 void AVFPhotoCatcher_PickUp::CloseToPreview_Implementation()
 {
-	Pawn->DisableInput(PlayerController);
+    Pawn->DisableInput(PlayerController);
 
     GetWorldTimerManager().ClearTimer(PreviewTimeHandle);
     GetWorldTimerManager().SetTimer(
@@ -70,7 +70,7 @@ void AVFPhotoCatcher_PickUp::CloseToPreview_Implementation()
 
 void AVFPhotoCatcher_PickUp::LeaveFromPreview_Implementation()
 {
-	Pawn->EnableInput(PlayerController);
+    Pawn->EnableInput(PlayerController);
 
     bReady = false;
     PhotoCapture->EndDraw();
@@ -118,7 +118,7 @@ void AVFPhotoCatcher_PickUp::DropDown_Implementation()
     ResetActorsToIgnore();
     ActorsToIgnore.AddUnique(GetAttachParentActor());
     DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-    
+
     Container->OnEnabled.RemoveDynamic(this, &AVFPhotoCatcher_PickUp::SetActorHiddenInGame);
     Container = nullptr;
 

@@ -21,10 +21,6 @@ public:
 public:
 	virtual void BeginPlay() override;
 
-	virtual void Tick(float DeltaTime) override;
-
-	virtual void BeginDestroy() override;
-
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	FQuat ViewQuat = FQuat::Identity;
@@ -34,10 +30,10 @@ public:
 	void SetTargetPawn(APawn *Pawn);
 
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")
-	void TeleportTargetPawn(UObject* Sender);
+	void TeleportTargetPawn(UObject *Sender);
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void Hide(UObject* Sender);
+	void Hide(UObject *Sender);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<class APawn> TargetPawn;
@@ -54,7 +50,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<class UVFHelperComponent> Helper;
 
-public:	// implements IVFStandInInterface
+public: // implements IVFStandInInterface
 	virtual void SetSourceActor_Implementation(AActor *Source) override;
 
 	virtual UPrimitiveComponent *GetPrimitiveComp_Implementation() override;

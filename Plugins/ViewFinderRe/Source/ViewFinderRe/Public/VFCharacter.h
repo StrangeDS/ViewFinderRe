@@ -48,8 +48,6 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent *PlayerInputComponent) override;
 
-	virtual void BeginDestroy() override;
-
 	virtual void PossessedBy(AController* NewController) override;
 
 	virtual void UnPossessed() override;

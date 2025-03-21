@@ -25,12 +25,8 @@ class VIEWFINDERCORE_API AVFPhoto2D : public AActor
 public:
 	AVFPhoto2D();
 
-protected:
 	virtual void BeginPlay() override;
 
-public:
-	virtual void Tick(float DeltaTime) override;
-	
 	virtual void SetActorHiddenInGame(bool bNewHidden) override;
 
 public:

@@ -16,21 +16,20 @@ enum class AVFPhotoDecalOperation : uint8
 	Restore
 };
 
-
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERCORE_API AVFPhotoDecalSteppable : public AVFPhotoDecal, public IVFStepsRecordInterface
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	virtual void BeginPlay() override;
 
 	virtual void ReplaceWithDecal_Implementation() override;
-	
+
 	virtual void RestoreWithActors_Implementation() override;
 
 public:
 	virtual bool StepBack_Implementation(FVFStepInfo &StepInfo) override;
-	
+
 	TObjectPtr<UVFStepsRecorderWorldSubsystem> StepRecorder;
 };

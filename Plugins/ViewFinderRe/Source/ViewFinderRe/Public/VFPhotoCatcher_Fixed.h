@@ -8,7 +8,7 @@ UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERRE_API AVFPhotoCatcher_Fixed : public AVFPhotoCatcher_Interact
 {
 	GENERATED_BODY()
-	
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder", meta = (MakeEditWidget))
 	FTransform PhotoSpawnPoint = FTransform::Identity;

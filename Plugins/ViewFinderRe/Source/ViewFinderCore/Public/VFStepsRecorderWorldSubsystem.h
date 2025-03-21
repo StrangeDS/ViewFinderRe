@@ -16,16 +16,14 @@ class VIEWFINDERCORE_API UVFStepsRecorderWorldSubsystem : public UTickableWorldS
 
 public:
 	virtual TStatId GetStatId() const override;
-	
-	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-	virtual void Deinitialize() override;
-	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
+
+	virtual void OnWorldBeginPlay(UWorld &InWorld) override;
 	virtual void Tick(float DeltaTime) override;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	FORCEINLINE float GetTime() { return Time; }
-	
+
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	FORCEINLINE float GetDeltaTime() { return TickInterval; }
 
@@ -37,10 +35,10 @@ public:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void RecordTransform(USceneComponent* Component);
-	
+	void RecordTransform(USceneComponent *Component);
+
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void UnrecordTransform(USceneComponent* Component);
+	void UnrecordTransform(USceneComponent *Component);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<AVFTransfromRecorderActor> TransformRecorder;
@@ -49,13 +47,13 @@ public:
 	void TickForward(float DeltaTime);
 
 	void TickBackward(float DeltaTime);
-	
+
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
 	FVFStepRecorderDelegate OnTickTime;
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void RegisterTickable(TScriptInterface<IVFStepsRecordInterface> Target);
-	
+
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void RegisterTransformRecordere(AVFTransfromRecorderActor *Recorder);
 
@@ -74,7 +72,7 @@ public:
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void StartRewinding();
-	
+
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
 	FVFStepRecorderDelegate OnStartRewinding;
 
@@ -102,15 +100,15 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	float TimeSinceLastTick = 0.f;
-	
-    static inline const float TIME_MAX = 1e6;				// 计时器时间的最大值(最大时间)
+
+	static inline const float TIME_MAX = 1e6;				// 计时器时间的最大值(最大时间)
 	static inline const float TIME_MIN = 1e-6;				// 计时器时间的最小值(开始时间)
-	static inline const int SecondsOfAnHour = 60 * 60 * 20;	// 一小时帧数, 默认20帧(TickInterval)
+	static inline const int SecondsOfAnHour = 60 * 60 * 20; // 一小时帧数, 默认20帧(TickInterval)
 #if WITH_EDITOR
 	static inline const int SizeRecommended = SecondsOfAnHour / 6;
 #else
 	// 推荐数组大小. 更好的做法是写一个内存分配器: 直接给定10分, 1小时, 1天等阶梯式的内存大小.
-	static inline const int SizeRecommended = SecondsOfAnHour;		
+	static inline const int SizeRecommended = SecondsOfAnHour;
 #endif
 
 public:

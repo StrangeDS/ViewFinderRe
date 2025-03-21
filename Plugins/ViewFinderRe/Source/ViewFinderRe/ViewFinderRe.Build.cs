@@ -7,21 +7,21 @@ public class ViewFinderRe : ModuleRules
 	public ViewFinderRe(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-		
+
 		PublicIncludePaths.AddRange(
 			new string[] {
 				// ... add public include paths required here ...
 			}
 			);
-				
-		
+
+
 		PrivateIncludePaths.AddRange(
 			new string[] {
 				// ... add other private include paths required here ...
 			}
 			);
-			
-		
+
+
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
@@ -29,8 +29,8 @@ public class ViewFinderRe : ModuleRules
 				"ViewFinderCore"
 			}
 			);
-			
-		
+
+
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
@@ -40,8 +40,8 @@ public class ViewFinderRe : ModuleRules
 				"UMG"
 			}
 			);
-		
-		
+
+
 		DynamicallyLoadedModuleNames.AddRange(
 			new string[]
 			{

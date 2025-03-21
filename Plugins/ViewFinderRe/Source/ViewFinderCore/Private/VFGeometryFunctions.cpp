@@ -828,12 +828,10 @@ EGeometryScriptPrimitiveUVMode Convert(
 FGeometryScriptPrimitiveOptions Convert(
 	const FVF_GeometryScriptPrimitiveOptions &Options_)
 {
-	FGeometryScriptPrimitiveOptions Options
-	{
+	FGeometryScriptPrimitiveOptions Options{
 		Convert(Options_.PolygroupMode),
 		Options_.bFlipOrientation,
-		Convert(Options_.UVMode)
-	};
+		Convert(Options_.UVMode)};
 	return Options;
 }
 

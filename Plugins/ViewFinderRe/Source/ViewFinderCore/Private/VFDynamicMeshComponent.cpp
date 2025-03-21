@@ -9,13 +9,6 @@ UVFDynamicMeshComponent::UVFDynamicMeshComponent(const FObjectInitializer &Objec
     SetMobility(EComponentMobility::Movable);
 }
 
-void UVFDynamicMeshComponent::BeginPlay()
-{
-    Super::BeginPlay();
-
-    MeshPool = GetWorld()->GetSubsystem<UVFDMCompPoolWorldSubsystem>();
-}
-
 void UVFDynamicMeshComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
 {
     check(Source);
@@ -127,25 +120,6 @@ void UVFDynamicMeshComponent::UpdateSimlpeCollision()
     if (bEnableComplexCollision)
         return;
     static FVF_GeometryScriptCollisionFromMeshOptions Options;
-    // static FVF_GeometryScriptCollisionFromMeshOptions Options
-    // {
-    //     false,
-    //     EVF_GeometryScriptCollisionGenerationMethod::ConvexHulls,
-    //     false,
-    //     false,
-    //     false,
-    //     1.0f,
-    //     true,
-    //     25,
-    //     4,
-    //     0.5f,
-    //     0.f,
-    //     0.1f,
-    //     0.1f,
-    //     EVF_GeometryScriptSweptHullAxis::Z,
-    //     true,
-    //     4
-    // };
     UVFGeometryFunctions::SetDynamicMeshCollisionFromMesh(
         MeshObject,
         this,

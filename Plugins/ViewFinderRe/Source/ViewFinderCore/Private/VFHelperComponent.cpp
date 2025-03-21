@@ -32,11 +32,6 @@ void UVFHelperComponent::BeginDestroy()
 	Super::BeginDestroy();
 }
 
-void UVFHelperComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
-
 bool UVFHelperComponent::NotifyDelegate(UObject *Sender, const FVFHelperDelegateType &Type)
 {
 	bool IsHandled = false;

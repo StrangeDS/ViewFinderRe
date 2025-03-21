@@ -31,8 +31,6 @@ public:
 
 	virtual void BeginDestroy() override;
 
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
-
 public: // 注意: PROPERTY在CloneActorRuntime中不会被复制. 注意默认值.
 	// 能否被拍入照片
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")

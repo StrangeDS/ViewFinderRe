@@ -12,8 +12,7 @@ AVFPhoto2D *AVFPhotoCatcher_Fixed::TakeAPhoto_Implementation()
         {
             PhotoCapture->EndDraw();
             auto Photo = Super::TakeAPhoto_Implementation();
-            Photo->AddActorLocalTransform(PhotoSpawnPoint);
-        },
+            Photo->AddActorLocalTransform(PhotoSpawnPoint); },
         TimeOfTakingPhoto,
         false);
 
@@ -24,7 +23,7 @@ bool AVFPhotoCatcher_Fixed::StartAiming_Implementation(APlayerController *Contro
 {
     Super::StartAiming_Implementation(Controller);
 
-	SetViewFrustumVisible(true);
+    SetViewFrustumVisible(true);
     return true;
 }
 
@@ -32,12 +31,12 @@ bool AVFPhotoCatcher_Fixed::EndAiming_Implementation(APlayerController *Controll
 {
     Super::EndAiming_Implementation(Controller);
 
-	SetViewFrustumVisible(false);
+    SetViewFrustumVisible(false);
     return true;
 }
 
 bool AVFPhotoCatcher_Fixed::Interact_Implementation(APlayerController *Controller)
 {
-	TakeAPhoto();
+    TakeAPhoto();
     return true;
 }

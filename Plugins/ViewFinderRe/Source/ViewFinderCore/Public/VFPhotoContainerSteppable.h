@@ -32,7 +32,7 @@ struct FVFPhotoContainerStepInfo
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	TObjectPtr<class AVFPhoto2D> Photo;
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	float Time = 0.f;
 };
@@ -54,12 +54,12 @@ public:
 	virtual void GiveUpPreparing() override;
 
 	virtual void ChangeCurrentPhoto(const bool Next) override;
-	
+
 	virtual void SetEnabled(const bool &Enabled);
 
 public: // Implements IVFStepsRecordInterface:
 	virtual void TickBackward_Implementation(float Time) override;
-	
+
 	virtual bool StepBack_Implementation(FVFStepInfo &StepInfo) override;
 
 	TObjectPtr<UVFStepsRecorderWorldSubsystem> StepRecorder;

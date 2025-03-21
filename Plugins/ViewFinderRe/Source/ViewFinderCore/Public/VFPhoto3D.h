@@ -23,11 +23,8 @@ class VIEWFINDERCORE_API AVFPhoto3D : public AActor
 public:
 	AVFPhoto3D();
 
-protected:
-	virtual void BeginPlay() override;
-
 public:
-	virtual void Tick(float DeltaTime) override;
+	virtual void BeginPlay() override;
 
 public:
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")

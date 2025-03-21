@@ -9,16 +9,6 @@ TStatId UVFStepsRecorderWorldSubsystem::GetStatId() const
     RETURN_QUICK_DECLARE_CYCLE_STAT(UVFStepsRecorderWorldSubsystem, STATGROUP_Tickables);
 }
 
-void UVFStepsRecorderWorldSubsystem::Initialize(FSubsystemCollectionBase &Collection)
-{
-    Super::Initialize(Collection);
-}
-
-void UVFStepsRecorderWorldSubsystem::Deinitialize()
-{
-    Super::Deinitialize();
-}
-
 void UVFStepsRecorderWorldSubsystem::OnWorldBeginPlay(UWorld &InWorld)
 {
     Super::OnWorldBeginPlay(InWorld);

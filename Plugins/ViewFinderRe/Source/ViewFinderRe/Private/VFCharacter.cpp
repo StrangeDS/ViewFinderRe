@@ -64,7 +64,7 @@ void AVFCharacter::BeginPlay()
 	check(StepRecorder);
 	StepRecorder->RegisterTickable(this);
 
-    Steps.Reserve(UVFStepsRecorderWorldSubsystem::SizeRecommended);
+	Steps.Reserve(UVFStepsRecorderWorldSubsystem::SizeRecommended);
 
 	Container = GetWorld()->SpawnActor<AVFPhotoContainer>(ContainerClass);
 	Container->AttachToComponent(Camera, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
@@ -92,11 +92,6 @@ void AVFCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCompone
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AVFCharacter::Interact);
 		EnhancedInputComponent->BindAction(SwitchAction, ETriggerEvent::Started, this, &AVFCharacter::Switch);
 	}
-}
-
-void AVFCharacter::BeginDestroy()
-{
-	Super::BeginDestroy();
 }
 
 void AVFCharacter::PossessedBy(AController *NewController)

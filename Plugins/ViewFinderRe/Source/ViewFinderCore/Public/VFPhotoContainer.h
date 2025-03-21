@@ -20,12 +20,6 @@ class VIEWFINDERCORE_API AVFPhotoContainer : public AActor
 public:
 	AVFPhotoContainer();
 
-protected:
-	virtual void BeginPlay() override;
-
-public:
-	virtual void Tick(float DeltaTime) override;
-
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	virtual void AddAPhoto(AVFPhoto2D *Photo);

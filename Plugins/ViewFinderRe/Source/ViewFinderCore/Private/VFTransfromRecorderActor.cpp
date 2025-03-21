@@ -33,11 +33,6 @@ void AVFTransfromRecorderActor::BeginPlay()
     Steps.Reserve(UVFStepsRecorderWorldSubsystem::SizeRecommended);
 }
 
-void AVFTransfromRecorderActor::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
 void AVFTransfromRecorderActor::AddToRecord(USceneComponent *Component)
 {
 	check(Component);

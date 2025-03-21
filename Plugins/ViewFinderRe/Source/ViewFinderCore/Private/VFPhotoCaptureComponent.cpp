@@ -72,7 +72,7 @@ void UVFPhotoCaptureComponent::DrawAFrame()
 {
 	if (!MaterialInstance)
 		return;
-	
+
 	MaterialInstance->SetTextureParameterValue(TextureName, RenderTarget);
 	CaptureScene();
 }

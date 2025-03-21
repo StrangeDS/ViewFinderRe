@@ -15,10 +15,7 @@ class VIEWFINDERCORE_API UVFDynamicMeshComponent : public UDynamicMeshComponent
 public:
 	UVFDynamicMeshComponent(const FObjectInitializer &ObjectInitializer);
 
-	virtual void BeginPlay() override;
-
 public: // Mesh
-
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	virtual void CopyMeshFromComponent(UPrimitiveComponent *Source);
 
@@ -60,8 +57,4 @@ protected:
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
 	bool bEnableGravityRecorder = false;
-
-protected:
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<class UVFDMCompPoolWorldSubsystem> MeshPool;
 };

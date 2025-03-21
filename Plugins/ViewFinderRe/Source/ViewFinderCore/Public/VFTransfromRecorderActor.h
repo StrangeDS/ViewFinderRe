@@ -58,8 +58,6 @@ public:
 
 	virtual void BeginPlay() override;
 
-	virtual void Tick(float DeltaTime) override;
-
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void AddToRecord(USceneComponent* Component);

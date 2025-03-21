@@ -29,11 +29,6 @@ void AVFPhoto3D::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AVFPhoto3D::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
 void AVFPhoto3D::FoldUp()
 {
 	if (State == EVFPhoto3DState::Folded)
