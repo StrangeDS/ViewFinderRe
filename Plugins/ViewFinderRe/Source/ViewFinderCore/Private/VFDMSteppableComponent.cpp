@@ -58,19 +58,22 @@ void UVFDMSteppableComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
 {
     Super::CopyMeshFromComponent(Source);
 
-    Steps.Add(FVFDMCompStep{
-        UVFDMCompStepOperation::CopyMeshFromComponent,
-        nullptr,
-        StepRecorder->Time});
-
-    if (bSimulatePhysicsRecorder)
+    if (StepRecorder && !StepRecorder->bIsRewinding)
     {
-        StepRecorder->RecordTransform(this);
-
         Steps.Add(FVFDMCompStep{
-            UVFDMCompStepOperation::RegisterToTransformRecorder,
+            UVFDMCompStepOperation::CopyMeshFromComponent,
             nullptr,
             StepRecorder->Time});
+
+        if (bSimulatePhysicsRecorder)
+        {
+            StepRecorder->RecordTransform(this);
+
+            Steps.Add(FVFDMCompStep{
+                UVFDMCompStepOperation::RegisterToTransformRecorder,
+                nullptr,
+                StepRecorder->Time});
+        }
     }
 }
 
@@ -78,38 +81,50 @@ void UVFDMSteppableComponent::ReplaceMeshForComponent(UPrimitiveComponent *Sourc
 {
     Super::ReplaceMeshForComponent(Source);
 
-    Steps.Add(FVFDMCompStep{
-        UVFDMCompStepOperation::ReplaceMeshForComponent,
-        nullptr,
-        StepRecorder->Time});
+    if (StepRecorder && !StepRecorder->bIsRewinding)
+    {
+        Steps.Add(FVFDMCompStep{
+            UVFDMCompStepOperation::ReplaceMeshForComponent,
+            nullptr,
+            StepRecorder->Time});
+    }
 }
 
 void UVFDMSteppableComponent::IntersectMeshWithDMComp(UDynamicMeshComponent *Tool)
 {
-    Steps.Add(FVFDMCompStep{
-        UVFDMCompStepOperation::IntersectMeshWithDMComp,
-        RequestACopiedMesh(),
-        StepRecorder->Time});
+    if (StepRecorder && !StepRecorder->bIsRewinding)
+    {
+        Steps.Add(FVFDMCompStep{
+            UVFDMCompStepOperation::IntersectMeshWithDMComp,
+            RequestACopiedMesh(),
+            StepRecorder->Time});
+    }
 
     Super::IntersectMeshWithDMComp(Tool);
 }
 
 void UVFDMSteppableComponent::SubtractMeshWithDMComp(UDynamicMeshComponent *Tool)
 {
-    Steps.Add(FVFDMCompStep{
-        UVFDMCompStepOperation::SubtractMeshWithDMComp,
-        RequestACopiedMesh(),
-        StepRecorder->Time});
+    if (StepRecorder && !StepRecorder->bIsRewinding)
+    {
+        Steps.Add(FVFDMCompStep{
+            UVFDMCompStepOperation::SubtractMeshWithDMComp,
+            RequestACopiedMesh(),
+            StepRecorder->Time});
+    }
 
     Super::SubtractMeshWithDMComp(Tool);
 }
 
 void UVFDMSteppableComponent::UnionMeshWithDMComp(UDynamicMeshComponent *Tool)
 {
-    Steps.Add(FVFDMCompStep{
-        UVFDMCompStepOperation::UnionMeshWithDMComp,
-        RequestACopiedMesh(),
-        StepRecorder->Time});
+    if (StepRecorder && !StepRecorder->bIsRewinding)
+    {
+        Steps.Add(FVFDMCompStep{
+            UVFDMCompStepOperation::UnionMeshWithDMComp,
+            RequestACopiedMesh(),
+            StepRecorder->Time});
+    }
 
     Super::UnionMeshWithDMComp(Tool);
 }
