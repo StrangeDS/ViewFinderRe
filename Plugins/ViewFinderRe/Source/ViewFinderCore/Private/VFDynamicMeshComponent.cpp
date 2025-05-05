@@ -48,11 +48,7 @@ void UVFDynamicMeshComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
     }
     SetCollisionEnabled(Source->GetCollisionEnabled());
 
-    // 复制材质
-    for (int i = 0; i < Source->GetNumMaterials(); i++)
-    {
-        SetMaterial(i, Source->GetMaterial(i));
-    }
+    UpdateMaterials();
 
     // TODO: 传递事件. 暂使用Actor接口
 }
@@ -124,6 +120,14 @@ void UVFDynamicMeshComponent::UpdateSimlpeCollision()
         MeshObject,
         this,
         Options);
+}
+
+void UVFDynamicMeshComponent::UpdateMaterials()
+{
+    for (int i = 0; i < SourceComponent->GetNumMaterials(); i++)
+    {
+        SetMaterial(i, SourceComponent->GetMaterial(i));
+    }
 }
 
 void UVFDynamicMeshComponent::SetEnabled(bool Enabled)

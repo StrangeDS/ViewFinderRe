@@ -155,12 +155,18 @@ TArray<UVFDynamicMeshComponent *> UVFFunctions::CheckVFDMComps(
 	return Result;
 }
 
-FTransform UVFFunctions::TransformLerp(const FTransform &A, const FTransform &B, float delta)
+FTransform UVFFunctions::TransformLerp(const FTransform &Original, const FTransform &Target, float delta)
 {
-	FRotator Rot = FMath::Lerp(A.Rotator(), B.Rotator(), delta);
-	FVector Loc = FMath::Lerp(A.GetLocation(), B.GetLocation(), delta);
-	FVector Scaled = FMath::Lerp(A.GetScale3D(), B.GetScale3D(), delta);
-	return FTransform(Rot, Loc, Scaled);
+	FRotator Rot = FMath::Lerp(Original.Rotator(), Target.Rotator(), delta);
+	FVector Loc = FMath::Lerp(Original.GetLocation(), Target.GetLocation(), delta);
+	return FTransform(Rot, Loc, Original.GetScale3D());
+}
+
+FTransform UVFFunctions::TransformLerpNoScale(const FTransform &Original, const FTransform &Target, float delta)
+{
+	FRotator Rot = FMath::Lerp(Original.Rotator(), Target.Rotator(), delta);
+	FVector Loc = FMath::Lerp(Original.GetLocation(), Target.GetLocation(), delta);
+	return FTransform(Rot, Loc, Original.GetScale3D());
 }
 
 TArray<AActor *> UVFFunctions::CopyActorFromVFDMComps(

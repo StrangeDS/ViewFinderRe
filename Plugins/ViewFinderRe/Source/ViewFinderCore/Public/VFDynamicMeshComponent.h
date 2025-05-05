@@ -34,6 +34,9 @@ public: // Mesh
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void UpdateSimlpeCollision();
 
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	void UpdateMaterials();
+
 public: // SourceComponent
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	UPrimitiveComponent *GetSourceComponent();
@@ -41,7 +44,7 @@ public: // SourceComponent
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	UVFDynamicMeshComponent *GetSourceVFDMComp();
 
-	UPROPERTY(BlueprintReadWrite, Category = "ViewFinder")
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
 	TObjectPtr<UPrimitiveComponent> SourceComponent;
 
 public: // Enabled

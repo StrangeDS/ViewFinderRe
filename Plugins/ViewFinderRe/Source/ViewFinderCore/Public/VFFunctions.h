@@ -48,7 +48,8 @@ public:
 		UPARAM(ref) TArray<T *> &Components,
 		UPARAM(ref) TMap<UPrimitiveComponent *, UVFHelperComponent *> &Map);
 
-	static FTransform TransformLerp(const FTransform &A, const FTransform &B, float delta);
+	static FTransform TransformLerp(const FTransform &Original, const FTransform &Target, float delta);
+	static FTransform TransformLerpNoScale(const FTransform &Original, const FTransform &Target, float delta);
 };
 
 template <typename T>

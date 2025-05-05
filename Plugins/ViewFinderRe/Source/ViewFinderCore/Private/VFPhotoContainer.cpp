@@ -156,7 +156,7 @@ void AVFPhotoContainer::PrepareCurrentPhoto_Move()
 {
 	auto TransCur = CurrentPhoto2D->ActorToWorld();
 	auto TransTarget = Preview->GetComponentToWorld();
-	bFocusOn = TransCur.Equals(TransTarget);
+	bFocusOn = TransCur.EqualsNoScale(TransTarget);
 	if (bFocusOn)
 	{
 		GetWorldTimerManager().ClearTimer(PrepareTimeHandle);
@@ -167,7 +167,7 @@ void AVFPhotoContainer::PrepareCurrentPhoto_Move()
 	{
 		auto Rate = GetWorldTimerManager().GetTimerRate(PrepareTimeHandle);
 		Rate = 1 - Rate / TimeOfPrepare;
-		auto TransNext = UVFFunctions::TransformLerp(TransCur, TransTarget, Rate);
+		auto TransNext = UVFFunctions::TransformLerpNoScale(TransCur, TransTarget, Rate);
 		CurrentPhoto2D->SetActorTransform(TransNext);
 	}
 }
@@ -176,7 +176,7 @@ void AVFPhotoContainer::GiveUpPreparing_Move()
 {
 	auto TransCur = CurrentPhoto2D->ActorToWorld();
 	auto TransTarget = Container->GetComponentToWorld();
-	if (TransCur.Equals(TransTarget))
+	if (TransCur.EqualsNoScale(TransTarget))
 	{
 		GetWorldTimerManager().ClearTimer(PrepareTimeHandle);
 	}
@@ -184,7 +184,7 @@ void AVFPhotoContainer::GiveUpPreparing_Move()
 	{
 		auto Rate = GetWorldTimerManager().GetTimerRate(PrepareTimeHandle);
 		Rate = 1 - Rate / TimeOfGivingUp;
-		auto TransNext = UVFFunctions::TransformLerp(TransCur, TransTarget, Rate);
+		auto TransNext = UVFFunctions::TransformLerpNoScale(TransCur, TransTarget, Rate);
 		CurrentPhoto2D->SetActorTransform(TransNext);
 	}
 }

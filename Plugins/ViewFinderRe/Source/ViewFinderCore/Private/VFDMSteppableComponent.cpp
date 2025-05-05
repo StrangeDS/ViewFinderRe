@@ -6,7 +6,6 @@
 UVFDMSteppableComponent::UVFDMSteppableComponent(const FObjectInitializer &ObjectInitializer)
     : UVFDynamicMeshComponent(ObjectInitializer)
 {
-    LocalPool = CreateDefaultSubobject<UDynamicMeshPool>(TEXT("LocalPool"));
 }
 
 void UVFDMSteppableComponent::BeginPlay()
@@ -22,6 +21,8 @@ void UVFDMSteppableComponent::BeginPlay()
         nullptr,
         StepRecorder->Time});
     StepRecorder->RegisterTickable(this);
+
+    LocalPool = NewObject<UDynamicMeshPool>(this);
 }
 
 void UVFDMSteppableComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
