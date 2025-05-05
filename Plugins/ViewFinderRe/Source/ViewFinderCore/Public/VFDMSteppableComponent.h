@@ -2,11 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "VFDynamicMeshComponent.h"
-
 #include "VFStepsRecordInterface.h"
-#include "VFStepsRecorderWorldSubsystem.h"
-
 #include "VFDMSteppableComponent.generated.h"
+
+class VFStepsRecordInterface;
+class UVFStepsRecorderWorldSubsystem;
 
 UENUM(BlueprintType)
 enum class UVFDMCompStepOperation
@@ -43,7 +43,7 @@ class VIEWFINDERCORE_API UVFDMSteppableComponent : public UVFDynamicMeshComponen
 	GENERATED_BODY()
 
 public:
-	UVFDMSteppableComponent(const FObjectInitializer &ObjectInitializer);
+	UVFDMSteppableComponent(const FObjectInitializer &ObjectInitializer = FObjectInitializer::Get());
 
 	virtual void BeginPlay() override;
 

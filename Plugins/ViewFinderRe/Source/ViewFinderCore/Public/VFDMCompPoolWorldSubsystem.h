@@ -2,9 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
-
-#include "UDynamicMesh.h"
-
 #include "VFDMCompPoolWorldSubsystem.generated.h"
 
 class UVFDynamicMeshComponent;

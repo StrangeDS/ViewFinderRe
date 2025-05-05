@@ -1,5 +1,7 @@
 #include "VFPhoto2DSteppable.h"
 
+#include "VFStepsRecorderWorldSubsystem.h"
+
 void AVFPhoto2DSteppable::BeginPlay()
 {
     Super::BeginPlay();

@@ -2,13 +2,15 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-
-#include "GameFramework/Pawn.h"
-#include "UObject/ConstructorHelpers.h"
-
 #include "VFStandInInterface.h"
-
 #include "VFPawnStandIn.generated.h"
+
+class APawn;
+class UStaticMesh;
+class UStaticMeshComponent;
+
+class UVFHelperComponent;
+class UVFDynamicMeshComponent;
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERCORE_API AVFPawnStandIn : public AActor, public IVFStandInInterface
@@ -36,19 +38,19 @@ public:
 	void Hide(UObject *Sender);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<class APawn> TargetPawn;
+	TObjectPtr<APawn> TargetPawn;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<class UStaticMeshComponent> StaticMesh;
+	TObjectPtr<UStaticMeshComponent> StaticMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<class UVFDynamicMeshComponent> DynamicMesh;
+	TObjectPtr<UVFDynamicMeshComponent> DynamicMesh;
 
 	UPROPERTY()
-	TObjectPtr<class UStaticMesh> StaticMeshObject;
+	TObjectPtr<UStaticMesh> StaticMeshObject;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<class UVFHelperComponent> Helper;
+	TObjectPtr<UVFHelperComponent> Helper;
 
 public: // implements IVFStandInInterface
 	virtual void SetSourceActor_Implementation(AActor *Source) override;

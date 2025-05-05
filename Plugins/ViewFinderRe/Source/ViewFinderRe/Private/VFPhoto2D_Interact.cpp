@@ -1,5 +1,6 @@
 #include "VFPhoto2D_Interact.h"
 
+#include "GameFramework/Pawn.h"
 #include "Blueprint/UserWidget.h"
 
 #include "VFPhotoContainer.h"

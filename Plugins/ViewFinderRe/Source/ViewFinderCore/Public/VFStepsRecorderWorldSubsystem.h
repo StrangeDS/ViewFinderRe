@@ -2,12 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
-
-#include "VFStepsRecordInterface.h"
-
 #include "VFStepsRecorderWorldSubsystem.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FVFStepRecorderDelegate, float, Time);
+
+class IVFStepsRecordInterface;
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERCORE_API UVFStepsRecorderWorldSubsystem : public UTickableWorldSubsystem

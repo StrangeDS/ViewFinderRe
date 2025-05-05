@@ -1,5 +1,7 @@
 #include "VFDMCompPoolWorldSubsystem.h"
 
+#include "UnrealEngine.h"
+
 #include "VFCommon.h"
 #include "VFDynamicMeshComponent.h"
 #include "VFGeometryFunctions.h"

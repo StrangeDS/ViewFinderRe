@@ -1,8 +1,11 @@
 #include "VFFunctions.h"
 
+#include "Engine/World.h"
+
 #include "VFDynamicMeshComponent.h"
 #include "VFDMCompPoolWorldSubsystem.h"
 #include "VFStandInInterface.h"
+#include "VFHelperComponent.h"
 
 static USceneComponent *GetComponentByName(AActor *Actor, const FName &Name)
 {

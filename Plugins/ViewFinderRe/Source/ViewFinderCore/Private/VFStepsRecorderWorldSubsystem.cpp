@@ -2,6 +2,7 @@
 
 #include "Kismet/GameplayStatics.h"
 
+#include "VFStepsRecordInterface.h"
 #include "VFTransfromRecorderActor.h"
 
 TStatId UVFStepsRecorderWorldSubsystem::GetStatId() const

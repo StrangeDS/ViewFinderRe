@@ -2,11 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "VFPawnStandIn.h"
-
 #include "VFStepsRecordInterface.h"
-#include "VFStepsRecorderWorldSubsystem.h"
-
 #include "VFPawnStandInSteppable.generated.h"
+
+class UVFStepsRecorderWorldSubsystem;
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERCORE_API AVFPawnStandInSteppable : public AVFPawnStandIn, public IVFStepsRecordInterface

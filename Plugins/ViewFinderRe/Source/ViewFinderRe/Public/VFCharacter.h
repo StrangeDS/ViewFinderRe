@@ -2,11 +2,19 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-
 #include "VFStepsRecordInterface.h"
-#include "VFStepsRecorderWorldSubsystem.h"
-
 #include "VFCharacter.generated.h"
+
+class UCameraComponent;
+class APlayerController;
+class UInputAction;
+class UInputComponent;
+class UInputMappingContext;
+
+class AVFPhotoContainer;
+class UVFHelperComponent;
+class IVFInteractInterface;
+class UVFStepsRecorderWorldSubsystem;
 
 USTRUCT(BlueprintType)
 struct FVFPawnTransformInfo
@@ -46,7 +54,7 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void SetupPlayerInputComponent(class UInputComponent *PlayerInputComponent) override;
+	virtual void SetupPlayerInputComponent(UInputComponent *PlayerInputComponent) override;
 
 	virtual void PossessedBy(AController* NewController) override;
 
@@ -54,19 +62,19 @@ public:
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<class UCameraComponent> Camera;
+	TObjectPtr<UCameraComponent> Camera;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<class UVFHelperComponent> Helper;
+	TObjectPtr<UVFHelperComponent> Helper;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TSubclassOf<class AVFPhotoContainer> ContainerClass;
+	TSubclassOf<AVFPhotoContainer> ContainerClass;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<class AVFPhotoContainer> Container;
+	TObjectPtr<AVFPhotoContainer> Container;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<class APlayerController> PlayerController;
+	TObjectPtr<APlayerController> PlayerController;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
@@ -85,7 +93,7 @@ public:
 	float TimeSinceLastTrace = 0.f;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "ViewFinder")
-	TScriptInterface<class IVFInteractInterface> InteractingObject;
+	TScriptInterface<IVFInteractInterface> InteractingObject;
 
 protected:
 	void Move(const struct FInputActionValue &Value);
@@ -100,22 +108,22 @@ public:
 	void Switch();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<class UInputMappingContext> MappingContext;
+	TObjectPtr<UInputMappingContext> MappingContext;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<class UInputAction> MoveAction;
+	TObjectPtr<UInputAction> MoveAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<class UInputAction> LookAction;
+	TObjectPtr<UInputAction> LookAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<class UInputAction> JumpAction;
+	TObjectPtr<UInputAction> JumpAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<class UInputAction> InteractAction;
+	TObjectPtr<UInputAction> InteractAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<class UInputAction> SwitchAction;
+	TObjectPtr<UInputAction> SwitchAction;
 
 public:
 	virtual void TickForward_Implementation(float Time) override;

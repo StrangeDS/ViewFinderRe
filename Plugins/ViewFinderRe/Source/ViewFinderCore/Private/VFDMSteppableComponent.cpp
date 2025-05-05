@@ -1,7 +1,10 @@
 #include "VFDMSteppableComponent.h"
 
+#include "Engine/World.h"
+
 #include "VFCommon.h"
 #include "VFDMCompPoolWorldSubsystem.h"
+#include "VFStepsRecorderWorldSubsystem.h"
 
 UVFDMSteppableComponent::UVFDMSteppableComponent(const FObjectInitializer &ObjectInitializer)
     : UVFDynamicMeshComponent(ObjectInitializer)

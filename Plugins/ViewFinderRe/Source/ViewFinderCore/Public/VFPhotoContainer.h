@@ -2,10 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-
 #include "Containers/Deque.h"
-#include "TimerManager.h"
-
 #include "VFPhotoContainer.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FVFPhotoContainerEnabled, bool, Enabled);

@@ -1,6 +1,7 @@
 #include "VFTransformRecordVolume.h"
 
 #include "Components/BoxComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 #include "VFHelperComponent.h"
@@ -13,6 +14,8 @@ AVFTransformRecordVolume::AVFTransformRecordVolume(const FObjectInitializer &Obj
 	Volume = CreateDefaultSubobject<UBoxComponent>("Volume");
     SetRootComponent(Volume);
     Volume->SetHiddenInGame(true);
+
+    CompClass = UStaticMeshComponent::StaticClass();
 
     Helper = CreateDefaultSubobject<UVFHelperComponent>("Helper");
     Helper->bCanBeTakenInPhoto = false;

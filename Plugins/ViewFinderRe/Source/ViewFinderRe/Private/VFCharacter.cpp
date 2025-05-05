@@ -1,12 +1,13 @@
 #include "VFCharacter.h"
 
+#include "Engine/World.h"
+#include "Components/PrimitiveComponent.h"
 #include "Camera/CameraComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Engine/LocalPlayer.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Engine/World.h"
 
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -15,6 +16,7 @@
 #include "VFPhotoContainer.h"
 #include "VFHelperComponent.h"
 #include "VFPawnStandIn.h"
+#include "VFStepsRecorderWorldSubsystem.h"
 
 FVFPawnTransformInfo::FVFPawnTransformInfo(APawn *Pawn, float TimeIn)
 	: Location(Pawn->GetActorLocation()),

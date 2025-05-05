@@ -2,18 +2,17 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-
-// 插件打包需要
-#include "Components/StaticMeshComponent.h"
-
 #include "VFTransformRecordVolume.generated.h"
+
+class UBoxComponent;
+class UVFHelperComponent;
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERCORE_API AVFTransformRecordVolume : public AActor
 {
 	GENERATED_BODY()
 public:
-	AVFTransformRecordVolume(const FObjectInitializer &ObjectInitializer);
+	AVFTransformRecordVolume(const FObjectInitializer &ObjectInitializer = FObjectInitializer::Get());
 	
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
@@ -23,7 +22,7 @@ public:
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
-	TSubclassOf<UPrimitiveComponent> CompClass = UStaticMeshComponent::StaticClass();
+	TSubclassOf<UPrimitiveComponent> CompClass;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")

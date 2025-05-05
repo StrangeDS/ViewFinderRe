@@ -1,6 +1,7 @@
 #include "VFPhotoContainerSteppable.h"
 
 #include "VFPhoto2D.h"
+#include "VFStepsRecorderWorldSubsystem.h"
 
 void AVFPhotoContainerSteppable::BeginPlay()
 {

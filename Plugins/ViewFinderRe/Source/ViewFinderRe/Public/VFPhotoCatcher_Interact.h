@@ -9,6 +9,7 @@
 #include "VFPhotoCatcher_Interact.generated.h"
 
 class UUserWidget;
+class UInputMappingContext;
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERRE_API AVFPhotoCatcher_Interact : public AVFPhotoCatcherSteppable, public IVFInteractInterface
@@ -57,7 +58,7 @@ protected:
 	float TimeOfLeave = 0.1f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	class UInputMappingContext *AimingMappingContext;
+	TObjectPtr<UInputMappingContext> AimingMappingContext;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
 	TObjectPtr<APawn> Pawn;

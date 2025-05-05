@@ -2,11 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "VFPhoto2DSteppable.h"
-
-#include "GameFramework/Pawn.h"
 #include "VFInteractInterface.h"
-
 #include "VFPhoto2D_Interact.generated.h"
+
+class UUserWidget;
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERRE_API AVFPhoto2D_Interact : public AVFPhoto2DSteppable, public IVFInteractInterface
@@ -15,10 +14,10 @@ class VIEWFINDERRE_API AVFPhoto2D_Interact : public AVFPhoto2DSteppable, public 
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TSubclassOf<class UUserWidget> AimingHintUMGClass;
+	TSubclassOf<UUserWidget> AimingHintUMGClass;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
-	TObjectPtr<class UUserWidget> AimingHintUMG;
+	TObjectPtr<UUserWidget> AimingHintUMG;
 
 public: // implements IVFInteractInterface
 	virtual bool StartAiming_Implementation(APlayerController *Controller) override;

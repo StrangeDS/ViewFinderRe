@@ -2,11 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "VFPhotoCatcher.h"
-
 #include "VFStepsRecordInterface.h"
-#include "VFStepsRecorderWorldSubsystem.h"
-
 #include "VFPhotoCatcherSteppable.generated.h"
+
+class UVFStepsRecorderWorldSubsystem;
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERCORE_API AVFPhotoCatcherSteppable : public AVFPhotoCatcher, public IVFStepsRecordInterface

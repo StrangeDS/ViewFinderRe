@@ -4,6 +4,8 @@
 #include "VFPhotoContainerSteppable.h"
 #include "VFPhotoContainer_Input.generated.h"
 
+class UInputMappingContext;
+
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERRE_API AVFPhotoContainer_Input : public AVFPhotoContainerSteppable
 {
@@ -16,5 +18,5 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<class UInputMappingContext> MappingContext;
+	TObjectPtr<UInputMappingContext> MappingContext;
 };

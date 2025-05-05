@@ -4,6 +4,8 @@
 #include "GameFramework/Actor.h"
 #include "VFPhoto3D.generated.h"
 
+class UVFDynamicMeshComponent;
+
 UENUM(BlueprintType)
 enum class EVFPhoto3DState : uint8
 {
@@ -12,8 +14,6 @@ enum class EVFPhoto3DState : uint8
 	Folded,
 	Placed
 };
-
-class UVFDynamicMeshComponent;
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERCORE_API AVFPhoto3D : public AActor
@@ -41,7 +41,7 @@ public:
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder|ClassSetting")
-	TSubclassOf<class UVFDynamicMeshComponent> VFDMCompClass;
+	TSubclassOf<UVFDynamicMeshComponent> VFDMCompClass;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")

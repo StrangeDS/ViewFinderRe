@@ -1,5 +1,6 @@
 #include "VFPhotoContainer.h"
 
+#include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "VFPhoto2D.h"

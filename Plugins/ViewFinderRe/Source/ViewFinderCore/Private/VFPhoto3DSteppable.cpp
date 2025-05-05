@@ -1,5 +1,7 @@
 #include "VFPhoto3DSteppable.h"
 
+#include "VFStepsRecorderWorldSubsystem.h"
+
 void AVFPhoto3DSteppable::BeginPlay()
 {
     StepRecorder = GetWorld()->GetSubsystem<UVFStepsRecorderWorldSubsystem>();

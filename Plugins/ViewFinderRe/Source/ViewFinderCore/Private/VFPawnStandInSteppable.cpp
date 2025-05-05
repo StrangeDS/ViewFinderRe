@@ -1,5 +1,7 @@
 #include "VFPawnStandInSteppable.h"
 
+#include "VFStepsRecorderWorldSubsystem.h"
+
 void AVFPawnStandInSteppable::BeginPlay()
 {
     Super::BeginPlay();

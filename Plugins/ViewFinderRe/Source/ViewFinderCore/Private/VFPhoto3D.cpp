@@ -8,6 +8,7 @@
 #include "VFDynamicMeshComponent.h"
 #include "VFViewFrustumComponent.h"
 #include "VFFunctions.h"
+#include "VFHelperComponent.h"
 
 AVFPhoto3D::AVFPhoto3D() : Super()
 {
@@ -20,6 +21,8 @@ AVFPhoto3D::AVFPhoto3D() : Super()
 	ViewFrustumRecorder = CreateDefaultSubobject<UVFViewFrustumComponent>(TEXT("ViewFrustum"));
 	ViewFrustumRecorder->SetupAttachment(RootComponent);
 	ViewFrustumRecorder->SetHiddenInGame(true);
+
+	VFDMCompClass = UVFDynamicMeshComponent::StaticClass();
 }
 
 void AVFPhoto3D::BeginPlay()

@@ -1,6 +1,8 @@
 #include "VFPawnStandIn.h"
 
+#include "GameFramework/Pawn.h"
 #include "Kismet/GameplayStatics.h"
+#include "UObject/ConstructorHelpers.h"
 
 #include "VFPhoto3D.h"
 #include "VFPhotoCatcher.h"

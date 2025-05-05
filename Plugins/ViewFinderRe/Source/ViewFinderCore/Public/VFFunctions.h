@@ -2,14 +2,9 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
-
-// 插件打包需要
-#include "Engine/World.h"
-
-#include "VFHelperComponent.h"
-#include "VFPawnStandIn.h"
-
 #include "VFFunctions.generated.h"
+
+class UVFHelperComponent;
 
 UCLASS(meta = (ScriptName = "VFFunctions"))
 class VIEWFINDERCORE_API UVFFunctions : public UBlueprintFunctionLibrary
@@ -53,7 +48,9 @@ public:
 };
 
 template <typename T>
-inline void UVFFunctions::GetCompsToHelpersMapping(UPARAM(ref) TArray<T *> &Components, UPARAM(ref) TMap<UPrimitiveComponent *, UVFHelperComponent *> &Map)
+inline void UVFFunctions::GetCompsToHelpersMapping(
+	UPARAM(ref) TArray<T *> &Components,
+	UPARAM(ref) TMap<UPrimitiveComponent *, UVFHelperComponent *> &Map)
 {
 	check(T::StaticClass()->IsChildOf(UPrimitiveComponent::StaticClass()));
 	for (auto It = Components.CreateIterator(); It; It++)

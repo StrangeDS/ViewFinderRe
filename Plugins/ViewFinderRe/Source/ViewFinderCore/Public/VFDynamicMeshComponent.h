@@ -2,9 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "Components/DynamicMeshComponent.h"
-
-#include "Engine/World.h"
-
 #include "VFDynamicMeshComponent.generated.h"
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder), meta = (BlueprintSpawnableComponent))
@@ -13,7 +10,7 @@ class VIEWFINDERCORE_API UVFDynamicMeshComponent : public UDynamicMeshComponent
 	GENERATED_BODY()
 
 public:
-	UVFDynamicMeshComponent(const FObjectInitializer &ObjectInitializer);
+	UVFDynamicMeshComponent(const FObjectInitializer &ObjectInitializer = FObjectInitializer::Get());
 
 public: // Mesh
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")

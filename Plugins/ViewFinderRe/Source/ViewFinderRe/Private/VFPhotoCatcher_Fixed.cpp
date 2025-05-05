@@ -1,5 +1,7 @@
 #include "VFPhotoCatcher_Fixed.h"
 
+#include "TimerManager.h"
+
 #include "VFPhoto2D.h"
 #include "VFPhotoCaptureComponent.h"
 

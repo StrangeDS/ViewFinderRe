@@ -1,5 +1,7 @@
 #include "VFPhotoDecalSteppable.h"
 
+#include "VFStepsRecorderWorldSubsystem.h"
+
 void AVFPhotoDecalSteppable::BeginPlay()
 {
     StepRecorder = GetWorld()->GetSubsystem<UVFStepsRecorderWorldSubsystem>();

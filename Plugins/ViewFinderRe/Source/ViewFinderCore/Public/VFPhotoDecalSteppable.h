@@ -2,11 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "VFPhotoDecal.h"
-
 #include "VFStepsRecordInterface.h"
-#include "VFStepsRecorderWorldSubsystem.h"
-
 #include "VFPhotoDecalSteppable.generated.h"
+
+class UVFStepsRecorderWorldSubsystem;
 
 UENUM(BlueprintType)
 enum class AVFPhotoDecalOperation : uint8

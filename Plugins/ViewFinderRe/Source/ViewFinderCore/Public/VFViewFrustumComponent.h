@@ -2,9 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/DynamicMeshComponent.h"
-
 #include "VFGeometryFunctions.h"
-
 #include "VFViewFrustumComponent.generated.h"
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder), meta = (BlueprintSpawnableComponent))
