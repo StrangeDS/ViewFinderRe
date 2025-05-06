@@ -73,7 +73,7 @@ void AVFPhotoCatcher_PickUp::LeaveFromPreview_Implementation()
     Pawn->EnableInput(PlayerController);
 
     bReady = false;
-    PhotoCapture->EndDraw();
+    EnableScreen(false);
     SetViewFrustumVisible(false);
 
     GetWorldTimerManager().ClearTimer(PreviewTimeHandle);
@@ -137,7 +137,7 @@ void AVFPhotoCatcher_PickUp::CloseToPreview_Move()
         GetWorldTimerManager().ClearTimer(PreviewTimeHandle);
 
         SetViewFrustumVisible(true);
-        PhotoCapture->StartDraw();
+        EnableScreen(true);
     }
     else
     {

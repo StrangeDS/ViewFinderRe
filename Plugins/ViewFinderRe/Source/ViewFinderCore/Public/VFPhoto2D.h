@@ -2,12 +2,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-
-#include "UObject/ConstructorHelpers.h"
-#include "Engine/TextureRenderTarget2D.h"
-#include "Materials/MaterialInstanceDynamic.h"
-
 #include "VFPhoto2D.generated.h"
+
+class UTexture2D;
+class UStaticMesh;
+class UStaticMeshComponent;
+class UMaterialInstanceDynamic;
+
+class AVFPhoto3D;
+class UVFHelperComponent;
+class UVFPhotoCaptureComponent;
 
 UENUM(BlueprintType)
 enum class EVFPhoto2DState : uint8
@@ -31,60 +35,58 @@ public:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void SetPhoto3D(class AVFPhoto3D *Photo);
+	void SetPhoto3D(AVFPhoto3D *Photo);
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	AVFPhoto3D *GetPhoto3D();
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void SetPhoto(USceneCaptureComponent2D *Capturer);
+	void SetPhoto(UVFPhotoCaptureComponent *PhotoCapture = nullptr);
 
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")
 	virtual void FoldUp();
 
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")
-	void Preview(const FTransform& WorldTrans, const bool &Enabled);
+	void Preview(const FTransform &WorldTrans, const bool &Enabled);
 
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")
 	virtual void PlaceDown();
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void CopyPhoto3D(UObject* Sender);
+	void CopyPhoto3D(UObject *Sender);
 
-protected:
+protected:	// 组件
+	UPROPERTY()
+	TObjectPtr<UStaticMesh> StaticMeshObject;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	TObjectPtr<UStaticMeshComponent> StaticMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	TObjectPtr<class UVFHelperComponent> Helper;
+
+protected:	// 状态, 数据
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	EVFPhoto2DState State = EVFPhoto2DState::None;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<class UStaticMeshComponent> StaticMesh;
-	
-	UPROPERTY()
-	TObjectPtr<class UStaticMesh> StaticMeshObject;
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "ViewFinder")
+	TObjectPtr<AVFPhoto3D> Photo3D;
 
-public: // 材质相关
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	int PixelNum = 1024;
-	
-	UPROPERTY(VisibleAnywhere, Category = "ViewFinder")
-	float AspectRatio = 16.0f / 9;
+public: // 动态材质实例相关
+	// 懒加载, 也便于重写
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
+	UMaterialInstanceDynamic *GetMaterialInstance();
+	virtual UMaterialInstanceDynamic* GetMaterialInstance_Implementation();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	FName TextureName = TEXT("Texture");
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	FName RatioName = TEXT("AspectRatio");
-
-protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<UTextureRenderTarget2D> RenderTarget;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<UMaterialInstanceDynamic> MaterialInstance;
 
-protected:
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<AVFPhoto3D> Photo3D;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<class UVFHelperComponent> Helper;
+	TObjectPtr<UTexture2D> Texture2D;
 };

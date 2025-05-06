@@ -4,6 +4,10 @@
 #include "VFPhotoCatcher_Interact.h"
 #include "VFPhotoCatcher_PickUp.generated.h"
 
+class UInputMappingContext;
+
+class AVFPhotoContainer;
+
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERRE_API AVFPhotoCatcher_PickUp : public AVFPhotoCatcher_Interact
 {
@@ -29,7 +33,7 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<class UInputMappingContext> HoldingMappingContext;
+	TObjectPtr<UInputMappingContext> HoldingMappingContext;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
 	bool bPickedUp = false;
@@ -38,7 +42,7 @@ protected:
 	bool bReady = false;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
-	TObjectPtr<class AVFPhotoContainer> Container;
+	TObjectPtr<AVFPhotoContainer> Container;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")

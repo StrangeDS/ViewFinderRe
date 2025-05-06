@@ -1,5 +1,7 @@
 #include "VFPhotoCatcher.h"
 
+#include "Engine/TextureRenderTarget2D.h"
+#include "Components/StaticMeshComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 #include "VFCommon.h"
@@ -9,6 +11,9 @@
 #include "VFPhotoCaptureComponent.h"
 #include "VFViewFrustumComponent.h"
 #include "VFFunctions.h"
+#include "VFHelperComponent.h"
+#include "VFStandInInterface.h"
+#include "VFPawnStandIn.h"
 
 static void GetMapHelpers(
 	const TMap<UPrimitiveComponent *, UVFHelperComponent *> &Map,
@@ -40,6 +45,11 @@ AVFPhotoCatcher::AVFPhotoCatcher()
 	ViewFrustum = CreateDefaultSubobject<UVFViewFrustumComponent>(TEXT("ViewFrustum"));
 	ViewFrustum->SetupAttachment(RootComponent);
 	ViewFrustum->SetHiddenInGame(true);
+
+	VFDMCompClass = UVFDynamicMeshComponent::StaticClass();
+	VFPhoto2DClass = AVFPhoto2D::StaticClass();
+	VFPhoto3DClass = AVFPhoto3D::StaticClass();
+	VFPawnStandInClass = AVFPawnStandIn::StaticClass();
 }
 
 void AVFPhotoCatcher::OnConstruction(const FTransform &Transform)
@@ -61,8 +71,6 @@ void AVFPhotoCatcher::BeginPlay()
 
 	Super::BeginPlay();
 
-	// 需根据网格体材质插槽
-	PhotoCapture->Init(StaticMesh->CreateDynamicMaterialInstance(1), AspectRatio);
 	SetViewFrustumVisible(false);
 }
 
@@ -217,8 +225,6 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 
 	Photo2D->FoldUp();
 
-	Photo2D->AspectRatio = AspectRatio;
-
 	for (auto &Helper : HelpersRecorder)
 	{
 		Helper->NotifyDelegate(this, FVFHelperDelegateType::OriginalAfterTakingPhoto);
@@ -238,7 +244,30 @@ void AVFPhotoCatcher::ResetActorsToIgnore()
 	ActorsToIgnore.AddUnique(this);
 }
 
+void AVFPhotoCatcher::EnableScreen(const bool &Enabled)
+{
+	if (Enabled)
+	{
+		ScreenMID->SetTextureParameterValue(TEXT("Texture"), PhotoCapture->TextureTarget);
+		ScreenMID->SetScalarParameterValue(TEXT("AspectRatio"), AspectRatio);
+		ScreenMID->SetScalarParameterValue(TEXT("FOVAngle"), PhotoCapture->FOVAngle); // 无实际意义, 宽填充屏幕
+		PhotoCapture->StartDraw();
+	}
+	else
+	{
+		PhotoCapture->EndDraw();
+		ScreenMID->ClearParameterValues();
+	}
+}
+
 FQuat AVFPhotoCatcher::GetFrustumQuat()
 {
 	return ViewFrustum->GetComponentQuat();
+}
+
+UMaterialInstanceDynamic *AVFPhotoCatcher::GetScreenMID_Implementation()
+{
+    if (!ScreenMID)
+		ScreenMID = StaticMesh->CreateDynamicMaterialInstance(1);
+    return ScreenMID;
 }

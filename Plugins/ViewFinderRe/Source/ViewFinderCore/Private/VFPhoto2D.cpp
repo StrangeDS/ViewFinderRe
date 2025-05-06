@@ -1,13 +1,15 @@
 #include "VFPhoto2D.h"
 
+#include "Engine/Texture2D.h"
 #include "Components/StaticMeshComponent.h"
-#include "Engine/TextureRenderTarget2D.h"
-#include "Components/SceneCaptureComponent2D.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
+#include "VFCommon.h"
 #include "VFDynamicMeshComponent.h"
 #include "VFPhoto3D.h"
 #include "VFHelperComponent.h"
 #include "VFFunctions.h"
+#include "VFPhotoCaptureComponent.h"
 
 AVFPhoto2D::AVFPhoto2D() : Super()
 {
@@ -23,7 +25,6 @@ AVFPhoto2D::AVFPhoto2D() : Super()
 	StaticMesh->SetStaticMesh(StaticMeshObject);
 
 	Helper = CreateDefaultSubobject<UVFHelperComponent>("Helper");
-	Helper->bCanBePlacedByPhoto = false;
 }
 
 void AVFPhoto2D::BeginPlay()
@@ -31,17 +32,13 @@ void AVFPhoto2D::BeginPlay()
 	Super::BeginPlay();
 
 	Helper->OnCopyAfterCopiedForPhoto.AddUniqueDynamic(this, &AVFPhoto2D::CopyPhoto3D);
-
-	RenderTarget = NewObject<UTextureRenderTarget2D>(this);
-	RenderTarget->InitCustomFormat(PixelNum, PixelNum, PF_FloatRGBA, false);
-	RenderTarget->ClearColor = FLinearColor::Black;
 }
 
 void AVFPhoto2D::SetActorHiddenInGame(bool bNewHidden)
 {
 	Super::SetActorHiddenInGame(bNewHidden);
 
-	if (bNewHidden) // SetActorEnableCollision(true)需要手动开启
+	if (bNewHidden) // SetActorEnableCollision(true)需要手动开启. 拿在手上不开启碰撞
 		SetActorEnableCollision(false);
 }
 
@@ -55,22 +52,38 @@ AVFPhoto3D *AVFPhoto2D::GetPhoto3D()
 	return Photo3D;
 }
 
-void AVFPhoto2D::SetPhoto(USceneCaptureComponent2D *Capturer)
+void AVFPhoto2D::SetPhoto(UVFPhotoCaptureComponent *PhotoCapture)
 {
-	if (!Capturer)
-		return;
-
-	if (!MaterialInstance)
+	if (PhotoCapture)
 	{
-		MaterialInstance = StaticMesh->CreateAndSetMaterialInstanceDynamic(0);
-		MaterialInstance->SetScalarParameterValue(RatioName, AspectRatio);
-		MaterialInstance->SetTextureParameterValue(TextureName, RenderTarget);
+		Texture2D = PhotoCapture->DrawATexture2D();
+		float Scale = PhotoCapture->FOVAngle / 90.0f;
+		SetActorRelativeScale3D(FVector(GetActorRelativeScale3D().X, Scale, Scale));
+	}
+	else
+	{
+		Texture2D = nullptr;
+		SetActorRelativeScale3D(FVector::OneVector);
 	}
 
-	UTextureRenderTarget2D *Original = Capturer->TextureTarget;
-	Capturer->TextureTarget = RenderTarget;
-	Capturer->CaptureScene();
-	Capturer->TextureTarget = Original;
+	if (GetMaterialInstance())
+	{
+		if (PhotoCapture)
+		{
+			float AspectRatio = (float)PhotoCapture->TargetWidth / PhotoCapture->TargetHeight;
+			MaterialInstance->SetTextureParameterValue(TextureName, Texture2D);
+			MaterialInstance->SetScalarParameterValue(RatioName, AspectRatio);
+		}
+		else
+		{
+			MaterialInstance->ClearParameterValues();
+		}
+	}
+	else
+	{
+		VF_LOG(Warning, TEXT("%s  has no MaterialInstance."), __FUNCTIONW__);
+		return;
+	}
 }
 
 void AVFPhoto2D::FoldUp()
@@ -120,7 +133,7 @@ static AActor *CopyActor(AActor *Actor)
 	TArray<UVFDynamicMeshComponent *> VFDMComps;
 	Actor->GetComponents<UVFDynamicMeshComponent>(VFDMComps);
 
-	// 深搜子Actors
+	// 递归子Actors
 	TArray<AActor *> ChildActors;
 	Actor->GetAttachedActors(ChildActors);
 	for (auto &ChildActor : ChildActors)
@@ -140,4 +153,11 @@ void AVFPhoto2D::CopyPhoto3D(UObject *Sender)
 							   Photo3D->bOnlyOverlapWithHelps,
 							   Photo3D->ObjectTypesToOverlap);
 	Photo3D = Photo3DNew;
+}
+
+UMaterialInstanceDynamic *AVFPhoto2D::GetMaterialInstance_Implementation()
+{
+	if (!MaterialInstance)
+		MaterialInstance = StaticMesh->CreateAndSetMaterialInstanceDynamic(0);
+	return MaterialInstance;
 }

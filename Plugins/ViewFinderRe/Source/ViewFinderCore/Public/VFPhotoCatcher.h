@@ -2,11 +2,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-
-#include "UObject/ConstructorHelpers.h"
-#include "Components/StaticMeshComponent.h"
-
 #include "VFPhotoCatcher.generated.h"
+
+class UStaticMeshComponent;
+
+class AVFPhoto2D;
+class AVFPhoto3D;
+class AVFPawnStandIn;
+class UVFViewFrustumComponent;
+class UVFDynamicMeshComponent;
+class UVFPhotoCaptureComponent;
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERCORE_API AVFPhotoCatcher : public AActor
@@ -40,6 +45,9 @@ public:
 	void ResetActorsToIgnore();
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	void EnableScreen(const bool &Enabled = true);
+
+	UFUNCTION(BlueprintPure, Category = "ViewFinder")
 	FQuat GetFrustumQuat();
 
 protected:
@@ -56,16 +64,16 @@ protected:
 	float EndDis = 20000.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder|ClassSetting")
-	TSubclassOf<class UVFDynamicMeshComponent> VFDMCompClass;
+	TSubclassOf<UVFDynamicMeshComponent> VFDMCompClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder|ClassSetting")
-	TSubclassOf<class AVFPhoto2D> VFPhoto2DClass;
+	TSubclassOf<AVFPhoto2D> VFPhoto2DClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder|ClassSetting")
-	TSubclassOf<class AVFPhoto3D> VFPhoto3DClass;
+	TSubclassOf<AVFPhoto3D> VFPhoto3DClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder|ClassSetting")
-	TSubclassOf<class AVFPawnStandIn> VFPawnStandInClass;
+	TSubclassOf<AVFPawnStandIn> VFPawnStandInClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	bool bOnlyOverlapWithHelps = false;
@@ -81,14 +89,22 @@ protected:
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypesToOverlap;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<class UStaticMeshComponent> StaticMesh;
+	TObjectPtr<UStaticMeshComponent> StaticMesh;
 
 	UPROPERTY()
 	TObjectPtr<UStaticMesh> CatcherMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<class UVFPhotoCaptureComponent> PhotoCapture;
+	TObjectPtr<UVFPhotoCaptureComponent> PhotoCapture;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<class UVFViewFrustumComponent> ViewFrustum;
+	TObjectPtr<UVFViewFrustumComponent> ViewFrustum;
+
+public:
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
+	UMaterialInstanceDynamic *GetScreenMID();
+	virtual UMaterialInstanceDynamic* GetScreenMID_Implementation();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	TObjectPtr<UMaterialInstanceDynamic> ScreenMID;
 };

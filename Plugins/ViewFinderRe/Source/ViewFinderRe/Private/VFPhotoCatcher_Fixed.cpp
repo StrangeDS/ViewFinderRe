@@ -8,11 +8,11 @@
 AVFPhoto2D *AVFPhotoCatcher_Fixed::TakeAPhoto_Implementation()
 {
     GetWorldTimerManager().ClearTimer(TimerHandleOfTakingPhoto);
-    PhotoCapture->StartDraw();
+    EnableScreen(true);
     GetWorldTimerManager().SetTimer(
         TimerHandleOfTakingPhoto, [this]()
         {
-            PhotoCapture->EndDraw();
+            EnableScreen(false);
             auto Photo = Super::TakeAPhoto_Implementation();
             Photo->AddActorLocalTransform(PhotoSpawnPoint); },
         TimeOfTakingPhoto,

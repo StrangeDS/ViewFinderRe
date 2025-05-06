@@ -4,7 +4,6 @@
 #include "TimerManager.h"
 
 #include "VFCommon.h"
-#include "VFPhoto2D.h"
 #include "VFPhotoCaptureComponent.h"
 
 AVFPhotoCatcherPref::AVFPhotoCatcherPref() : Super()
@@ -12,6 +11,10 @@ AVFPhotoCatcherPref::AVFPhotoCatcherPref() : Super()
     PhotoCapture->bCaptureEveryFrame = false;
     PhotoCapture->bCaptureOnMovement = false;
     PhotoCapture->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList;
+
+#if WITH_EDITORONLY_DATA
+    RenderTargetTemp = CreateDefaultSubobject<UTextureRenderTarget2D>("RenderTargetTemp");
+#endif
 }
 
 void AVFPhotoCatcherPref::BeginPlay()

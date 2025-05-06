@@ -4,9 +4,6 @@
 #include "Components/SceneCaptureComponent2D.h"
 #include "VFPhotoCaptureComponent.generated.h"
 
-class UTextureRenderTarget2D;
-class UMaterialInstanceDynamic;
-
 UCLASS(Blueprintable, ClassGroup = (ViewFinder), meta = (BlueprintSpawnableComponent))
 class VIEWFINDERCORE_API UVFPhotoCaptureComponent : public USceneCaptureComponent2D
 {
@@ -17,41 +14,29 @@ class VIEWFINDERCORE_API UVFPhotoCaptureComponent : public USceneCaptureComponen
 public:
 	virtual void BeginPlay() override;
 
+	void Init();
+
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void Init(class UMaterialInstanceDynamic *Instance,
-			  float AspectRatioIn = 1.777778f,
-			  FName TextureNameIn = TEXT("Texture"),
-			  FName RatioNameIn = TEXT("AspectRatio"));
+	void ResizeTarget(int Width, int Height);
+
+	UFUNCTION(BlueprintPure, Category = "ViewFinder")
+	FORCEINLINE float GetTargetAspectRatio() { return (float)TargetWidth / TargetHeight; };
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void StartDraw();
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void EndDraw();
-	
+
+	// 将当前画面生成到一个UTexture2D.
+	// 注意: 不会自动调用CaptureScene. 需管理其生命周期.
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void DrawAFrame();
+	UTexture2D *DrawATexture2D();
 
 public:
 	UPROPERTY(EditAnywhere, Category = "ViewFinder")
-	int Width = 1024;
+	int TargetWidth = 1920;
 
-	UPROPERTY(VisibleAnywhere, Category = "ViewFinder")
-	float AspectRatio = 16.0f / 9;
-
-	UPROPERTY(VisibleAnywhere, Category = "ViewFinder")
-	FName TextureName = TEXT("Texture");
-
-	UPROPERTY(VisibleAnywhere, Category = "ViewFinder")
-	FName RatioName = TEXT("AspectRatio");
-
-public:
-	UPROPERTY(VisibleAnywhere, Category = "ViewFinder")
-	TObjectPtr<UTextureRenderTarget2D> RenderTarget;
-
-	UPROPERTY(VisibleAnywhere, Category = "ViewFinder")
-	TObjectPtr<UMaterialInstanceDynamic> MaterialInstance;
-
-	UPROPERTY(VisibleAnywhere, Category = "ViewFinder")
-	UTexture* OriginalTexture = nullptr;
+	UPROPERTY(EditAnywhere, Category = "ViewFinder")
+	int TargetHeight = 1080;
 };

@@ -1,7 +1,11 @@
 #include "VFPhotoCaptureComponent.h"
 
+#include "TextureResource.h"
+#include "Engine/Texture2D.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "Materials/MaterialInstanceDynamic.h"
+
+#include "VFCommon.h"
 
 UVFPhotoCaptureComponent::UVFPhotoCaptureComponent()
 {
@@ -15,16 +19,15 @@ void UVFPhotoCaptureComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (IsValid(TextureTarget))
+	Init();
+}
+void UVFPhotoCaptureComponent::Init()
+{
+	if (!IsValid(TextureTarget))
 	{
-		RenderTarget = TextureTarget;
-	}
-	else
-	{
-		RenderTarget = NewObject<UTextureRenderTarget2D>(this);
-		this->TextureTarget = RenderTarget;
-		RenderTarget->InitCustomFormat(Width, Width, PF_FloatRGBA, true);
-		RenderTarget->ClearColor = FLinearColor::Black;
+		TextureTarget = NewObject<UTextureRenderTarget2D>(this);
+		TextureTarget->InitCustomFormat(TargetWidth, TargetHeight, PF_FloatRGBA, true);
+		TextureTarget->ClearColor = FLinearColor::Black;
 	}
 
 	auto Actor = GetOwner();
@@ -35,44 +38,60 @@ void UVFPhotoCaptureComponent::BeginPlay()
 	}
 }
 
-void UVFPhotoCaptureComponent::Init(UMaterialInstanceDynamic *Instance,
-									float AspectRatioIn,
-									FName TextureNameIn,
-									FName RatioNameIn)
+void UVFPhotoCaptureComponent::ResizeTarget(int Width, int Height)
 {
-	MaterialInstance = Instance;
-	AspectRatio = AspectRatioIn;
-	TextureName = TextureNameIn;
-	RatioName = RatioNameIn;
+	check(Width > 0 && Height > 0);
 
-	MaterialInstance->GetTextureParameterValue(TextureName, OriginalTexture);
+	TargetWidth = Width;
+	TargetHeight = Height;
+	TextureTarget->ResizeTarget(TargetWidth, TargetHeight);
 }
 
 void UVFPhotoCaptureComponent::StartDraw()
 {
-	if (!MaterialInstance)
-		return;
-
-	// 材质参数设置最好在外面进行
-	MaterialInstance->SetTextureParameterValue(TextureName, RenderTarget);
-	MaterialInstance->SetScalarParameterValue(RatioName, AspectRatio);
 	bCaptureEveryFrame = true;
 }
 
 void UVFPhotoCaptureComponent::EndDraw()
 {
-	if (!MaterialInstance)
-		return;
-
 	bCaptureEveryFrame = false;
-	MaterialInstance->SetTextureParameterValue(TextureName, OriginalTexture);
 }
 
-void UVFPhotoCaptureComponent::DrawAFrame()
+UTexture2D *UVFPhotoCaptureComponent::DrawATexture2D()
 {
-	if (!MaterialInstance)
-		return;
+	UTexture2D *Texture = nullptr;
+	FIntPoint Size(TextureTarget->SizeX, TextureTarget->SizeY);
+	FTextureRenderTargetResource *RTResource = TextureTarget->GameThread_GetRenderTargetResource();
 
-	MaterialInstance->SetTextureParameterValue(TextureName, RenderTarget);
-	CaptureScene();
+	if (TextureTarget->OverrideFormat == EPixelFormat::PF_B8G8R8A8)
+	{
+		TArray<FColor> PixelData;
+		RTResource->ReadPixels(PixelData);
+
+		Texture = UTexture2D::CreateTransient(Size.X, Size.Y, PF_B8G8R8A8);
+		FTexture2DMipMap &Mip = Texture->GetPlatformData()->Mips[0];
+		void *Data = Mip.BulkData.Lock(LOCK_READ_WRITE);
+		FMemory::Memcpy(Data, PixelData.GetData(), PixelData.Num() * sizeof(FColor));
+		Mip.BulkData.Unlock();
+		Texture->UpdateResource();
+	}
+	else if (TextureTarget->OverrideFormat == EPixelFormat::PF_FloatRGBA)
+	{
+		TArray<FFloat16Color> PixelData;
+		RTResource->ReadFloat16Pixels(PixelData);
+
+		Texture = UTexture2D::CreateTransient(Size.X, Size.Y, PF_FloatRGBA);
+		FTexture2DMipMap &Mip = Texture->GetPlatformData()->Mips[0];
+		void *Data = Mip.BulkData.Lock(LOCK_READ_WRITE);
+		FMemory::Memcpy(Data, PixelData.GetData(), PixelData.Num() * sizeof(FFloat16Color));
+		Mip.BulkData.Unlock();
+		Texture->UpdateResource();
+	}
+
+	if (!ensure(Texture))
+	{
+		VF_LOG(Error, TEXT("Unimplemented EPixelFormat."));
+	}
+
+	return Texture;
 }

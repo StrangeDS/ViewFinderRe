@@ -31,29 +31,19 @@ void AVFPhotoDecal::OnConstruction(const FTransform &Transform)
     Super::OnConstruction(Transform);
 
     PhotoCapture->FOVAngle = ViewAngle;
+    float AspectRatio = PhotoCapture->GetTargetAspectRatio();
     ViewFrustum->RegenerateViewFrustum(ViewAngle, AspectRatio, StartDis, EndDis);
+    FVector Scale = Decal->GetRelativeScale3D();
+    Decal->SetRelativeScale3D(FVector(Scale.X, Scale.Y, Scale.Y / AspectRatio));
 }
 
-void AVFPhotoDecal::BeginPlay()
-{
-    MaterialInstance = Decal->CreateDynamicMaterialInstance();
-    PhotoCapture->Init(MaterialInstance);
-
-    // 蓝图的BeginPlay需要在MaterialInstance被创建后
-    Super::BeginPlay();
-}
+// void AVFPhotoDecal::BeginPlay()
+// {
+//     Super::BeginPlay();
+// }
 
 void AVFPhotoDecal::DrawDecal()
 {
-    if (ensure(MaterialInstance))
-    {
-        MaterialInstance->SetVectorParameterValue(TEXT("CameraPosition"), PhotoCapture->GetComponentLocation());
-        MaterialInstance->SetVectorParameterValue(TEXT("CameraFacing"), PhotoCapture->GetComponentRotation().Vector());
-        MaterialInstance->SetVectorParameterValue(TEXT("DecalSize"), Decal->DecalSize);
-        MaterialInstance->SetScalarParameterValue(TEXT("FOVAngle"), PhotoCapture->FOVAngle);
-        MaterialInstance->SetScalarParameterValue(TEXT("AspectRatio"), AspectRatio);
-    }
-
     if (bOnlyCatchManagedActors)
     {
         PhotoCapture->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList;
@@ -64,7 +54,23 @@ void AVFPhotoDecal::DrawDecal()
         PhotoCapture->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_RenderScenePrimitives;
         PhotoCapture->ShowOnlyActors.Reset();
     }
-    PhotoCapture->DrawAFrame();
+
+    if (GetMaterialInstance())
+    {
+        MaterialInstance->SetVectorParameterValue(TEXT("CameraPosition"), PhotoCapture->GetComponentLocation());
+        MaterialInstance->SetVectorParameterValue(TEXT("CameraFacing"), PhotoCapture->GetComponentRotation().Vector());
+        MaterialInstance->SetVectorParameterValue(TEXT("DecalSize"), Decal->DecalSize);
+        MaterialInstance->SetScalarParameterValue(TEXT("FOVAngle"), PhotoCapture->FOVAngle);
+        MaterialInstance->SetScalarParameterValue(TEXT("AspectRatio"), PhotoCapture->GetTargetAspectRatio());
+
+        PhotoCapture->CaptureScene();
+        Texture2D = PhotoCapture->DrawATexture2D();
+        MaterialInstance->SetTextureParameterValue(TEXT("Texture"), Texture2D);
+    }
+    else
+    {
+        VF_LOG(Warning, TEXT("%s invalid MaterialInstance."), __FUNCTIONW__);
+    }
 }
 
 void AVFPhotoDecal::ReplaceWithDecal_Implementation()
@@ -110,7 +116,6 @@ void AVFPhotoDecal::SetManagedActorsEnabled(bool Enabled)
 }
 
 #if WITH_EDITOR
-
 #include "Kismet/KismetSystemLibrary.h"
 
 void AVFPhotoDecal::RecollectActorsWithFrustum()
@@ -120,8 +125,14 @@ void AVFPhotoDecal::RecollectActorsWithFrustum()
         ViewFrustum->GetComponentToWorld(),
         {},
         AActor::StaticClass(),
-        { this },
+        {this},
         ManagedActors);
 }
-
 #endif
+
+UMaterialInstanceDynamic *AVFPhotoDecal::GetMaterialInstance_Implementation()
+{
+    if (!MaterialInstance)
+        MaterialInstance = Decal->CreateDynamicMaterialInstance();
+    return MaterialInstance;
+}
