@@ -27,9 +27,9 @@ AVFPhoto3D::AVFPhoto3D() : Super()
 
 void AVFPhoto3D::BeginPlay()
 {
-	check(VFDMCompClass.Get());
-
 	Super::BeginPlay();
+
+	check(VFDMCompClass.Get());
 }
 
 void AVFPhoto3D::FoldUp()
@@ -54,6 +54,21 @@ void AVFPhoto3D::PlaceDown()
 		return;
 	State = EVFPhoto3DState::Placed;
 
+	TArray<UVFHelperComponent *> HelpersInPhoto3D;
+	TArray<AActor *> ActorsInPhoto3D;
+	GetAttachedActors(ActorsInPhoto3D, true, true);
+
+	for (const auto Actor : ActorsInPhoto3D)
+	{
+		if (auto Helper = Actor->GetComponentByClass<UVFHelperComponent>())
+			HelpersInPhoto3D.AddUnique(Helper);
+	}
+
+	for (auto &Helper : HelpersInPhoto3D)
+	{
+		Helper->NotifyDelegate(this, FVFHelperDelegateType::CopyBeginPlacedByPhoto);
+	}
+
 	TArray<UPrimitiveComponent *> OverlapComps;
 	UKismetSystemLibrary::ComponentOverlapComponents(
 		ViewFrustumRecorder,
@@ -76,39 +91,33 @@ void AVFPhoto3D::PlaceDown()
 			It.RemoveCurrent();
 	}
 
-	TSet<UVFHelperComponent *> HelpersRecorder;
+	TSet<UVFHelperComponent *> HelpersPlaced;
 	for (auto &[Comp, Helper] : HelperMap)
 	{
-		HelpersRecorder.Add(Helper);
+		HelpersPlaced.Add(Helper);
 	}
 
 	auto VFDMComps = UVFFunctions::CheckVFDMComps(OverlapComps, VFDMCompClass);
-	VF_LOG(Log, TEXT("PlaceDown overlaps %i"), VFDMComps.Num());
 
 	for (auto Comp : VFDMComps)
 	{
 		Comp->SubtractMeshWithDMComp(ViewFrustumRecorder);
 	}
-	for (auto &Helper : HelpersRecorder)
+	for (auto &Helper : HelpersPlaced)
 	{
 		Helper->NotifyDelegate(this, FVFHelperDelegateType::OriginalAfterCutByPhoto);
 	}
 
-	TArray<AActor *> Actors;
-	GetAttachedActors(Actors, true, true);
-	for (const auto &Actor : Actors)
+	for (auto &Actor : ActorsInPhoto3D)
 	{
 		Actor->SetActorEnableCollision(true);
 		Actor->SetActorHiddenInGame(false);
 	}
 	SetVFDMCompsEnabled(true);
 
-	for (const auto Actor : Actors)
+	for (auto &Helper : HelpersInPhoto3D)
 	{
-		if (auto Helper = Actor->GetComponentByClass<UVFHelperComponent>())
-		{
-			Helper->NotifyDelegate(this, FVFHelperDelegateType::CopyAfterPlacedByPhoto);
-		}
+		Helper->NotifyDelegate(this, FVFHelperDelegateType::CopyAfterPlacedByPhoto);
 	}
 }
 
