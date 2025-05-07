@@ -64,12 +64,12 @@ void AVFPhotoCatcher::OnConstruction(const FTransform &Transform)
 
 void AVFPhotoCatcher::BeginPlay()
 {
+	Super::BeginPlay();
+
 	check(VFDMCompClass.Get());
 	check(VFPhoto2DClass.Get());
 	check(VFPhoto3DClass.Get());
 	check(VFPawnStandInClass.Get());
-
-	Super::BeginPlay();
 
 	SetViewFrustumVisible(false);
 }
@@ -172,10 +172,11 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 		VFPhoto3DClass.Get(),
 		ViewFrustum->GetComponentLocation(),
 		ViewFrustum->GetComponentRotation());
-	auto ActorsCopied = UVFFunctions::CopyActorFromVFDMComps(GetWorld(), VFDMComps, CopiedComps);
+	auto ActorsCopied = UVFFunctions::CopyActorsFromVFDMComps(GetWorld(), VFDMComps, CopiedComps);
 	for (auto &Actor : ActorsCopied)
 	{
-		Actor->AttachToActor(Photo3D, FAttachmentTransformRules::KeepWorldTransform);
+		if (!Actor->GetRootComponent()->GetAttachParentActor())
+			Actor->AttachToActor(Photo3D, FAttachmentTransformRules::KeepWorldTransform);
 	}
 
 	TMap<UPrimitiveComponent *, UVFHelperComponent *> CopiedHelperMap;
@@ -246,11 +247,15 @@ void AVFPhotoCatcher::ResetActorsToIgnore()
 
 void AVFPhotoCatcher::EnableScreen(const bool &Enabled)
 {
+	if (!GetScreenMID())
+	{
+		VF_LOG(Error, TEXT("%s invalid ScreenMID."), __FUNCTIONW__);
+	}
+
 	if (Enabled)
 	{
 		ScreenMID->SetTextureParameterValue(TEXT("Texture"), PhotoCapture->TextureTarget);
 		ScreenMID->SetScalarParameterValue(TEXT("AspectRatio"), AspectRatio);
-		ScreenMID->SetScalarParameterValue(TEXT("FOVAngle"), PhotoCapture->FOVAngle); // 无实际意义, 宽填充屏幕
 		PhotoCapture->StartDraw();
 	}
 	else
@@ -267,7 +272,7 @@ FQuat AVFPhotoCatcher::GetFrustumQuat()
 
 UMaterialInstanceDynamic *AVFPhotoCatcher::GetScreenMID_Implementation()
 {
-    if (!ScreenMID)
+	if (!ScreenMID)
 		ScreenMID = StaticMesh->CreateDynamicMaterialInstance(1);
-    return ScreenMID;
+	return ScreenMID;
 }

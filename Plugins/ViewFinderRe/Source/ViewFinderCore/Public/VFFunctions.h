@@ -17,6 +17,14 @@ public:
 		AActor *Original,
 		TArray<UVFDynamicMeshComponent *> &CopiedComps);
 
+	/// @brief 复制Original, 底层使用CloneActorRuntime, 返回对应类型
+	template <typename T = AActor>
+	static T *CloneActorRuntimeRecursive(AActor *Original);
+
+	/// @brief 复制Original, 底层使用CloneActorRuntime
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder", meta = (DisplayName = "CloneActorRuntimeRecursive"))
+	static AActor *K2_CloneActorRuntimeRecursive(AActor *Original);
+
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	static AActor *ReplaceWithStandIn(
 		AActor *SourceActor,
@@ -30,22 +38,52 @@ public:
 		const TArray<UPrimitiveComponent *> &Components,
 		TSubclassOf<UVFDynamicMeshComponent> VFDMCompClass);
 
-	/// @brief 复制VFDMComp列表的Actor
+	/// @brief 复制VFDMComp列表的Actors
+	/// @param Components VFDMComp列表
+	/// @param CopiedComps VFDMComp对应的复制组件
+	/// @param bRetainHierarchy 是否需要保持Actor之间的层级关系
+	/// @return 复制出的Actors
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	static TArray<AActor *> CopyActorFromVFDMComps(
+	static TArray<AActor *> CopyActorsFromVFDMComps(
 		UWorld *World,
 		UPARAM(ref) const TArray<UVFDynamicMeshComponent *> &Components,
-		UPARAM(ref) TArray<UVFDynamicMeshComponent *> &CopiedComps);
+		UPARAM(ref) TArray<UVFDynamicMeshComponent *> &CopiedComps,
+		bool bRetainHierarchy = true);
 
-	template <typename T>
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	/// @brief 查找Components对应Actor下的UVFHelperComponent组件, 映射关系返回到Map中
+	template <typename T = UPrimitiveComponent>
 	static void GetCompsToHelpersMapping(
-		UPARAM(ref) TArray<T *> &Components,
+		TArray<T *> &Components,
+		TMap<UPrimitiveComponent *, UVFHelperComponent *> &Map);
+
+	/// @brief 查找Components对应Actor下的UVFHelperComponent组件, 映射关系返回到Map中
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder", meta = (DisplayName = "GetCompsToHelpersMapping"))
+	static void K2_GetCompsToHelpersMapping(
+		UPARAM(ref) TArray<UPrimitiveComponent *> &Components,
 		UPARAM(ref) TMap<UPrimitiveComponent *, UVFHelperComponent *> &Map);
 
 	static FTransform TransformLerp(const FTransform &Original, const FTransform &Target, float delta);
 	static FTransform TransformLerpNoScale(const FTransform &Original, const FTransform &Target, float delta);
 };
+
+template <typename T>
+inline T *UVFFunctions::CloneActorRuntimeRecursive(AActor *Original)
+{
+	TArray<UVFDynamicMeshComponent *> _CopiedComps; // 无用, 仅占位
+	auto Res = UVFFunctions::CloneActorRuntime(Original, _CopiedComps);
+	TArray<UVFDynamicMeshComponent *> VFDMComps;
+	Original->GetComponents<UVFDynamicMeshComponent>(VFDMComps);
+
+	// 递归子Actors
+	TArray<AActor *> ChildActors;
+	Original->GetAttachedActors(ChildActors);
+	for (auto &ChildActor : ChildActors)
+	{
+		auto ChildCopied = CloneActorRuntimeRecursive<AActor>(ChildActor);
+		ChildCopied->AttachToActor(Res, FAttachmentTransformRules::KeepWorldTransform);
+	}
+	return Cast<T>(Res);
+}
 
 template <typename T>
 inline void UVFFunctions::GetCompsToHelpersMapping(

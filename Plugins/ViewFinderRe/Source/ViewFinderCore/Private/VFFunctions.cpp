@@ -39,9 +39,8 @@ static UVFDynamicMeshComponent *NewVFDMComp(UObject *Outer, const TSubclassOf<UV
 	return Comp;
 }
 
-// Actor会在UVFDynamicMeshComponent被卸载后才进行复制, 而后组件又被装回.
+// 非递归拷贝Actor, Actor会在UVFDynamicMeshComponent被卸载后才进行复制, 而后组件又被装回.
 // 这意味着, UVFDynamicMeshComponent上不能有复制的层级关系. 若有, 请考虑根据层级还原.
-// 非递归拷贝Actor, 需要递归可参考AVFPhoto2D::CopyPhoto3D()
 AActor *UVFFunctions::CloneActorRuntime(
 	AActor *Original,
 	TArray<UVFDynamicMeshComponent *> &CopiedComps)
@@ -93,6 +92,11 @@ AActor *UVFFunctions::CloneActorRuntime(
 	}
 
 	return Copy;
+}
+
+AActor *UVFFunctions::K2_CloneActorRuntimeRecursive(AActor *Original)
+{
+	return CloneActorRuntimeRecursive<AActor>(Original);
 }
 
 AActor *UVFFunctions::ReplaceWithStandIn(AActor *SourceActor, TSubclassOf<AActor> StandInActorClass)
@@ -158,6 +162,11 @@ TArray<UVFDynamicMeshComponent *> UVFFunctions::CheckVFDMComps(
 	return Result;
 }
 
+void UVFFunctions::K2_GetCompsToHelpersMapping(UPARAM(ref) TArray<UPrimitiveComponent *> &Components, UPARAM(ref) TMap<UPrimitiveComponent *, UVFHelperComponent *> &Map)
+{
+	GetCompsToHelpersMapping<UPrimitiveComponent>(Components, Map);
+}
+
 FTransform UVFFunctions::TransformLerp(const FTransform &Original, const FTransform &Target, float delta)
 {
 	FRotator Rot = FMath::Lerp(Original.Rotator(), Target.Rotator(), delta);
@@ -172,35 +181,51 @@ FTransform UVFFunctions::TransformLerpNoScale(const FTransform &Original, const 
 	return FTransform(Rot, Loc, Original.GetScale3D());
 }
 
-TArray<AActor *> UVFFunctions::CopyActorFromVFDMComps(
+TArray<AActor *> UVFFunctions::CopyActorsFromVFDMComps(
 	UWorld *World,
 	const TArray<UVFDynamicMeshComponent *> &Components,
-	TArray<UVFDynamicMeshComponent *> &CopiedComps)
+	TArray<UVFDynamicMeshComponent *> &CopiedComps,
+	bool bRetainHierarchy)
 {
 	TRACE_CPUPROFILER_EVENT_SCOPE(TEXT("UVFFunctions::CopyActorFromVFDMComps()"));
-	CopiedComps.Reset();
-
 	check(World);
+
 	if (Components.Num() <= 0)
 		return {};
+
+	CopiedComps.Reset();
 
 	TMap<AActor *, AActor *> ActorsMap;
 	for (UVFDynamicMeshComponent *Component : Components)
 	{
-		AActor *Source = Component->GetOwner();
+		AActor *Original = Component->GetOwner();
 		// Actor的拷贝份, 纳入映射.
-		if (!ActorsMap.Contains(Source))
+		if (!ActorsMap.Contains(Original))
 		{
-			AActor *Copy = CloneActorRuntime(Source, CopiedComps);
-			ActorsMap.Add(Source, Copy);
+			AActor *Copy = CloneActorRuntime(Original, CopiedComps);
+			ActorsMap.Add(Original, Copy);
 		}
-		AActor *Copied = ActorsMap[Source];
+		AActor *Copied = ActorsMap[Original];
 	}
 
 	TArray<AActor *> Result;
-	for (auto &[Source, Copied] : ActorsMap)
+	Result.Reserve(ActorsMap.Num());
+	for (auto &[Original, Copied] : ActorsMap)
 	{
 		Result.Emplace(Copied);
+	}
+
+	// 修复层级关系
+	if (bRetainHierarchy)
+	{
+		for (auto &[Original, Copy]: ActorsMap)
+		{
+			auto Parent = Original->GetRootComponent()->GetAttachParentActor();
+			if (ActorsMap.Contains(Parent))
+			{
+				Copy->AttachToActor(ActorsMap[Parent], FAttachmentTransformRules::KeepWorldTransform);
+			}
+		}
 	}
 
 	return Result;
