@@ -13,7 +13,9 @@ enum class FVFHelperDelegateType : uint8
 	OriginalAfterTakingPhoto,
 	CopyAfterCopiedForPhoto,
 	CopyBeforeFoldedInPhoto,
-	CopyAfterPlacedByPhoto
+	CopyBeginPlacedByPhoto,
+	CopyAfterPlacedByPhoto,
+	MAX
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FVFHelperDelegate, UObject *, Sender);
@@ -76,6 +78,10 @@ public:
 	// Photo3D折叠前, Sender为Photo3D
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
 	FVFHelperDelegate OnCopyBeforeFoldedInPhoto;
+
+	// Photo3D放置前, Sender为Photo3D
+	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
+	FVFHelperDelegate OnCopyBeginPlacedByPhoto;
 
 	// Photo3D放置后, Sender为Photo3D
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")

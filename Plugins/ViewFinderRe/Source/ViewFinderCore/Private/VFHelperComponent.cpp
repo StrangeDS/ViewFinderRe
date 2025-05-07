@@ -61,10 +61,15 @@ bool UVFHelperComponent::NotifyDelegate(UObject *Sender, const FVFHelperDelegate
 		OnCopyBeforeFoldedInPhoto.Broadcast(Sender);
 		IsHandled = true;
 		break;
+	case FVFHelperDelegateType::CopyBeginPlacedByPhoto:
+		OnCopyBeginPlacedByPhoto.Broadcast(Sender);
+		IsHandled = true;
+		break;
 	case FVFHelperDelegateType::CopyAfterPlacedByPhoto:
 		OnCopyAfterPlacedByPhoto.Broadcast(Sender);
 		IsHandled = true;
 		break;
+	case FVFHelperDelegateType::MAX:
 	default:
 		VF_LOG(Warning, TEXT("%s don't handle."), __FUNCTIONW__);
 		break;
