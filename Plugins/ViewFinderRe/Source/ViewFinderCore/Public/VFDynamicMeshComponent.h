@@ -41,6 +41,19 @@ public: // SourceComponent
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	UVFDynamicMeshComponent *GetSourceVFDMComp();
 
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	void RestoreSourceComponent();
+
+#if WITH_EDITOR
+	// 仅用于还原被替换的父组件
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")
+	void RestoreSourceComponentInEditor();
+
+	// 仅用于替换父组件
+	UFUNCTION(CallInEditor, Category = "ViewFinder", meta = (DisplayName = "ReplaceMeshForComponent"))
+	void ReplaceMeshForComponentInEditor();
+#endif 
+
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
 	TObjectPtr<UPrimitiveComponent> SourceComponent;
 

@@ -162,12 +162,7 @@ void UVFDMSteppableComponent::TickBackward_Implementation(float Time)
         case UVFDMCompStepOperation::ReplaceMeshForComponent:
         {
             SetEnabled(false);
-
-            SourceComponent->SetHiddenInGame(false);
-            SourceComponent->SetCollisionProfileName(GetCollisionProfileName());
-            SourceComponent->SetCollisionEnabled(GetCollisionEnabled());
-            SourceComponent->SetSimulatePhysics(bSimulatePhysicsRecorder);
-            SourceComponent->BodyInstance.bSimulatePhysics = bEnableGravityRecorder;
+            RestoreSourceComponent();
             break;
         }
         case UVFDMCompStepOperation::IntersectMeshWithDMComp:

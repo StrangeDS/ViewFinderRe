@@ -1,5 +1,6 @@
 #include "VFDynamicMeshComponent.h"
 
+#include "VFCommon.h"
 #include "VFDMCompPoolWorldSubsystem.h"
 #include "VFGeometryFunctions.h"
 
@@ -161,3 +162,46 @@ UVFDynamicMeshComponent *UVFDynamicMeshComponent::GetSourceVFDMComp()
         return nullptr;
     return Cast<UVFDynamicMeshComponent>(SourceComponent);
 }
+
+void UVFDynamicMeshComponent::RestoreSourceComponent()
+{
+    if (!SourceComponent)
+        return;
+
+    SourceComponent->SetHiddenInGame(false);
+    SourceComponent->SetCollisionProfileName(GetCollisionProfileName());
+    SourceComponent->SetCollisionEnabled(GetCollisionEnabled());
+    SourceComponent->SetSimulatePhysics(bSimulatePhysicsRecorder);
+    SourceComponent->BodyInstance.bSimulatePhysics = bEnableGravityRecorder;
+}
+
+#if WITH_EDITOR
+void UVFDynamicMeshComponent::ReplaceMeshForComponentInEditor()
+{
+    const FScopedTransaction Transaction(FText::FromString("ReplaceMeshForComponentInEditor"));
+
+    auto Source = Cast<UPrimitiveComponent>(GetAttachParent());
+    if (!Source)
+        VF_LOG(Error, TEXT("%s GetAttachParent() is not a UPrimitiveComponent."), __FUNCTIONW__);
+    
+    Modify();
+    ReplaceMeshForComponent(Source);
+    SourceComponent = nullptr;
+    VF_LOG(Log, TEXT("%s has Replaced parent Component."), *GetName());
+}
+
+void UVFDynamicMeshComponent::RestoreSourceComponentInEditor()
+{
+    const FScopedTransaction Transaction(FText::FromString("RestoreSourceComponentInEditor"));
+
+    auto Source = Cast<UPrimitiveComponent>(GetAttachParent());
+    if (!Source)
+        VF_LOG(Error, TEXT("%s GetAttachParent() is not a UPrimitiveComponent."), __FUNCTIONW__);
+    
+    Modify();
+    SourceComponent = Source;
+    RestoreSourceComponent();
+    SourceComponent = nullptr;
+    VF_LOG(Log, TEXT("%s has Restored parent Component."), *GetName());
+}
+#endif
