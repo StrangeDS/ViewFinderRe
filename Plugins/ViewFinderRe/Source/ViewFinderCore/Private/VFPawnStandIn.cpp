@@ -36,8 +36,8 @@ void AVFPawnStandIn::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Helper->OnOriginalBeforeCopyingToPhoto.AddUniqueDynamic(this, &AVFPawnStandIn::Hide);
-	Helper->OnCopyAfterPlacedByPhoto.AddUniqueDynamic(this, &AVFPawnStandIn::TeleportTargetPawn);
+	Helper->OnOriginalBeforeCheckVFDMComps.AddUniqueDynamic(this, &AVFPawnStandIn::Hide);
+	Helper->OnCopyEndPlacingPhoto.AddUniqueDynamic(this, &AVFPawnStandIn::TeleportTargetPawn);
 }
 
 void AVFPawnStandIn::SetTargetPawn(APawn *Pawn)

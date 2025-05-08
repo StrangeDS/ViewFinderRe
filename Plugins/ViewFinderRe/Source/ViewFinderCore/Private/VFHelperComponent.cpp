@@ -22,60 +22,64 @@ void UVFHelperComponent::BeginPlay()
 	}
 }
 
-void UVFHelperComponent::BeginDestroy()
+void UVFHelperComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	OnOriginalBeforeTakenInPhoto.Clear();
-	OnOriginalBeforeCopyingToPhoto.Clear();
-	OnOriginalAfterCutByPhoto.Clear();
-	OnOriginalAfterTakingPhoto.Clear();
-	OnCopyAfterCopiedForPhoto.Clear();
+	OnOriginalBeforeTakingPhoto.Clear();
+	OnOriginalBeforeCheckVFDMComps.Clear();
+	OnOriginalBeforeBeingCopied.Clear();
+	OnOriginalBeforeBegingCut.Clear();
+	OnOriginalEndTakingPhoto.Clear();
+	OnOriginalEndPlacingPhoto.Clear();
+	OnCopyBeforeBeingCut.Clear();
 	OnCopyBeforeFoldedInPhoto.Clear();
-	OnCopyAfterPlacedByPhoto.Clear();
+	OnCopyEndTakingPhoto.Clear();
+	OnCopyBeforeBeingEnabled.Clear();
+	OnCopyEndPlacingPhoto.Clear();
 
-	Super::BeginDestroy();
+	Super::EndPlay(EndPlayReason);
 }
 
 bool UVFHelperComponent::NotifyDelegate(UObject *Sender, const FVFHelperDelegateType &Type)
 {
-	bool IsHandled = false;
 	switch (Type)
 	{
-	case FVFHelperDelegateType::OriginalBeforeTakenInPhoto:
-		OnOriginalBeforeTakenInPhoto.Broadcast(Sender);
-		IsHandled = true;
+	case FVFHelperDelegateType::OriginalBeforeTakingPhoto:
+		OnOriginalBeforeTakingPhoto.Broadcast(Sender);
 		break;
-	case FVFHelperDelegateType::OriginalBeforeCopyingToPhoto:
-		OnOriginalBeforeCopyingToPhoto.Broadcast(Sender);
-		IsHandled = true;
+	case FVFHelperDelegateType::OriginalBeforeCheckVFDMComps:
+		OnOriginalBeforeCheckVFDMComps.Broadcast(Sender);
 		break;
-	case FVFHelperDelegateType::OriginalAfterCutByPhoto:
-		OnOriginalAfterCutByPhoto.Broadcast(Sender);
-		IsHandled = true;
+	case FVFHelperDelegateType::OriginalBeforeBeingCopied:
+		OnOriginalBeforeBeingCopied.Broadcast(Sender);
 		break;
-	case FVFHelperDelegateType::OriginalAfterTakingPhoto:
-		OnOriginalAfterTakingPhoto.Broadcast(Sender);
-		IsHandled = true;
+	case FVFHelperDelegateType::OriginalBeforeBegingCut:
+		OnOriginalBeforeBegingCut.Broadcast(Sender);
 		break;
-	case FVFHelperDelegateType::CopyAfterCopiedForPhoto:
-		OnCopyAfterCopiedForPhoto.Broadcast(Sender);
-		IsHandled = true;
+	case FVFHelperDelegateType::OriginalEndTakingPhoto:
+		OnOriginalEndTakingPhoto.Broadcast(Sender);
+		break;
+	case FVFHelperDelegateType::OriginalEndPlacingPhoto:
+		OnOriginalEndPlacingPhoto.Broadcast(Sender);
+		break;
+	case FVFHelperDelegateType::CopyBeforeBeingCut:
+		OnCopyBeforeBeingCut.Broadcast(Sender);
 		break;
 	case FVFHelperDelegateType::CopyBeforeFoldedInPhoto:
 		OnCopyBeforeFoldedInPhoto.Broadcast(Sender);
-		IsHandled = true;
 		break;
-	case FVFHelperDelegateType::CopyBeginPlacedByPhoto:
-		OnCopyBeginPlacedByPhoto.Broadcast(Sender);
-		IsHandled = true;
+	case FVFHelperDelegateType::CopyEndTakingPhoto:
+		OnCopyEndTakingPhoto.Broadcast(Sender);
 		break;
-	case FVFHelperDelegateType::CopyAfterPlacedByPhoto:
-		OnCopyAfterPlacedByPhoto.Broadcast(Sender);
-		IsHandled = true;
+	case FVFHelperDelegateType::CopyBeforeBeingEnabled:
+		OnCopyBeforeBeingEnabled.Broadcast(Sender);
+		break;
+	case FVFHelperDelegateType::CopyEndPlacingPhoto:
+		OnCopyEndPlacingPhoto.Broadcast(Sender);
 		break;
 	case FVFHelperDelegateType::MAX:
 	default:
 		VF_LOG(Warning, TEXT("%s don't handle."), __FUNCTIONW__);
-		break;
+		return false;
 	}
-	return IsHandled;
+	return true;
 }

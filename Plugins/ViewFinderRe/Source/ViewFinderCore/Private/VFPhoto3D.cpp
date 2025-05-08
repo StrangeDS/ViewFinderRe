@@ -54,21 +54,7 @@ void AVFPhoto3D::PlaceDown()
 		return;
 	State = EVFPhoto3DState::Placed;
 
-	TArray<UVFHelperComponent *> HelpersInPhoto3D;
-	TArray<AActor *> ActorsInPhoto3D;
-	GetAttachedActors(ActorsInPhoto3D, true, true);
-
-	for (const auto Actor : ActorsInPhoto3D)
-	{
-		if (auto Helper = Actor->GetComponentByClass<UVFHelperComponent>())
-			HelpersInPhoto3D.AddUnique(Helper);
-	}
-
-	for (auto &Helper : HelpersInPhoto3D)
-	{
-		Helper->NotifyDelegate(this, FVFHelperDelegateType::CopyBeginPlacedByPhoto);
-	}
-
+	// 重叠检测
 	TArray<UPrimitiveComponent *> OverlapComps;
 	UKismetSystemLibrary::ComponentOverlapComponents(
 		ViewFrustumRecorder,
@@ -78,46 +64,77 @@ void AVFPhoto3D::PlaceDown()
 		ActorsToIgnore,
 		OverlapComps);
 
-	TMap<UPrimitiveComponent *, UVFHelperComponent *> HelperMap;
-	UVFFunctions::GetCompsToHelpersMapping(OverlapComps, HelperMap);
-
-	for (auto It = OverlapComps.CreateIterator(); It; It++)
+	// 查找外部场景的Helpers
+	TArray<UVFHelperComponent *> HelpersPlaced;
 	{
-		auto Comp = *It;
-		auto Helper = HelperMap.Find(Comp); // 可能为nullptr
-		if (bOnlyOverlapWithHelps && !Helper)
-			It.RemoveCurrent();
-		else if (Helper && !HelperMap[Comp]->bCanBePlacedByPhoto)
-			It.RemoveCurrent();
+		TMap<UPrimitiveComponent *, UVFHelperComponent *> HelperMap;
+		UVFFunctions::GetCompsToHelpersMapping(OverlapComps, HelperMap);
+
+		// 处理Helper相关设置
+		for (auto It = OverlapComps.CreateIterator(); It; It++)
+		{
+			auto Comp = *It;
+			auto Helper = HelperMap.Find(Comp); // 可能为nullptr
+			if (bOnlyOverlapWithHelps && !Helper)
+				It.RemoveCurrent();
+			else if (Helper && !HelperMap[Comp]->bCanBePlacedByPhoto)
+				It.RemoveCurrent();
+		}
+
+		HelpersPlaced.Reserve(HelperMap.Num());
+		for (auto &[Comp, Helper] : HelperMap)
+		{
+			HelpersPlaced.Add(Helper);
+		}
 	}
 
-	TSet<UVFHelperComponent *> HelpersPlaced;
-	for (auto &[Comp, Helper] : HelperMap)
+	// 外部场景切割
 	{
-		HelpersPlaced.Add(Helper);
+		auto VFDMComps = UVFFunctions::CheckVFDMComps(OverlapComps, VFDMCompClass);
+		for (auto &Helper : HelpersPlaced)
+		{
+			Helper->NotifyDelegate(this, FVFHelperDelegateType::OriginalBeforeBegingCut);
+		}
+		for (auto Comp : VFDMComps)
+		{
+			Comp->SubtractMeshWithDMComp(ViewFrustumRecorder);
+		}
 	}
 
-	auto VFDMComps = UVFFunctions::CheckVFDMComps(OverlapComps, VFDMCompClass);
-
-	for (auto Comp : VFDMComps)
+	// 查找Photo3D内的Actors和Helpers
+	TArray<UVFHelperComponent *> HelpersInPhoto3D;
+	TArray<AActor *> ActorsInPhoto3D;
 	{
-		Comp->SubtractMeshWithDMComp(ViewFrustumRecorder);
+		GetAttachedActors(ActorsInPhoto3D, true, true);
+		for (const auto Actor : ActorsInPhoto3D)
+		{
+			if (auto Helper = Actor->GetComponentByClass<UVFHelperComponent>())
+				HelpersInPhoto3D.AddUnique(Helper);
+		}
 	}
+
+	// 启用Photo3D内的Actors
+	{
+		for (auto &Helper : HelpersInPhoto3D)
+		{
+			Helper->NotifyDelegate(this, FVFHelperDelegateType::CopyBeforeBeingEnabled);
+		}
+
+		for (auto &Actor : ActorsInPhoto3D)
+		{
+			Actor->SetActorEnableCollision(true);
+			Actor->SetActorHiddenInGame(false);
+		}
+		SetVFDMCompsEnabled(true);
+	}
+
 	for (auto &Helper : HelpersPlaced)
 	{
-		Helper->NotifyDelegate(this, FVFHelperDelegateType::OriginalAfterCutByPhoto);
+		Helper->NotifyDelegate(this, FVFHelperDelegateType::OriginalEndPlacingPhoto);
 	}
-
-	for (auto &Actor : ActorsInPhoto3D)
-	{
-		Actor->SetActorEnableCollision(true);
-		Actor->SetActorHiddenInGame(false);
-	}
-	SetVFDMCompsEnabled(true);
-
 	for (auto &Helper : HelpersInPhoto3D)
 	{
-		Helper->NotifyDelegate(this, FVFHelperDelegateType::CopyAfterPlacedByPhoto);
+		Helper->NotifyDelegate(this, FVFHelperDelegateType::CopyEndPlacingPhoto);
 	}
 }
 

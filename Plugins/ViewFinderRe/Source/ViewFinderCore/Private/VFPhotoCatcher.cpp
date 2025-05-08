@@ -154,18 +154,36 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 		PhotoCapture->HiddenActors = ActorsNotTakenInPhoto;
 	}
 
-	HelperMap.Reset(); // (替身相关)需要重新生成.
-	UVFFunctions::GetCompsToHelpersMapping<UPrimitiveComponent>(OverlapComps, HelperMap);
+	// (替身相关)需要重新生成.
 	TSet<UVFHelperComponent *> HelpersRecorder;
-	GetMapHelpers(HelperMap, HelpersRecorder);
-
-	for (auto &Helper : HelpersRecorder)
 	{
-		Helper->NotifyDelegate(this, FVFHelperDelegateType::OriginalBeforeTakenInPhoto);
+		HelperMap.Reset();
+		UVFFunctions::GetCompsToHelpersMapping<UPrimitiveComponent>(OverlapComps, HelperMap);
+		GetMapHelpers(HelperMap, HelpersRecorder);
+	}
+
+	// 拍照
+	AVFPhoto2D *Photo2D = GetWorld()->SpawnActor<AVFPhoto2D>(
+		VFPhoto2DClass.Get(),
+		ViewFrustum->GetComponentLocation(),
+		ViewFrustum->GetComponentRotation());
+	{
+		for (auto &HelperComp : HelpersRecorder)
+		{
+			HelperComp->NotifyDelegate(this, FVFHelperDelegateType::OriginalBeforeTakingPhoto);
+		}
+		Photo2D->SetPhoto(PhotoCapture);
 	}
 
 	// 基元组件下创建对应VFDynamicMeshComponent
-	auto VFDMComps = UVFFunctions::CheckVFDMComps(OverlapComps, VFDMCompClass);
+	TArray<UVFDynamicMeshComponent *> VFDMComps;
+	{
+		for (auto &HelperComp : HelpersRecorder)
+		{
+			HelperComp->NotifyDelegate(this, FVFHelperDelegateType::OriginalBeforeCheckVFDMComps);
+		}
+		VFDMComps = UVFFunctions::CheckVFDMComps(OverlapComps, VFDMCompClass);
+	}
 
 	// 需要排序吗?
 	// Algo::Sort(VFDMComps, [](UVFDynamicMeshComponent *A, UVFDynamicMeshComponent *B)
@@ -175,75 +193,75 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 	// 	VF_LOG(Warning, TEXT("%s"), *Comp->GetOwner()->GetName());
 	// }
 
-	VF_LOG(Log, TEXT("TakeAPhoto_Implementation overlaps %i"), VFDMComps.Num());
-
-	for (auto &Helper : HelpersRecorder)
-	{
-		Helper->NotifyDelegate(this, FVFHelperDelegateType::OriginalBeforeCopyingToPhoto);
-	}
 	// 复制对应Actor
 	TArray<UVFDynamicMeshComponent *> CopiedComps;
 	AVFPhoto3D *Photo3D = GetWorld()->SpawnActor<AVFPhoto3D>(
 		VFPhoto3DClass.Get(),
 		ViewFrustum->GetComponentLocation(),
 		ViewFrustum->GetComponentRotation());
-	auto ActorsCopied = UVFFunctions::CopyActorsFromVFDMComps(GetWorld(), VFDMComps, CopiedComps);
-	for (auto &Actor : ActorsCopied)
 	{
-		if (!Actor->GetRootComponent()->GetAttachParentActor())
-			Actor->AttachToActor(Photo3D, FAttachmentTransformRules::KeepWorldTransform);
+		for (auto &HelperComp : HelpersRecorder)
+		{
+			HelperComp->NotifyDelegate(this, FVFHelperDelegateType::OriginalBeforeBeingCopied);
+		}
+		auto ActorsCopied = UVFFunctions::CopyActorsFromVFDMComps(GetWorld(), VFDMComps, CopiedComps);
+		for (auto &Actor : ActorsCopied)
+		{
+			if (!Actor->GetAttachParentActor())
+				Actor->AttachToActor(Photo3D, FAttachmentTransformRules::KeepWorldTransform);
+		}
 	}
-
-	TMap<UPrimitiveComponent *, UVFHelperComponent *> CopiedHelperMap;
-	UVFFunctions::GetCompsToHelpersMapping<UVFDynamicMeshComponent>(CopiedComps, CopiedHelperMap);
-	TSet<UVFHelperComponent *> CopiedHelpersRecorder;
-	GetMapHelpers(CopiedHelperMap, CopiedHelpersRecorder);
-
-	for (auto &Helper : CopiedHelpersRecorder)
-	{
-		Helper->NotifyDelegate(this, FVFHelperDelegateType::CopyAfterCopiedForPhoto);
-	}
-
-	// 创建照片, 被切割前拍照
-	AVFPhoto2D *Photo2D = GetWorld()->SpawnActor<AVFPhoto2D>(
-		VFPhoto2DClass.Get(),
-		ViewFrustum->GetComponentLocation(),
-		ViewFrustum->GetComponentRotation());
-	Photo2D->SetPhoto(PhotoCapture);
 
 	// 原VFDynamicMeshComponent做切割
 	if (bCuttingOrignal)
 	{
+		for (auto &HelperComp : HelpersRecorder)
+		{
+			HelperComp->NotifyDelegate(this, FVFHelperDelegateType::OriginalBeforeBegingCut);
+		}
 		for (auto &Comp : VFDMComps)
 		{
 			Comp->SubtractMeshWithDMComp(ViewFrustum);
 		}
-		for (auto &Helper : HelpersRecorder)
-		{
-			Helper->NotifyDelegate(this, FVFHelperDelegateType::OriginalAfterCutByPhoto);
-		}
 	}
 
 	// 新VFDynamicMeshComponent做交集
-	for (auto &Comp : CopiedComps)
+	TMap<UPrimitiveComponent *, UVFHelperComponent *> CopiedHelperMap;
+	UVFFunctions::GetCompsToHelpersMapping<UVFDynamicMeshComponent>(CopiedComps, CopiedHelperMap);
+	TSet<UVFHelperComponent *> CopiedHelpersRecorder;
+	GetMapHelpers(CopiedHelperMap, CopiedHelpersRecorder);
 	{
-		Comp->IntersectMeshWithDMComp(ViewFrustum);
+		for (auto &HelperComp : CopiedHelpersRecorder)
+		{
+			HelperComp->NotifyDelegate(this, FVFHelperDelegateType::CopyBeforeBeingCut);
+		}
+
+		for (auto &Comp : CopiedComps)
+		{
+			Comp->IntersectMeshWithDMComp(ViewFrustum);
+		}
 	}
 
 	// Photo2D和Photo3D的后续处理
-	Photo2D->SetPhoto3D(Photo3D);
-	Photo3D->RecordProperty(ViewFrustum, bOnlyOverlapWithHelps, ObjectTypesToOverlap);
-
-	for (auto &Helper : CopiedHelpersRecorder)
 	{
-		Helper->NotifyDelegate(Photo3D, FVFHelperDelegateType::CopyBeforeFoldedInPhoto);
+		for (auto &HelperComp : CopiedHelpersRecorder)
+		{
+			HelperComp->NotifyDelegate(Photo3D, FVFHelperDelegateType::CopyBeforeFoldedInPhoto);
+		}
+		Photo2D->SetPhoto3D(Photo3D);
+		Photo3D->RecordProperty(ViewFrustum, bOnlyOverlapWithHelps, ObjectTypesToOverlap);
+		Photo2D->FoldUp();
 	}
 
-	Photo2D->FoldUp();
-
-	for (auto &Helper : HelpersRecorder)
 	{
-		Helper->NotifyDelegate(this, FVFHelperDelegateType::OriginalAfterTakingPhoto);
+		for (auto &HelperComp : HelpersRecorder)
+		{
+			HelperComp->NotifyDelegate(this, FVFHelperDelegateType::OriginalEndTakingPhoto);
+		}
+		for (auto &HelperComp : CopiedHelpersRecorder)
+		{
+			HelperComp->NotifyDelegate(this, FVFHelperDelegateType::CopyEndTakingPhoto);
+		}
 	}
 
 	return Photo2D;

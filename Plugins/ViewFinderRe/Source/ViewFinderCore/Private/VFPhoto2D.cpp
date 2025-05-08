@@ -31,7 +31,7 @@ void AVFPhoto2D::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Helper->OnCopyAfterCopiedForPhoto.AddUniqueDynamic(this, &AVFPhoto2D::CopyPhoto3D);
+	Helper->OnOriginalEndTakingPhoto.AddUniqueDynamic(this, &AVFPhoto2D::CopyPhoto3D);
 }
 
 void AVFPhoto2D::SetActorHiddenInGame(bool bNewHidden)

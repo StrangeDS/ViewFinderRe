@@ -7,14 +7,17 @@
 UENUM(BlueprintType)
 enum class FVFHelperDelegateType : uint8
 {
-	OriginalBeforeTakenInPhoto,
-	OriginalBeforeCopyingToPhoto,
-	OriginalAfterCutByPhoto,
-	OriginalAfterTakingPhoto,
-	CopyAfterCopiedForPhoto,
+	OriginalBeforeTakingPhoto,
+	OriginalBeforeCheckVFDMComps,
+	OriginalBeforeBeingCopied,
+	OriginalBeforeBegingCut,
+	OriginalEndTakingPhoto,
+	OriginalEndPlacingPhoto,
+	CopyBeforeBeingCut,
 	CopyBeforeFoldedInPhoto,
-	CopyBeginPlacedByPhoto,
-	CopyAfterPlacedByPhoto,
+	CopyEndTakingPhoto,
+	CopyBeforeBeingEnabled,
+	CopyEndPlacingPhoto,
 	MAX
 };
 
@@ -31,7 +34,7 @@ public:
 public:
 	virtual void BeginPlay() override;
 
-	virtual void BeginDestroy() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
 	// 能否被拍入照片
@@ -55,39 +58,39 @@ public:
 	TSubclassOf<AActor> StandInClass;
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	bool NotifyDelegate(UObject *Sender, const FVFHelperDelegateType &Type);
 
-	// 原Actor(Original)
-	// 衍生出VFDMComp之前, Sender为PhotoCatcher
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
-	FVFHelperDelegate OnOriginalBeforeTakenInPhoto;
+	FVFHelperDelegate OnOriginalBeforeTakingPhoto;
 
-	// 复制对应Actor之前, Sender为PhotoCatcher
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
-	FVFHelperDelegate OnOriginalBeforeCopyingToPhoto;
+	FVFHelperDelegate OnOriginalBeforeCheckVFDMComps;
 
-	// 被相片覆盖裁剪之后. 相机bCuttingOriginal为true才会触发, Sender为PhotoCatcher
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
-	FVFHelperDelegate OnOriginalAfterCutByPhoto;
+	FVFHelperDelegate OnOriginalBeforeBeingCopied;
 
-	// (Photo2D)拍照完成后, Sender为 PhotoCatcher
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
-	FVFHelperDelegate OnOriginalAfterTakingPhoto;
+	FVFHelperDelegate OnOriginalBeforeBegingCut;
 
-	// 复制出的Actor(Copy)
-	// 复制后, Sender为 PhotoCatcher 或 Photo3D
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
-	FVFHelperDelegate OnCopyAfterCopiedForPhoto;
+	FVFHelperDelegate OnOriginalEndTakingPhoto;
 
-	// Photo3D折叠前, Sender为Photo3D
+	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
+	FVFHelperDelegate OnOriginalEndPlacingPhoto;
+
+	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
+	FVFHelperDelegate OnCopyBeforeBeingCut;
+
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
 	FVFHelperDelegate OnCopyBeforeFoldedInPhoto;
 
-	// Photo3D放置前, Sender为Photo3D
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
-	FVFHelperDelegate OnCopyBeginPlacedByPhoto;
+	FVFHelperDelegate OnCopyEndTakingPhoto;
 
-	// Photo3D放置后, Sender为Photo3D
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
-	FVFHelperDelegate OnCopyAfterPlacedByPhoto;
+	FVFHelperDelegate OnCopyBeforeBeingEnabled;
+
+	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
+	FVFHelperDelegate OnCopyEndPlacingPhoto;
 };
