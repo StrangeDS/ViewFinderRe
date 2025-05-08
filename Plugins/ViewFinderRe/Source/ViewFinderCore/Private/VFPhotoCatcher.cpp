@@ -14,6 +14,7 @@
 #include "VFHelperComponent.h"
 #include "VFStandInInterface.h"
 #include "VFPawnStandIn.h"
+#include "VFHelperComponent.h"
 
 static void GetMapHelpers(
 	const TMap<UPrimitiveComponent *, UVFHelperComponent *> &Map,
@@ -46,10 +47,11 @@ AVFPhotoCatcher::AVFPhotoCatcher()
 	ViewFrustum->SetupAttachment(RootComponent);
 	ViewFrustum->SetHiddenInGame(true);
 
+	Helper = CreateDefaultSubobject<UVFHelperComponent>("Helper");
+
 	VFDMCompClass = UVFDynamicMeshComponent::StaticClass();
 	VFPhoto2DClass = AVFPhoto2D::StaticClass();
 	VFPhoto3DClass = AVFPhoto3D::StaticClass();
-	VFPawnStandInClass = AVFPawnStandIn::StaticClass();
 }
 
 void AVFPhotoCatcher::OnConstruction(const FTransform &Transform)
@@ -69,7 +71,6 @@ void AVFPhotoCatcher::BeginPlay()
 	check(VFDMCompClass.Get());
 	check(VFPhoto2DClass.Get());
 	check(VFPhoto3DClass.Get());
-	check(VFPawnStandInClass.Get());
 
 	SetViewFrustumVisible(false);
 }
@@ -104,39 +105,53 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 	TMap<UPrimitiveComponent *, UVFHelperComponent *> HelperMap;
 	UVFFunctions::GetCompsToHelpersMapping<UPrimitiveComponent>(OverlapComps, HelperMap);
 
-	// Helper相关处理
+	// 处理Helper相关设置
 	{
+		TArray<AActor *> ActorsNotTakenInPhoto = ActorsToIgnore;
 		TArray<UPrimitiveComponent *> StandInComps;
 		for (auto It = OverlapComps.CreateIterator(); It; It++)
 		{
 			auto Comp = *It;
-			auto *Helper = HelperMap.Find(Comp); // 可能为nullptr
-			if (bOnlyOverlapWithHelps && !Helper)
+			auto *HelperComp = HelperMap.Find(Comp); // 可能为nullptr
+			if (bOnlyOverlapWithHelps && !HelperComp)
 			{
-				PhotoCapture->HiddenComponents.Add(Comp);
+				ActorsNotTakenInPhoto.AddUnique(Comp->GetOwner());
 				It.RemoveCurrent();
 			}
-			else if (Helper && !HelperMap[Comp]->bCanBeTakenInPhoto)
+			else if (HelperComp && !HelperMap[Comp]->bCanBeTakenInPhoto)
 			{
-				PhotoCapture->HiddenComponents.Add(Comp);
+				ActorsNotTakenInPhoto.AddUnique(Comp->GetOwner());
 				It.RemoveCurrent();
 			}
-			else if (Helper && HelperMap[Comp]->bReplacedWithStandIn) // StandIn处理
+			else if (HelperComp && HelperMap[Comp]->bReplacedWithStandIn) // StandIn处理
 			{
 				auto Actor = Comp->GetOwner();
-				if (!PhotoCapture->HiddenActors.Contains(Actor))
+				if (!ActorsNotTakenInPhoto.Contains(Actor))
 				{
-					PhotoCapture->HiddenActors.Add(Actor);
+					ActorsNotTakenInPhoto.Add(Actor);
+					if (HelperMap[Comp]->bIgnoreChildActors)
+					{
+						TArray<AActor *> ChildActors;
+						Actor->GetAttachedActors(ChildActors);
+						ActorsNotTakenInPhoto.Append(ChildActors);
+					}
 
 					auto StandIn = UVFFunctions::ReplaceWithStandIn(Actor, HelperMap[Comp]->StandInClass);
 					auto StandInComp = IVFStandInInterface::Execute_GetPrimitiveComp(StandIn);
 					StandInComps.Add(StandInComp);
 				}
-				It.RemoveCurrent();
 			}
+		}
+		
+		for (auto It = OverlapComps.CreateIterator(); It; It++)
+		{
+			auto Actor = (*It)->GetOwner();
+			if (ActorsNotTakenInPhoto.Contains(Actor))
+				It.RemoveCurrent();
 		}
 
 		OverlapComps.Append(StandInComps);
+		PhotoCapture->HiddenActors = ActorsNotTakenInPhoto;
 	}
 
 	HelperMap.Reset(); // (替身相关)需要重新生成.

@@ -33,7 +33,7 @@ public:
 
 	virtual void BeginDestroy() override;
 
-public: // 注意: PROPERTY在CloneActorRuntime中不会被复制. 注意默认值.
+public:
 	// 能否被拍入照片
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	bool bCanBeTakenInPhoto = true;
@@ -45,6 +45,10 @@ public: // 注意: PROPERTY在CloneActorRuntime中不会被复制. 注意默认�
 	// 是否使用替身
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	bool bReplacedWithStandIn = false;
+
+	// 使用替身时, 子Actors也被无视
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	bool bIgnoreChildActors = true;
 
 	// 替身类, 需实现
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder", meta = (EditCondition = "bReplacedWithStandIn"))

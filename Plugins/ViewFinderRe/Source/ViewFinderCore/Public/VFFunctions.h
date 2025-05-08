@@ -27,7 +27,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	static AActor *ReplaceWithStandIn(
-		AActor *SourceActor,
+		AActor *OriginalActor,
 		TSubclassOf<AActor> StandInActorClass);
 
 	/// @brief 检验未处理过的的Actor, 处理为: 将其相关基元替换为VFDMComp, 关闭隐藏其它基元组件.

@@ -8,7 +8,7 @@ class UStaticMeshComponent;
 
 class AVFPhoto2D;
 class AVFPhoto3D;
-class AVFPawnStandIn;
+class UVFHelperComponent;
 class UVFViewFrustumComponent;
 class UVFDynamicMeshComponent;
 class UVFPhotoCaptureComponent;
@@ -72,9 +72,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder|ClassSetting")
 	TSubclassOf<AVFPhoto3D> VFPhoto3DClass;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder|ClassSetting")
-	TSubclassOf<AVFPawnStandIn> VFPawnStandInClass;
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	bool bOnlyOverlapWithHelps = false;
 
@@ -88,6 +85,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypesToOverlap;
 
+protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<UStaticMeshComponent> StaticMesh;
 
@@ -99,6 +97,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<UVFViewFrustumComponent> ViewFrustum;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	TObjectPtr<UVFHelperComponent> Helper;
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")

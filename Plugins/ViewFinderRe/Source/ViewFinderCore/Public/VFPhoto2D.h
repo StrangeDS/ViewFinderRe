@@ -55,7 +55,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void CopyPhoto3D(UObject *Sender);
 
-protected:	// 组件
+protected: // 组件
 	UPROPERTY()
 	TObjectPtr<UStaticMesh> StaticMeshObject;
 
@@ -63,9 +63,9 @@ protected:	// 组件
 	TObjectPtr<UStaticMeshComponent> StaticMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<class UVFHelperComponent> Helper;
+	TObjectPtr<UVFHelperComponent> Helper;
 
-protected:	// 状态, 数据
+protected: // 状态, 数据
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	EVFPhoto2DState State = EVFPhoto2DState::None;
 
@@ -76,7 +76,7 @@ public: // 动态材质实例相关
 	// 懒加载, 也便于重写
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
 	UMaterialInstanceDynamic *GetMaterialInstance();
-	virtual UMaterialInstanceDynamic* GetMaterialInstance_Implementation();
+	virtual UMaterialInstanceDynamic *GetMaterialInstance_Implementation();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	FName TextureName = TEXT("Texture");

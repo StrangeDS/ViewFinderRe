@@ -24,7 +24,7 @@ public:
 	TObjectPtr<UObject> Sender;
 };
 
-UINTERFACE(MinimalAPI, Blueprintable)
+UINTERFACE(MinimalAPI)
 class UVFStepsRecordInterface : public UInterface
 {
 	GENERATED_BODY()

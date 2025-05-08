@@ -62,8 +62,9 @@ UTexture2D *UVFPhotoCaptureComponent::DrawATexture2D()
 	UTexture2D *Texture = nullptr;
 	FIntPoint Size(TextureTarget->SizeX, TextureTarget->SizeY);
 	FTextureRenderTargetResource *RTResource = TextureTarget->GameThread_GetRenderTargetResource();
+	const auto Format = TextureTarget->GetFormat();
 
-	if (TextureTarget->OverrideFormat == EPixelFormat::PF_B8G8R8A8)
+	if (Format == EPixelFormat::PF_B8G8R8A8)
 	{
 		TArray<FColor> PixelData;
 		RTResource->ReadPixels(PixelData);
@@ -75,7 +76,7 @@ UTexture2D *UVFPhotoCaptureComponent::DrawATexture2D()
 		Mip.BulkData.Unlock();
 		Texture->UpdateResource();
 	}
-	else if (TextureTarget->OverrideFormat == EPixelFormat::PF_FloatRGBA)
+	else if (Format == EPixelFormat::PF_FloatRGBA)
 	{
 		TArray<FFloat16Color> PixelData;
 		RTResource->ReadFloat16Pixels(PixelData);

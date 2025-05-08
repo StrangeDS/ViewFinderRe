@@ -99,13 +99,14 @@ AActor *UVFFunctions::K2_CloneActorRuntimeRecursive(AActor *Original)
 	return CloneActorRuntimeRecursive<AActor>(Original);
 }
 
-AActor *UVFFunctions::ReplaceWithStandIn(AActor *SourceActor, TSubclassOf<AActor> StandInActorClass)
+AActor *UVFFunctions::ReplaceWithStandIn(AActor *OriginalActor, TSubclassOf<AActor> StandInActorClass)
 {
-	auto StandIn = SourceActor->GetWorld()->SpawnActor<AActor>(
+	auto Transform = OriginalActor->GetActorTransform();
+	auto StandIn = OriginalActor->GetWorld()->SpawnActorDeferred<AActor>(
 		StandInActorClass,
-		SourceActor->GetActorLocation(),
-		SourceActor->GetActorRotation());
-	IVFStandInInterface::Execute_SetSourceActor(StandIn, SourceActor);
+		Transform);
+	IVFStandInInterface::Execute_SetOriginalActor(StandIn, OriginalActor);
+	StandIn->FinishSpawning(Transform);
 	return StandIn;
 }
 
@@ -220,7 +221,7 @@ TArray<AActor *> UVFFunctions::CopyActorsFromVFDMComps(
 	{
 		for (auto &[Original, Copy]: ActorsMap)
 		{
-			auto Parent = Original->GetRootComponent()->GetAttachParentActor();
+			auto Parent = Original->GetAttachParentActor();
 			if (ActorsMap.Contains(Parent))
 			{
 				Copy->AttachToActor(ActorsMap[Parent], FAttachmentTransformRules::KeepWorldTransform);

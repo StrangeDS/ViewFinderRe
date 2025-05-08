@@ -21,9 +21,10 @@ AVFPawnStandIn::AVFPawnStandIn() : Super()
 		TEXT("/ViewFinderRe/StaticMeshes/Camera_Temp.Camera_Temp"));
 	StaticMeshObject = MeshSelector.Object;
 	StaticMesh->SetStaticMesh(StaticMeshObject);
+	StaticMesh->SetCollisionProfileName(TEXT("NoCollision"));
 
 	DynamicMesh = CreateDefaultSubobject<UVFDynamicMeshComponent>("DynamicMesh");
-	DynamicMesh->SetupAttachment(RootComponent);
+	DynamicMesh->SetupAttachment(StaticMesh);
 	DynamicMesh->SetCollisionProfileName(TEXT("NoCollision"));
 
 	Helper = CreateDefaultSubobject<UVFHelperComponent>("Helper");
@@ -34,9 +35,6 @@ AVFPawnStandIn::AVFPawnStandIn() : Super()
 void AVFPawnStandIn::BeginPlay()
 {
 	Super::BeginPlay();
-
-	StaticMesh->SetCollisionProfileName(TEXT("NoCollision"));
-	DynamicMesh->SetCollisionProfileName(TEXT("NoCollision"));
 
 	Helper->OnOriginalBeforeCopyingToPhoto.AddUniqueDynamic(this, &AVFPawnStandIn::Hide);
 	Helper->OnCopyAfterPlacedByPhoto.AddUniqueDynamic(this, &AVFPawnStandIn::TeleportTargetPawn);
@@ -74,11 +72,11 @@ void AVFPawnStandIn::Hide(UObject *Sender)
 	SetActorHiddenInGame(true);
 }
 
-void AVFPawnStandIn::SetSourceActor_Implementation(AActor *Source)
+void AVFPawnStandIn::SetOriginalActor_Implementation(AActor *Original)
 {
-	IVFStandInInterface::SetSourceActor_Implementation(Source);
+	IVFStandInInterface::SetOriginalActor_Implementation(Original);
 
-	SetTargetPawn(Cast<APawn>(Source));
+	SetTargetPawn(Cast<APawn>(Original));
 }
 
 UPrimitiveComponent *AVFPawnStandIn::GetPrimitiveComp_Implementation()

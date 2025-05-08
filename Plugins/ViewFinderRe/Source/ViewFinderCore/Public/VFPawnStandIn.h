@@ -53,7 +53,7 @@ public:
 	TObjectPtr<UVFHelperComponent> Helper;
 
 public: // implements IVFStandInInterface
-	virtual void SetSourceActor_Implementation(AActor *Source) override;
+	virtual void SetOriginalActor_Implementation(AActor *Source) override;
 
 	virtual UPrimitiveComponent *GetPrimitiveComp_Implementation() override;
 };

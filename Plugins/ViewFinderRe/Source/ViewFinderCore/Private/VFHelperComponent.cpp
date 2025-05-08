@@ -1,11 +1,14 @@
 #include "VFHelperComponent.h"
 
 #include "VFCommon.h"
+#include "VFPawnStandIn.h"
 #include "VFStandInInterface.h"
 
 UVFHelperComponent::UVFHelperComponent(const FObjectInitializer &ObjectInitializer)
 {
 	PrimaryComponentTick.bCanEverTick = false;
+
+	StandInClass = AVFPawnStandIn::StaticClass();
 }
 
 void UVFHelperComponent::BeginPlay()

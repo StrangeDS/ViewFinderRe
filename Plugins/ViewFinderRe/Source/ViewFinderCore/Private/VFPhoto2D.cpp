@@ -56,6 +56,7 @@ void AVFPhoto2D::SetPhoto(UVFPhotoCaptureComponent *PhotoCapture)
 {
 	if (PhotoCapture)
 	{
+		PhotoCapture->CaptureScene();
 		Texture2D = PhotoCapture->DrawATexture2D();
 		float Scale = PhotoCapture->FOVAngle / 90.0f;
 		SetActorRelativeScale3D(FVector(GetActorRelativeScale3D().X, Scale, Scale));
@@ -125,30 +126,15 @@ void AVFPhoto2D::PlaceDown()
 	SetActorEnableCollision(false);
 }
 
-// 递归拷贝Actor
-static AActor *CopyActor(AActor *Actor)
-{
-	TArray<UVFDynamicMeshComponent *> _CopiedComps;
-	auto Res = UVFFunctions::CloneActorRuntime(Actor, _CopiedComps);
-	TArray<UVFDynamicMeshComponent *> VFDMComps;
-	Actor->GetComponents<UVFDynamicMeshComponent>(VFDMComps);
-
-	// 递归子Actors
-	TArray<AActor *> ChildActors;
-	Actor->GetAttachedActors(ChildActors);
-	for (auto &ChildActor : ChildActors)
-	{
-		CopyActor(ChildActor)->AttachToActor(Res, FAttachmentTransformRules::KeepWorldTransform);
-	}
-	return Res;
-}
-
 void AVFPhoto2D::CopyPhoto3D(UObject *Sender)
 {
 	if (!Photo3D)
+	{
+		VF_LOG(Warning, TEXT("%s invalid Photo3D."), __FUNCTIONW__);
 		return;
+	}
 
-	auto Photo3DNew = Cast<AVFPhoto3D>(CopyActor(Photo3D));
+	auto Photo3DNew = UVFFunctions::CloneActorRuntimeRecursive<AVFPhoto3D>(Photo3D);
 	Photo3DNew->RecordProperty(Photo3D->ViewFrustumRecorder,
 							   Photo3D->bOnlyOverlapWithHelps,
 							   Photo3D->ObjectTypesToOverlap);
