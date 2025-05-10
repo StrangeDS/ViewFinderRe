@@ -1,80 +1,49 @@
 #include "VFPhotoCatcherPref.h"
 
-#include "Engine/LevelStreaming.h"
-#include "TimerManager.h"
-
 #include "VFCommon.h"
 #include "VFPhotoCaptureComponent.h"
 
 AVFPhotoCatcherPref::AVFPhotoCatcherPref() : Super()
 {
-    PhotoCapture->bCaptureEveryFrame = false;
-    PhotoCapture->bCaptureOnMovement = false;
-    PhotoCapture->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList;
-
-#if WITH_EDITORONLY_DATA
-    RenderTargetTemp = CreateDefaultSubobject<UTextureRenderTarget2D>("RenderTargetTemp");
-#endif
 }
 
-void AVFPhotoCatcherPref::BeginPlay()
+void AVFPhotoCatcherPref::OnConstruction(const FTransform &Transform)
 {
-    Super::BeginPlay();
+    Super::OnConstruction(Transform);
 
-    GetWorldTimerManager().SetTimerForNextTick([this]()
-                                               {
-                                                   auto Photo2D = TakeAPhoto();
-                                                   Photo2D->AddActorLocalTransform(PhotoSpawnPoint);
-                                                   SetActorHiddenInGame(true);
-                                                   HideCurLevel(); });
+    PhotoCapture->ShowOnlyActors = OnlyActorsCatched;
+    if (OnlyActorsCatched.Num() > 0)
+    {
+        PhotoCapture->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList;
+    }
+    else
+    {
+        PhotoCapture->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_RenderScenePrimitives;
+    }
 }
 
 TArray<UPrimitiveComponent *> AVFPhotoCatcherPref::GetOverlapComps_Implementation()
 {
-    if (OnlyActorsCatched.IsEmpty())
-    {
-        VF_LOG(Warning,
-               TEXT("%s(%s): 没有预处理碰撞组件."),
-               __FUNCTIONW__,
-               *GetName());
-    }
     auto Comps = Super::GetOverlapComps_Implementation();
-    for (auto It = Comps.CreateIterator(); It; ++It)
+    if (OnlyActorsCatched.Num() > 0)
     {
-        auto Actor = (*It)->GetOwner();
-        if (!OnlyActorsCatched.Contains(Actor))
-            It.RemoveCurrent();
-    }
-    return Comps;
-}
-
-void AVFPhotoCatcherPref::HideCurLevel()
-{
-    const ULevel *ActorLevel = GetLevel();
-    // GetLevel()打印的名字都是一样的, 但它们是不同的对象(指针是不同的)!
-    // VF_LOG(Warning, TEXT("ActorLevel: %s, P: %p"), *ActorLevel->GetName(), ActorLevel);
-
-    // 使用ULevelStreaming来进行隐藏
-    UWorld *World = GetWorld();
-    const TArray<ULevelStreaming *> &StreamingLevels = World->GetStreamingLevels();
-    for (ULevelStreaming *StreamingLevel : StreamingLevels)
-    {
-        if (StreamingLevel && StreamingLevel->GetLoadedLevel() == ActorLevel)
+        for (auto It = Comps.CreateIterator(); It; ++It)
         {
-            if (!StreamingLevel->GetShouldBeVisibleFlag())
-            {
-                VF_LOG(Warning, TEXT("已经被隐藏了."));
-            }
-            StreamingLevel->SetShouldBeVisible(false);
-            break;
+            auto Actor = (*It)->GetOwner();
+            if (!OnlyActorsCatched.Contains(Actor))
+                It.RemoveCurrent();
         }
     }
+
+    return Comps;
 }
 
 #if WITH_EDITOR
 
-void AVFPhotoCatcherPref::RecollectActorsWithFrustum()
+void AVFPhotoCatcherPref::RecollectShowOnlyActors()
 {
+    const FScopedTransaction Transaction(FText::FromString(TEXT("RecollectShowOnlyActors")));
+
     OnlyActorsCatched.Reset();
     auto Comps = Super::GetOverlapComps_Implementation();
     for (auto &Comp : Comps)
@@ -82,6 +51,158 @@ void AVFPhotoCatcherPref::RecollectActorsWithFrustum()
         OnlyActorsCatched.AddUnique(Comp->GetOwner());
     }
     PhotoCapture->ShowOnlyActors = OnlyActorsCatched;
+}
+
+#include "LevelInstance/LevelInstanceSubsystem.h"
+#include "LevelInstance/LevelInstanceInterface.h"
+
+#include "VFPhoto2D.h"
+#include "VFPhoto3D.h"
+#include "VFDynamicMeshComponent.h"
+
+void AVFPhotoCatcherPref::SaveAPhotoInEditor()
+{
+    TArray<AActor *> ActorsToMove;
+    TArray<UPrimitiveComponent *> CompsOverlapped = Super::GetOverlapComps();
+
+    auto RestoreSourceComponents = [this, &CompsOverlapped]()
+    {
+        // 移除用于替换的VFDMComps
+        TArray<UVFDynamicMeshComponent *> VFDMComps;
+        for (auto &Comp : CompsOverlapped)
+        {
+            auto Original = Comp->GetOwner();
+            VFDMComps.Reset();
+            Original->GetComponents<UVFDynamicMeshComponent>(VFDMComps);
+            for (auto &VFDMComp : VFDMComps)
+            {
+                if (!CompsOverlapped.Contains(VFDMComp))
+                {
+                    VFDMComp->RestoreSourceComponent();
+                    VFDMComp->DestroyComponent();
+                }
+            }
+        }
+    };
+
+    auto AfterFailure = [this, &ActorsToMove, &RestoreSourceComponents](const FString &Reason)
+    {
+        // 移除复制出来的Actor
+        for (auto Actor : ActorsToMove)
+            GetWorld()->EditorDestroyActor(Actor, false);
+
+        RestoreSourceComponents();
+        GEditor->RedrawLevelEditingViewports();
+        VF_LOG(Error, TEXT("%s Fails: %s."), __FUNCTIONW__, *Reason);
+    };
+
+    ULevelInstanceSubsystem *LevelInstanceSubsystem = GetWorld()->GetSubsystem<ULevelInstanceSubsystem>();
+    if (!LevelInstanceSubsystem)
+    {
+        AfterFailure(TEXT("invalid LevelInstanceSubsystem"));
+        return;
+    }
+
+    bool bUseTempRenderTarget = PhotoCapture->TextureTarget == nullptr;
+    if (bUseTempRenderTarget)
+        PhotoCapture->Init();
+
+    auto Photo2DRoot = TakeAPhoto();
+    auto Photo3DRoot = Photo2DRoot->GetPhoto3D();
+    Photo3DRoot->GetAttachedActors(ActorsToMove, true, true);
+    // 最前/最后?
+    ActorsToMove.AddUnique(Photo2DRoot);
+    ActorsToMove.AddUnique(Photo3DRoot);
+
+    RestoreSourceComponents();
+    if (bUseTempRenderTarget)
+    {
+        PhotoCapture->TextureTarget = nullptr;
+    }
+
+    // 在移动到新的关卡实例后, Photo2D对Photo3D的引用关系会消失, 需要修复.
+    // 使用Tags来修复引用关系, 配对的Photo2D和Photo3D给一组guid.
+    TArray<FName> Guids;
+    for (auto &Actor : ActorsToMove)
+    {
+        if (auto Photo2D = Cast<AVFPhoto2D>(Actor))
+        {
+            if (Photo2D->bIsRecursive)
+                continue;
+            if (!Photo2D->GetPhoto3D())
+                continue;
+
+            FName Guid = FName(*FGuid::NewGuid().ToString());
+            Guids.Add(Guid);
+            Photo2D->Tags.Add(Guid);
+            Photo2D->GetPhoto3D()->Tags.Add(Guid);
+        }
+    }
+
+    FNewLevelInstanceParams Params;
+    Params.Type = ELevelInstanceCreationType::LevelInstance;
+    Params.PivotType = ELevelInstancePivotType::Actor;
+    Params.PivotActor = Photo2DRoot;
+    Params.SetForceExternalActors(LevelInstanceSubsystem->GetWorld()->IsPartitionedWorld());
+    ILevelInstanceInterface *LevelInstance = LevelInstanceSubsystem->CreateLevelInstanceFrom(ActorsToMove, Params);
+    if (!LevelInstance)
+    {
+        AfterFailure(TEXT("fails to create LevelInstance."));
+        return;
+    }
+
+    // 修复Photo2D对Photo3D的引用关系
+    LevelInstance->EnterEdit();
+    ULevel *Level = LevelInstance->GetLoadedLevel();
+    {
+        TMap<FName, AVFPhoto2D *> Photo2DMap;
+        TMap<FName, AVFPhoto3D *> Photo3DMap;
+        for (auto &Actor : Level->Actors)
+        {
+            if (auto Photo2D = Cast<AVFPhoto2D>(Actor))
+            {
+                for (auto &Guid : Guids)
+                {
+                    if (Photo2D->Tags.Contains(Guid))
+                    {
+                        Photo2DMap.Add(Guid, Photo2D);
+                        Photo2D->Tags.Remove(Guid);
+                        break;
+                    }
+                }
+            }
+            else if (auto Photo3D = Cast<AVFPhoto3D>(Actor))
+            {
+                for (auto &Guid : Guids)
+                {
+                    if (Photo3D->Tags.Contains(Guid))
+                    {
+                        Photo3DMap.Add(Guid, Photo3D);
+                        Photo3D->Tags.Remove(Guid);
+                        break;
+                    }
+                }
+            }
+        }
+
+        for (auto &[Tag, Photo2D] : Photo2DMap)
+        {
+            auto Photo3D = Photo3DMap[Tag];
+            Photo2D->SetPhoto3D(Photo3D);
+            Photo3D->MarkPackageDirty();
+            Photo2D->MarkPackageDirty();
+        }
+    }
+
+    for (auto &Actor : Level->Actors)
+    {
+        auto Photo2D = Cast<AVFPhoto2D>(Actor);
+        if (!Photo2D)
+            continue;
+    }
+
+    LevelInstance->ExitEdit();
+    VF_LOG(Log, TEXT("SaveAPhotoInEditor successed."));
 }
 
 #endif
