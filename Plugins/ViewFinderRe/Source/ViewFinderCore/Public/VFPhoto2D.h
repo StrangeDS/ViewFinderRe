@@ -89,4 +89,18 @@ public: // 动态材质实例相关
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<UTexture2D> Texture2D;
+
+public:
+	/// @brief AttachToActor()和DetachFromActor()的整合, 方便子类重写(插入逻辑)
+	/// @param Target 为空表示DetachFromActor
+	/// @return false表示没有变动
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	virtual bool ReattachToComponent(USceneComponent *Target = nullptr);
+	
+public: // 迭代相关
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	void CopyOuterPhoto3D(UObject *Sender);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	bool bIsRecursive = false;
 };

@@ -32,6 +32,10 @@ void AVFPhoto2D::BeginPlay()
 	Super::BeginPlay();
 
 	Helper->OnOriginalEndTakingPhoto.AddUniqueDynamic(this, &AVFPhoto2D::CopyPhoto3D);
+	if (bIsRecursive)
+	{
+		Helper->OnCopyBeforeBeingEnabled.AddUniqueDynamic(this, &AVFPhoto2D::CopyOuterPhoto3D);
+	}
 }
 
 void AVFPhoto2D::SetActorHiddenInGame(bool bNewHidden)
@@ -146,4 +150,38 @@ UMaterialInstanceDynamic *AVFPhoto2D::GetMaterialInstance_Implementation()
 	if (!MaterialInstance)
 		MaterialInstance = StaticMesh->CreateAndSetMaterialInstanceDynamic(0);
 	return MaterialInstance;
+}
+
+bool AVFPhoto2D::ReattachToComponent(USceneComponent *Target)
+{
+	if (Target)
+	{
+		if (Target == GetRootComponent()->GetAttachParent())
+			return false;
+		AttachToComponent(Target, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	}
+	else
+	{
+		if (!GetAttachParentActor())
+			return false;
+		DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	}
+	return true;
+}
+
+void AVFPhoto2D::CopyOuterPhoto3D(UObject *Sender)
+{
+	auto Photo3DOuter = Cast<AVFPhoto3D>(Sender);
+	if (!Photo3DOuter)
+	{
+		VF_LOG(Warning, TEXT("%s invalid Photo3D."), __FUNCTIONW__);
+		return;
+	}
+
+	auto Photo3DNew = UVFFunctions::CloneActorRuntimeRecursive<AVFPhoto3D>(Photo3DOuter);
+	Photo3DNew->RecordProperty(Photo3DOuter->ViewFrustumRecorder,
+							   Photo3DOuter->bOnlyOverlapWithHelps,
+							   Photo3DOuter->ObjectTypesToOverlap);
+	SetPhoto3D(Photo3DNew);
+	FoldUp();
 }
