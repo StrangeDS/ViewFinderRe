@@ -132,7 +132,7 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 					if (HelperMap[Comp]->bIgnoreChildActors)
 					{
 						TArray<AActor *> ChildActors;
-						Actor->GetAttachedActors(ChildActors);
+						Actor->GetAttachedActors(ChildActors, true, true); // 递归是否应该支持配置?
 						ActorsNotTakenInPhoto.Append(ChildActors);
 					}
 

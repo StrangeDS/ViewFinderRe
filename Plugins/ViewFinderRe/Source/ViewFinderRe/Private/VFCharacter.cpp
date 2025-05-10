@@ -294,3 +294,25 @@ void AVFCharacter::TickBackward_Implementation(float Time)
 
 	GetController()->SetControlRotation(FMath::Lerp(GetViewRotation(), Step.Rotator, Delta));
 }
+
+int AVFCharacter::GetPhoto2DNum_Implementation()
+{
+	if (Container->Implements<UVFPhoto2DContainerInterface>())
+	{
+		IVFPhoto2DContainerInterface::Execute_GetPhoto2DNum(Container);
+	}
+	return -1;
+}
+
+bool AVFCharacter::TakeIn_Implementation(AVFPhoto2D *Photo2D, const bool &Enabled)
+{
+	if (Container->Implements<UVFPhoto2DContainerInterface>())
+	{
+		if (IVFPhoto2DContainerInterface::Execute_TakeIn(Container, Photo2D))
+		{
+			Container->SetEnabled(true);
+        	return true;
+		}
+	}
+	return false;
+}

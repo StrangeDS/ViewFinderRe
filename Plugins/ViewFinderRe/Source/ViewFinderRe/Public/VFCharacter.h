@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "VFPhoto2DContainerInterface.h"
 #include "VFStepsRecordInterface.h"
 #include "VFCharacter.generated.h"
 
@@ -37,13 +38,13 @@ struct FVFPawnTransformInfo
 
 	FVFPawnTransformInfo(APawn *Pawn, float TimeIn);
 
-	FVFPawnTransformInfo(const FVFPawnTransformInfo& Other, float TimeIn);
+	FVFPawnTransformInfo(const FVFPawnTransformInfo &Other, float TimeIn);
 
 	bool operator==(const FVFPawnTransformInfo &Other) const;
 };
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
-class VIEWFINDERRE_API AVFCharacter : public ACharacter, public IVFStepsRecordInterface
+class VIEWFINDERRE_API AVFCharacter : public ACharacter, public IVFStepsRecordInterface, public IVFPhoto2DContainerInterface
 {
 	GENERATED_BODY()
 
@@ -56,7 +57,7 @@ public:
 
 	virtual void SetupPlayerInputComponent(UInputComponent *PlayerInputComponent) override;
 
-	virtual void PossessedBy(AController* NewController) override;
+	virtual void PossessedBy(AController *NewController) override;
 
 	virtual void UnPossessed() override;
 
@@ -134,4 +135,9 @@ public:
 	TArray<FVFPawnTransformInfo> Steps;
 
 	TObjectPtr<UVFStepsRecorderWorldSubsystem> StepRecorder;
+
+public: // IVFPhoto2DContainerInterface
+	virtual int GetPhoto2DNum_Implementation() override;
+
+	virtual bool TakeIn_Implementation(AVFPhoto2D *Photo2D, const bool &Enabled) override;
 };

@@ -30,9 +30,7 @@ void AVFPhotoContainer::AddAPhoto(AVFPhoto2D *Photo)
 {
 	check(Photo);
 
-	Photo->AttachToComponent(Container, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	Photo->SetActorEnableCollision(false);
-
 	Photo2Ds.EmplaceLast(Photo);
 
 	UpdateCurrentPhoto();
@@ -78,7 +76,7 @@ void AVFPhotoContainer::PlaceCurrentPhoto()
 	if (!CurrentPhoto2D)
 		return;
 
-	CurrentPhoto2D->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	CurrentPhoto2D->ReattachToComponent(nullptr);
 	CurrentPhoto2D->PlaceDown();
 	Photo2Ds.PopLast();
 	GiveUpPreparing();
@@ -188,4 +186,17 @@ void AVFPhotoContainer::GiveUpPreparing_Move()
 		auto TransNext = UVFFunctions::TransformLerpNoScale(TransCur, TransTarget, Rate);
 		CurrentPhoto2D->SetActorTransform(TransNext);
 	}
+}
+
+int AVFPhotoContainer::GetPhoto2DNum_Implementation()
+{
+	return Num();
+}
+
+bool AVFPhotoContainer::TakeIn_Implementation(AVFPhoto2D *Photo2D, const bool &Enabled)
+{
+	Photo2D->ReattachToComponent(Container);
+	AddAPhoto(Photo2D);
+	SetEnabled(true);
+	return true;
 }

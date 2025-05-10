@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "VFPhoto2DContainerInterface.h"
 #include "Containers/Deque.h"
 #include "VFPhotoContainer.generated.h"
 
@@ -10,7 +11,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FVFPhotoContainerEnabled, bool, Enab
 class AVFPhoto2D;
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
-class VIEWFINDERCORE_API AVFPhotoContainer : public AActor
+class VIEWFINDERCORE_API AVFPhotoContainer : public AActor, public IVFPhoto2DContainerInterface
 {
 	GENERATED_BODY()
 
@@ -79,19 +80,19 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void GiveUpPreparing_Move();
-	
+
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
 	FTimerHandle PrepareTimeHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	float TimeOfPrepare = 0.5f;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	float TimeOfGivingUp = 0.1f;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	float RotateFactor = -2.0f;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	float PrepareMoveInterval = 0.02f;
 
@@ -106,4 +107,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<class UVFHelperComponent> Helper;
+
+public: // IVFPhoto2DContainerInterface
+	virtual int GetPhoto2DNum_Implementation() override;
+
+	virtual bool TakeIn_Implementation(AVFPhoto2D *Photo2D, const bool &Enabled) override;
 };
