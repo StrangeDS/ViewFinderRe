@@ -27,3 +27,23 @@ void AVFPhotoContainer_Input::SetEnabled(const bool &Enabled)
 			Subsystem->RemoveMappingContext(MappingContext);
 	}
 }
+
+void AVFPhotoContainer_Input::Activate_Implementation()
+{
+	SetEnabled(true);
+}
+
+void AVFPhotoContainer_Input::Deactivate_Implementation()
+{
+	SetEnabled(false);
+}
+
+bool AVFPhotoContainer_Input::CanActivate_Implementation()
+{
+	return Num() > 0;
+}
+
+bool AVFPhotoContainer_Input::IsActive_Implementation()
+{
+	return bEnabled;
+}

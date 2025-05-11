@@ -5,9 +5,9 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "VFCommon.h"
-#include "VFPhotoContainer.h"
 #include "VFPhotoCaptureComponent.h"
 #include "VFFunctions.h"
+#include "VFCharacter.h"
 
 bool AVFPhotoCatcher_PickUp::Interact_Implementation(APlayerController *Controller)
 {
@@ -18,20 +18,15 @@ bool AVFPhotoCatcher_PickUp::Interact_Implementation(APlayerController *Controll
     ResetActorsToIgnore();
     ActorsToIgnore.AddUnique(Pawn);
     // 需要根据角色重写
-    if (auto ToAttach = Pawn->GetComponentByClass<UCameraComponent>())
+    if (auto VFCharacter = Cast<AVFCharacter>(Pawn))
     {
-        PickUp(ToAttach);
-        TArray<AActor *> AttahcedActors;
-        Pawn->GetAttachedActors(AttahcedActors);
-        for (const auto &Actor : AttahcedActors)
+        TScriptInterface<IVFActivatableInterface> Equipment(this);
+        VFCharacter->AddEquipment(Equipment);
+        VFCharacter->SwitchEquipment(Equipment);
+        if (auto ToAttach = Pawn->GetComponentByClass<UCameraComponent>())
         {
-            if (Actor->GetClass()->IsChildOf(AVFPhotoContainer::StaticClass()))
-            {
-                Container = Cast<AVFPhotoContainer>(Actor);
-                Container->SetEnabled(false);
-                Container->OnEnabled.AddUniqueDynamic(this, &AVFPhotoCatcher_PickUp::SetActorHiddenInGame);
-                return true;
-            }
+            PickUp(ToAttach);
+            return true;
         }
     }
 
@@ -44,13 +39,12 @@ AVFPhoto2D *AVFPhotoCatcher_PickUp::TakeAPhoto_Implementation()
     if (!bReady)
         return nullptr;
 
-    if (ensure(Container))
+    if (Pawn->Implements<UVFPhoto2DContainerInterface>())
     {
         auto Photo2D = Super::TakeAPhoto_Implementation();
-        Container->AddAPhoto(Photo2D);
-        Container->SetEnabled(Container->Num() == 1);
-        LeaveFromPreview();
+        IVFPhoto2DContainerInterface::Execute_TakeIn(Pawn, Photo2D);
     }
+    LeaveFromPreview();
 
     return nullptr;
 }
@@ -119,9 +113,6 @@ void AVFPhotoCatcher_PickUp::DropDown_Implementation()
     ActorsToIgnore.AddUnique(GetAttachParentActor());
     DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
-    Container->OnEnabled.RemoveDynamic(this, &AVFPhotoCatcher_PickUp::SetActorHiddenInGame);
-    Container = nullptr;
-
     Pawn = nullptr;
     PlayerController = nullptr;
     bPickedUp = false;
@@ -162,4 +153,24 @@ void AVFPhotoCatcher_PickUp::LeaveFromPreview_Move()
         auto TransTarget = UVFFunctions::TransformLerp(TransCur, IdleTrans, Rate);
         RootComponent->SetRelativeTransform(TransTarget);
     }
+}
+
+void AVFPhotoCatcher_PickUp::Activate_Implementation()
+{
+    SetActorHiddenInGame(false);
+}
+
+void AVFPhotoCatcher_PickUp::Deactivate_Implementation()
+{
+    SetActorHiddenInGame(true);
+}
+
+bool AVFPhotoCatcher_PickUp::CanActivate_Implementation()
+{
+    return true;
+}
+
+bool AVFPhotoCatcher_PickUp::IsActive_Implementation()
+{
+    return !IsHidden();
 }

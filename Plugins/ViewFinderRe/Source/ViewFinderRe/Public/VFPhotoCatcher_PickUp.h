@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "VFPhotoCatcher_Interact.h"
+#include "VFActivatableInterface.h"
 #include "VFPhotoCatcher_PickUp.generated.h"
 
 class UInputMappingContext;
@@ -9,7 +10,8 @@ class UInputMappingContext;
 class AVFPhotoContainer;
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
-class VIEWFINDERRE_API AVFPhotoCatcher_PickUp : public AVFPhotoCatcher_Interact
+class VIEWFINDERRE_API AVFPhotoCatcher_PickUp : public AVFPhotoCatcher_Interact,
+												public IVFActivatableInterface
 {
 	GENERATED_BODY()
 
@@ -51,10 +53,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void LeaveFromPreview_Move();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder", meta=(MakeEditWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder", meta = (MakeEditWidget))
 	FTransform IdleTrans = FTransform(FRotator::ZeroRotator, FVector(100.0f, 20.0f, -20.0f));
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder", meta=(MakeEditWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder", meta = (MakeEditWidget))
 	FTransform PreviewTrans = FTransform(FRotator::ZeroRotator, FVector(20.f, 0.f, 0.f));
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
@@ -62,4 +64,13 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	float PreviewMoveInterval = 0.02f;
+
+public: // IVFActivatableInterface
+	virtual void Activate_Implementation() override;
+
+	virtual void Deactivate_Implementation() override;
+
+	virtual bool CanActivate_Implementation() override;
+
+	virtual bool IsActive_Implementation() override;
 };

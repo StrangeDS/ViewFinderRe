@@ -13,10 +13,11 @@
 
 #include "VFCommon.h"
 #include "VFInteractInterface.h"
-#include "VFPhotoContainer.h"
 #include "VFHelperComponent.h"
 #include "VFPawnStandIn.h"
 #include "VFStepsRecorderWorldSubsystem.h"
+#include "VFActivatableInterface.h"
+#include "VFPhotoContainer_Input.h"
 
 FVFPawnTransformInfo::FVFPawnTransformInfo(APawn *Pawn, float TimeIn)
 	: Location(Pawn->GetActorLocation()),
@@ -56,6 +57,8 @@ AVFCharacter::AVFCharacter()
 	Helper->bCanBePlacedByPhoto = false;
 	Helper->bReplacedWithStandIn = true;
 	Helper->StandInClass = AVFPawnStandIn::StaticClass();
+
+	ContainerClass = AVFPhotoContainer_Input::StaticClass();
 }
 
 void AVFCharacter::BeginPlay()
@@ -68,10 +71,11 @@ void AVFCharacter::BeginPlay()
 
 	Steps.Reserve(UVFStepsRecorderWorldSubsystem::SizeRecommended);
 
-	Container = GetWorld()->SpawnActor<AVFPhotoContainer>(ContainerClass);
+	Container = GetWorld()->SpawnActor<AVFPhotoContainer_Input>(ContainerClass);
 	Container->AttachToComponent(Camera, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	if (PlayerController)
 		Container->SetPlayerController(PlayerController);
+	Equipments.Add(Container);
 }
 
 void AVFCharacter::Tick(float DeltaTime)
@@ -92,7 +96,7 @@ void AVFCharacter::SetupPlayerInputComponent(UInputComponent *PlayerInputCompone
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &AVFCharacter::Interact);
-		EnhancedInputComponent->BindAction(SwitchAction, ETriggerEvent::Started, this, &AVFCharacter::Switch);
+		EnhancedInputComponent->BindAction(SwitchAction, ETriggerEvent::Started, this, &AVFCharacter::SwitchEquipmentNext);
 	}
 }
 
@@ -226,11 +230,6 @@ void AVFCharacter::Interact()
 	}
 }
 
-void AVFCharacter::Switch()
-{
-	Container->SetEnabled(!Container->IsEnabled());
-}
-
 void AVFCharacter::TickForward_Implementation(float Time)
 {
 	const static float Permitted = 0.1f;
@@ -310,7 +309,8 @@ bool AVFCharacter::TakeIn_Implementation(AVFPhoto2D *Photo2D, const bool &Enable
 	{
 		if (IVFPhoto2DContainerInterface::Execute_TakeIn(Container, Photo2D))
 		{
-			Container->SetEnabled(true);
+			if (Container->Num() == 1)
+				SwitchEquipment(Container);
 			return true;
 		}
 	}
@@ -320,4 +320,61 @@ bool AVFCharacter::TakeIn_Implementation(AVFPhoto2D *Photo2D, const bool &Enable
 UVFHelperComponent *AVFCharacter::GetHelper_Implementation()
 {
 	return Helper;
+}
+
+void AVFCharacter::SwitchEquipmentNext_Implementation()
+{
+	DeactivateCurEquipment();
+	if (EquipmentCurIndex == Equipments.Num() - 1)
+	{
+		EquipmentCurIndex = INDEX_NONE;
+		return;
+	}
+
+	for (EquipmentCurIndex = EquipmentCurIndex + 1; EquipmentCurIndex < Equipments.Num(); ++EquipmentCurIndex)
+	{
+		if (IVFActivatableInterface::Execute_CanActivate(Equipments[EquipmentCurIndex].GetObject()))
+		{
+			IVFActivatableInterface::Execute_Activate(Equipments[EquipmentCurIndex].GetObject());
+			return;
+		}
+	}
+
+	EquipmentCurIndex = INDEX_NONE;
+}
+
+void AVFCharacter::AddEquipment_Implementation(const TScriptInterface<IVFActivatableInterface> &Equipment)
+{
+	Equipments.AddUnique(Equipment);
+}
+
+void AVFCharacter::RemoveEquipment_Implementation(const TScriptInterface<IVFActivatableInterface> &Equipment)
+{
+	int Index = Equipments.Find(Equipment);
+	if (EquipmentCurIndex == Index)
+		DeactivateCurEquipment();
+	Equipments.Remove(Equipment);
+	EquipmentCurIndex = (EquipmentCurIndex + Equipments.Num()) / Equipments.Num();
+}
+
+void AVFCharacter::DeactivateCurEquipment_Implementation()
+{
+	if (EquipmentCurIndex != INDEX_NONE)
+	{
+		auto Equipment = Equipments[EquipmentCurIndex].GetObject();
+		if (Equipment)
+		{
+			if (IVFActivatableInterface::Execute_IsActive(Equipment))
+				IVFActivatableInterface::Execute_Deactivate(Equipment);
+		}
+	}
+}
+
+bool AVFCharacter::SwitchEquipment_Implementation(const TScriptInterface<IVFActivatableInterface> &Equipment)
+{
+	if (!Equipments.Contains(Equipment))
+		return false;
+	DeactivateCurEquipment();
+	EquipmentCurIndex = Equipments.Find(Equipment);
+	return IVFActivatableInterface::Execute_TryActivate(Equipment.GetObject());
 }

@@ -13,10 +13,11 @@ class UInputAction;
 class UInputComponent;
 class UInputMappingContext;
 
-class AVFPhotoContainer;
+class AVFPhotoContainer_Input;
 class UVFHelperComponent;
 class IVFInteractInterface;
 class UVFStepsRecorderWorldSubsystem;
+class IVFActivatableInterface;
 
 USTRUCT(BlueprintType)
 struct FVFPawnTransformInfo
@@ -73,10 +74,10 @@ public:
 	TObjectPtr<UVFHelperComponent> Helper;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TSubclassOf<AVFPhotoContainer> ContainerClass;
+	TSubclassOf<AVFPhotoContainer_Input> ContainerClass;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<AVFPhotoContainer> Container;
+	TObjectPtr<AVFPhotoContainer_Input> Container;
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<APlayerController> PlayerController;
@@ -108,9 +109,6 @@ protected:
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void Interact();
-
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void Switch();
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<UInputMappingContext> MappingContext;
@@ -147,4 +145,31 @@ public: // IVFPhoto2DContainerInterface
 
 public: // IVFHelperInterface
 	virtual UVFHelperComponent *GetHelper_Implementation() override;
+
+public: // UVFActivatableInterface管理
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
+	void SwitchEquipmentNext();
+	virtual void SwitchEquipmentNext_Implementation();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
+	void AddEquipment(const TScriptInterface<IVFActivatableInterface> &Equipment);
+	virtual void AddEquipment_Implementation(const TScriptInterface<IVFActivatableInterface> &Equipment);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
+	void RemoveEquipment(const TScriptInterface<IVFActivatableInterface> &Equipment);
+	virtual void RemoveEquipment_Implementation(const TScriptInterface<IVFActivatableInterface> &Equipment);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
+	void DeactivateCurEquipment();
+	virtual void DeactivateCurEquipment_Implementation();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
+	bool SwitchEquipment(const TScriptInterface<IVFActivatableInterface> &Equipment);
+	virtual bool SwitchEquipment_Implementation(const TScriptInterface<IVFActivatableInterface> &Equipment);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	int EquipmentCurIndex = INDEX_NONE;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	TArray<TScriptInterface<IVFActivatableInterface>> Equipments;
 };

@@ -197,6 +197,5 @@ bool AVFPhotoContainer::TakeIn_Implementation(AVFPhoto2D *Photo2D, const bool &E
 {
 	Photo2D->ReattachToComponent(Container);
 	AddAPhoto(Photo2D);
-	SetEnabled(true);
 	return true;
 }
