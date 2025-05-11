@@ -39,10 +39,10 @@ AVFPhoto2D *AVFPhotoCatcher_PickUp::TakeAPhoto_Implementation()
     if (!bReady)
         return nullptr;
 
-    if (Pawn->Implements<UVFPhoto2DContainerInterface>())
+    if (Pawn->Implements<UVFPhotoContainerInterface>())
     {
         auto Photo2D = Super::TakeAPhoto_Implementation();
-        IVFPhoto2DContainerInterface::Execute_TakeIn(Pawn, Photo2D);
+        IVFPhotoContainerInterface::Execute_TakeIn(Pawn, Photo2D);
     }
     LeaveFromPreview();
 

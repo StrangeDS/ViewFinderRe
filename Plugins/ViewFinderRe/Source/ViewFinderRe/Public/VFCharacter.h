@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "VFPhoto2DContainerInterface.h"
+#include "VFPhotoContainerInterface.h"
 #include "VFStepsRecordInterface.h"
 #include "VFHelperInterface.h"
 #include "VFCharacter.generated.h"
@@ -48,7 +48,7 @@ struct FVFPawnTransformInfo
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERRE_API AVFCharacter : public ACharacter,
 									  public IVFStepsRecordInterface,
-									  public IVFPhoto2DContainerInterface,
+									  public IVFPhotoContainerInterface,
 									  public IVFHelperInterface
 {
 	GENERATED_BODY()
@@ -138,7 +138,7 @@ public:
 
 	TObjectPtr<UVFStepsRecorderWorldSubsystem> StepRecorder;
 
-public: // IVFPhoto2DContainerInterface
+public: // IVFPhotoContainerInterface
 	virtual int GetPhoto2DNum_Implementation() override;
 
 	virtual bool TakeIn_Implementation(AVFPhoto2D *Photo2D, const bool &Enabled) override;

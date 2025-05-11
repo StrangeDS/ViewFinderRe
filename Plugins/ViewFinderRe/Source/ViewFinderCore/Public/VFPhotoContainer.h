@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "VFPhoto2DContainerInterface.h"
+#include "VFPhotoContainerInterface.h"
 #include "Containers/Deque.h"
 #include "VFPhotoContainer.generated.h"
 
@@ -11,7 +11,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FVFPhotoContainerEnabled, bool, Enab
 class AVFPhoto2D;
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
-class VIEWFINDERCORE_API AVFPhotoContainer : public AActor, public IVFPhoto2DContainerInterface
+class VIEWFINDERCORE_API AVFPhotoContainer : public AActor, public IVFPhotoContainerInterface
 {
 	GENERATED_BODY()
 
@@ -108,7 +108,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<class UVFHelperComponent> Helper;
 
-public: // IVFPhoto2DContainerInterface
+public: // IVFPhotoContainerInterface
 	virtual int GetPhoto2DNum_Implementation() override;
 
 	virtual bool TakeIn_Implementation(AVFPhoto2D *Photo2D, const bool &Enabled) override;

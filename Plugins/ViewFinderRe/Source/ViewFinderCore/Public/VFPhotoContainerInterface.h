@@ -2,12 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "VFPhoto2DContainerInterface.generated.h"
+#include "VFPhotoContainerInterface.generated.h"
 
 class AVFPhoto2D;
 
 UINTERFACE(MinimalAPI)
-class UVFPhoto2DContainerInterface : public UInterface
+class UVFPhotoContainerInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -15,7 +15,7 @@ class UVFPhoto2DContainerInterface : public UInterface
 /**
  * 存放Photo2D的容器
  */
-class VIEWFINDERCORE_API IVFPhoto2DContainerInterface
+class VIEWFINDERCORE_API IVFPhotoContainerInterface
 {
 	GENERATED_BODY()
 

@@ -296,18 +296,18 @@ void AVFCharacter::TickBackward_Implementation(float Time)
 
 int AVFCharacter::GetPhoto2DNum_Implementation()
 {
-	if (Container->Implements<UVFPhoto2DContainerInterface>())
+	if (Container->Implements<UVFPhotoContainerInterface>())
 	{
-		IVFPhoto2DContainerInterface::Execute_GetPhoto2DNum(Container);
+		IVFPhotoContainerInterface::Execute_GetPhoto2DNum(Container);
 	}
 	return -1;
 }
 
 bool AVFCharacter::TakeIn_Implementation(AVFPhoto2D *Photo2D, const bool &Enabled)
 {
-	if (Container->Implements<UVFPhoto2DContainerInterface>())
+	if (Container->Implements<UVFPhotoContainerInterface>())
 	{
-		if (IVFPhoto2DContainerInterface::Execute_TakeIn(Container, Photo2D))
+		if (IVFPhotoContainerInterface::Execute_TakeIn(Container, Photo2D))
 		{
 			if (Container->Num() == 1)
 				SwitchEquipment(Container);

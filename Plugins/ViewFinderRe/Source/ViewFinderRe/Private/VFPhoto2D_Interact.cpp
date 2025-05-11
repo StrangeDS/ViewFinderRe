@@ -3,7 +3,7 @@
 #include "GameFramework/Pawn.h"
 #include "Blueprint/UserWidget.h"
 
-#include "VFPhoto2DContainerInterface.h"
+#include "VFPhotoContainerInterface.h"
 
 bool AVFPhoto2D_Interact::StartAiming_Implementation(APlayerController *Controller)
 {
@@ -28,9 +28,9 @@ bool AVFPhoto2D_Interact::EndAiming_Implementation(APlayerController *Controller
 bool AVFPhoto2D_Interact::Interact_Implementation(APlayerController *Controller)
 {
     auto Pawn = Controller->GetPawn();
-    if (Pawn->Implements<UVFPhoto2DContainerInterface>())
+    if (Pawn->Implements<UVFPhotoContainerInterface>())
     {
-        return IVFPhoto2DContainerInterface::Execute_TakeIn(Pawn, this);
+        return IVFPhotoContainerInterface::Execute_TakeIn(Pawn, this);
     }
     return false;
 }
