@@ -51,13 +51,13 @@ public:
 	FVFStepRecorderDelegate OnTickTime;
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void RegisterTickable(TScriptInterface<IVFStepsRecordInterface> Target);
+	void RegisterTickable(const TScriptInterface<IVFStepsRecordInterface> &Target);
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void RegisterTransformRecordere(AVFTransfromRecorderActor *Recorder);
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void UnregisterTickable(TScriptInterface<IVFStepsRecordInterface> Target);
+	void UnregisterTickable(const TScriptInterface<IVFStepsRecordInterface> &Target);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TArray<TScriptInterface<IVFStepsRecordInterface>> TickTargets;

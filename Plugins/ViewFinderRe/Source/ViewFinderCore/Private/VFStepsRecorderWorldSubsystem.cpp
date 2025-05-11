@@ -133,10 +133,10 @@ void UVFStepsRecorderWorldSubsystem::UnrecordTransform(USceneComponent *Componen
     }
 }
 
-void UVFStepsRecorderWorldSubsystem::RegisterTickable(TScriptInterface<IVFStepsRecordInterface> Target)
+void UVFStepsRecorderWorldSubsystem::RegisterTickable(const TScriptInterface<IVFStepsRecordInterface> &Target)
 {
-    check(Target.GetObject()->Implements<UVFStepsRecordInterface>());
-    TargetsNeedToAdd.AddUnique(Target);
+    if (Target)
+        TargetsNeedToAdd.AddUnique(Target);
 }
 
 void UVFStepsRecorderWorldSubsystem::RegisterTransformRecordere(AVFTransfromRecorderActor *Recorder)
@@ -146,9 +146,8 @@ void UVFStepsRecorderWorldSubsystem::RegisterTransformRecordere(AVFTransfromReco
     RegisterTickable(TransformRecorder);
 }
 
-void UVFStepsRecorderWorldSubsystem::UnregisterTickable(TScriptInterface<IVFStepsRecordInterface> Target)
+void UVFStepsRecorderWorldSubsystem::UnregisterTickable(const TScriptInterface<IVFStepsRecordInterface> &Target)
 {
-    check(Target.GetObject()->Implements<UVFStepsRecordInterface>());
     if (ensure(TickTargets.Contains(Target)))
     {
         TargetsNeedToRemove.AddUnique(Target);
