@@ -311,8 +311,13 @@ bool AVFCharacter::TakeIn_Implementation(AVFPhoto2D *Photo2D, const bool &Enable
 		if (IVFPhoto2DContainerInterface::Execute_TakeIn(Container, Photo2D))
 		{
 			Container->SetEnabled(true);
-        	return true;
+			return true;
 		}
 	}
 	return false;
+}
+
+UVFHelperComponent *AVFCharacter::GetHelper_Implementation()
+{
+	return Helper;
 }

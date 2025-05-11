@@ -83,3 +83,8 @@ UPrimitiveComponent *AVFPawnStandIn::GetPrimitiveComp_Implementation()
 {
 	return DynamicMesh;
 }
+
+UVFHelperComponent *AVFPawnStandIn::GetHelper_Implementation()
+{
+	return Helper;
+}

@@ -309,3 +309,8 @@ UMaterialInstanceDynamic *AVFPhotoCatcher::GetScreenMID_Implementation()
 		ScreenMID = StaticMesh->CreateDynamicMaterialInstance(1);
 	return ScreenMID;
 }
+
+UVFHelperComponent *AVFPhotoCatcher::GetHelper_Implementation()
+{
+	return Helper;
+}

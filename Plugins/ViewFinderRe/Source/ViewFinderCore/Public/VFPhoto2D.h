@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "VFHelperInterface.h"
 #include "VFPhoto2D.generated.h"
 
 class UTexture2D;
@@ -22,7 +23,8 @@ enum class EVFPhoto2DState : uint8
 };
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
-class VIEWFINDERCORE_API AVFPhoto2D : public AActor
+class VIEWFINDERCORE_API AVFPhoto2D : public AActor,
+									  public IVFHelperInterface
 {
 	GENERATED_BODY()
 
@@ -96,11 +98,14 @@ public:
 	/// @return false表示没有变动
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	virtual bool ReattachToComponent(USceneComponent *Target = nullptr);
-	
+
 public: // 迭代相关
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void CopyOuterPhoto3D(UObject *Sender);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	bool bIsRecursive = false;
+
+public: // IVFHelperInterface
+	virtual UVFHelperComponent *GetHelper_Implementation() override;
 };

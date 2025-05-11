@@ -2,9 +2,9 @@
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
+#include "VFCommon.h"
+#include "VFHelperInterface.h"
 #include "VFFunctions.generated.h"
-
-class UVFHelperComponent;
 
 UCLASS(meta = (ScriptName = "VFFunctions"))
 class VIEWFINDERCORE_API UVFFunctions : public UBlueprintFunctionLibrary
@@ -85,6 +85,9 @@ inline T *UVFFunctions::CloneActorRuntimeRecursive(AActor *Original)
 	return Cast<T>(Res);
 }
 
+// 设置查找UVFHelperComponent的方式: 接口/组件查找.
+#define FINDHELPER_WITH_INTERFACE 1
+
 template <typename T>
 inline void UVFFunctions::GetCompsToHelpersMapping(
 	UPARAM(ref) TArray<T *> &Components,
@@ -93,8 +96,24 @@ inline void UVFFunctions::GetCompsToHelpersMapping(
 	check(T::StaticClass()->IsChildOf(UPrimitiveComponent::StaticClass()));
 	for (auto It = Components.CreateIterator(); It; It++)
 	{
+#if FINDHELPER_WITH_INTERFACE
+		// 是否实现IVFHelperInterface接口
+		if (AActor *Actor = (*It)->GetOwner())
+		{
+			if (Actor->Implements<UVFHelperInterface>())
+			{
+				auto Helper = IVFHelperInterface::Execute_GetHelper(Actor);
+				if (Helper)
+					Map.Add(Cast<UPrimitiveComponent>(*It), Helper);
+				else
+					VF_LOG(Error, TEXT("%s GetHelper() is nullptr."), *Actor->GetName());
+			}
+		}
+#else
+		// 是否有UVFHelperComponent组件, 更加自由
 		auto Helper = (*It)->GetOwner()->GetComponentByClass<UVFHelperComponent>();
 		if (Helper)
 			Map.Add(Cast<UPrimitiveComponent>(*It), Helper);
+#endif
 	}
 }

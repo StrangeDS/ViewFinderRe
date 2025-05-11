@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "VFHelperInterface.h"
 #include "VFPhotoCatcher.generated.h"
 
 class UStaticMeshComponent;
@@ -14,7 +15,7 @@ class UVFDynamicMeshComponent;
 class UVFPhotoCaptureComponent;
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
-class VIEWFINDERCORE_API AVFPhotoCatcher : public AActor
+class VIEWFINDERCORE_API AVFPhotoCatcher : public AActor,  public IVFHelperInterface
 {
 	GENERATED_BODY()
 
@@ -108,4 +109,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<UMaterialInstanceDynamic> ScreenMID;
+
+public: // IVFHelperInterface
+	virtual UVFHelperComponent *GetHelper_Implementation() override;
 };

@@ -185,3 +185,8 @@ void AVFPhoto2D::CopyOuterPhoto3D(UObject *Sender)
 	SetPhoto3D(Photo3DNew);
 	FoldUp();
 }
+
+UVFHelperComponent *AVFPhoto2D::GetHelper_Implementation()
+{
+	return Helper;
+}

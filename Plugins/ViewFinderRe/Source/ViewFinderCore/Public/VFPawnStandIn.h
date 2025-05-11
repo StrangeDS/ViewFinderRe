@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "VFStandInInterface.h"
+#include "VFHelperInterface.h"
 #include "VFPawnStandIn.generated.h"
 
 class APawn;
@@ -13,7 +14,9 @@ class UVFHelperComponent;
 class UVFDynamicMeshComponent;
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
-class VIEWFINDERCORE_API AVFPawnStandIn : public AActor, public IVFStandInInterface
+class VIEWFINDERCORE_API AVFPawnStandIn : public AActor,
+										  public IVFStandInInterface,
+										  public IVFHelperInterface
 {
 	GENERATED_BODY()
 
@@ -56,4 +59,7 @@ public: // implements IVFStandInInterface
 	virtual void SetOriginalActor_Implementation(AActor *Source) override;
 
 	virtual UPrimitiveComponent *GetPrimitiveComp_Implementation() override;
+
+public: // IVFHelperInterface
+	virtual UVFHelperComponent *GetHelper_Implementation() override;
 };

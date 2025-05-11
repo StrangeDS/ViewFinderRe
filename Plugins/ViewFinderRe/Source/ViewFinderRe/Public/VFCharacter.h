@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "VFPhoto2DContainerInterface.h"
 #include "VFStepsRecordInterface.h"
+#include "VFHelperInterface.h"
 #include "VFCharacter.generated.h"
 
 class UCameraComponent;
@@ -44,7 +45,10 @@ struct FVFPawnTransformInfo
 };
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
-class VIEWFINDERRE_API AVFCharacter : public ACharacter, public IVFStepsRecordInterface, public IVFPhoto2DContainerInterface
+class VIEWFINDERRE_API AVFCharacter : public ACharacter,
+									  public IVFStepsRecordInterface,
+									  public IVFPhoto2DContainerInterface,
+									  public IVFHelperInterface
 {
 	GENERATED_BODY()
 
@@ -140,4 +144,7 @@ public: // IVFPhoto2DContainerInterface
 	virtual int GetPhoto2DNum_Implementation() override;
 
 	virtual bool TakeIn_Implementation(AVFPhoto2D *Photo2D, const bool &Enabled) override;
+
+public: // IVFHelperInterface
+	virtual UVFHelperComponent *GetHelper_Implementation() override;
 };
