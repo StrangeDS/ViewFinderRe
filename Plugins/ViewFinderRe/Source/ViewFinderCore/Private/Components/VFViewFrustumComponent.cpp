@@ -1,5 +1,7 @@
 #include "VFViewFrustumComponent.h"
 
+#include "UObject/ConstructorHelpers.h"
+
 UVFViewFrustumComponent::UVFViewFrustumComponent()
 {
     SetComplexAsSimpleCollisionEnabled(false);

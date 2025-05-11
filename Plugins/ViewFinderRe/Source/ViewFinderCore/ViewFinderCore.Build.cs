@@ -1,6 +1,7 @@
 // Copyright StrangeDS. All Rights Reserved.
 
 using UnrealBuildTool;
+using System.IO;
 
 public class ViewFinderCore : ModuleRules
 {
@@ -10,14 +11,22 @@ public class ViewFinderCore : ModuleRules
 
 		PublicIncludePaths.AddRange(
 			new string[] {
-				// ... add public include paths required here ...
+				Path.Combine(ModuleDirectory, "Public"),
+				Path.Combine(ModuleDirectory, "Public/Components"),
+				Path.Combine(ModuleDirectory, "Public/Functions"),
+				Path.Combine(ModuleDirectory, "Public/Interfaces"),
+				Path.Combine(ModuleDirectory, "Public/Subsystems"),
 			}
 			);
 
 
 		PrivateIncludePaths.AddRange(
 			new string[] {
-				// ... add other private include paths required here ...
+				Path.Combine(ModuleDirectory, "Private"),
+				Path.Combine(ModuleDirectory, "Private/Components"),
+				Path.Combine(ModuleDirectory, "Private/Functions"),
+				Path.Combine(ModuleDirectory, "Private/Interfaces"),
+				Path.Combine(ModuleDirectory, "Private/Subsystems"),
 			}
 			);
 
