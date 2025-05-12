@@ -1,10 +1,17 @@
 #include "VFPhotoCatcherPref.h"
 
+#include "Materials/MaterialInstanceConstant.h"
+
 #include "VFCommon.h"
 #include "VFPhotoCaptureComponent.h"
 
 AVFPhotoCatcherPref::AVFPhotoCatcherPref() : Super()
 {
+#if WITH_EDITORONLY_DATA
+    static ConstructorHelpers::FObjectFinder<UMaterialInstanceConstant> MaterialInstanceSelector(
+        TEXT("/ViewFinderRe/Materials/Photo/MI_PhotoWithBorder.MI_PhotoWithBorder"));
+    MaterialInstanceSource = MaterialInstanceSelector.Object;
+#endif
 }
 
 void AVFPhotoCatcherPref::OnConstruction(const FTransform &Transform)
@@ -55,15 +62,79 @@ void AVFPhotoCatcherPref::RecollectShowOnlyActors()
 
 #include "LevelInstance/LevelInstanceSubsystem.h"
 #include "LevelInstance/LevelInstanceInterface.h"
+#include "AssetToolsModule.h"
 
 #include "VFPhoto2D.h"
 #include "VFPhoto3D.h"
 #include "VFDynamicMeshComponent.h"
 
+UMaterialInstanceConstant *SaveDynamicAsConstant(FAssetToolsModule &AssetTools,
+                                                 UMaterialInstanceDynamic *MIDynamic,
+                                                 const FString &AssetPath,
+                                                 const FString &AssetName)
+{
+    if (!MIDynamic)
+    {
+        VF_LOG(Error, TEXT("%s invalid MIDynamic."), __FUNCTIONW__);
+        return nullptr;
+    }
+
+    auto ParentMaterial = MIDynamic->Parent;
+    if (!IsValid(ParentMaterial))
+    {
+        VF_LOG(Error, TEXT("%s invalid ParentMaterial"), __FUNCTIONW__);
+        return nullptr;
+    }
+
+    UMaterialInstanceConstant *MIConstant = NewObject<UMaterialInstanceConstant>(
+        GetTransientPackage(),
+        MakeUniqueObjectName(GetTransientPackage(),
+                             UMaterialInstanceConstant::StaticClass()));
+    MIConstant->SetParentEditorOnly(ParentMaterial);
+
+    TArray<FMaterialParameterInfo> OutParameterInfo;
+    TArray<FGuid> OutParameterIds;
+    MIDynamic->GetAllScalarParameterInfo(OutParameterInfo, OutParameterIds);
+    for (const FMaterialParameterInfo &Info : OutParameterInfo)
+    {
+        float Value;
+        if (MIDynamic->GetScalarParameterValue(Info.Name, Value))
+        {
+            MIConstant->SetScalarParameterValueEditorOnly(Info.Name, Value);
+        }
+    }
+    MIDynamic->GetAllVectorParameterInfo(OutParameterInfo, OutParameterIds);
+    for (const FMaterialParameterInfo &Info : OutParameterInfo)
+    {
+        FLinearColor Value;
+        if (MIDynamic->GetVectorParameterValue(Info.Name, Value))
+        {
+            MIConstant->SetVectorParameterValueEditorOnly(Info.Name, Value);
+        }
+    }
+    MIDynamic->GetAllTextureParameterInfo(OutParameterInfo, OutParameterIds);
+    for (const FMaterialParameterInfo &Info : OutParameterInfo)
+    {
+        UTexture *Value = nullptr;
+        if (MIDynamic->GetTextureParameterValue(Info.Name, Value))
+        {
+            MIConstant->SetTextureParameterValueEditorOnly(Info.Name, Value);
+        }
+    }
+
+    UMaterialInstanceConstant *SavedMIC = Cast<UMaterialInstanceConstant>(
+        AssetTools.Get().DuplicateAsset(AssetName, AssetPath, MIConstant));
+
+    return SavedMIC;
+}
+
 void AVFPhotoCatcherPref::SaveAPhotoInEditor()
 {
     TArray<AActor *> ActorsToMove;
     TArray<UPrimitiveComponent *> CompsOverlapped = Super::GetOverlapComps();
+    UMaterialInstanceDynamic *MIDynamic = nullptr;
+    UMaterialInstanceConstant *MIContant = nullptr;
+    UTexture2D *Texture2D = nullptr;
 
     auto RestoreSourceComponents = [this, &CompsOverlapped]()
     {
@@ -85,16 +156,31 @@ void AVFPhotoCatcherPref::SaveAPhotoInEditor()
         }
     };
 
-    auto AfterFailure = [this, &ActorsToMove, &RestoreSourceComponents](const FString &Reason)
+    auto AfterFailure = [this,
+                         &ActorsToMove,
+                         &RestoreSourceComponents](const FString &Reason)
     {
         // 移除复制出来的Actor
         for (auto Actor : ActorsToMove)
             GetWorld()->EditorDestroyActor(Actor, false);
+        GEditor->RedrawLevelEditingViewports();
+        VF_LOG(Error, TEXT("%s EditorDestroyActor: %i."), __FUNCTIONW__, ActorsToMove.Num());
 
         RestoreSourceComponents();
-        GEditor->RedrawLevelEditingViewports();
         VF_LOG(Error, TEXT("%s Fails: %s."), __FUNCTIONW__, *Reason);
     };
+
+    if (!MaterialInstanceSource)
+    {
+        AfterFailure(TEXT("invalid MaterialInstanceSource"));
+        return;
+    }
+
+    if (IterationTimes < 0 || IterationTimes > 10)
+    {
+        AfterFailure(TEXT("invalid IterationTimes"));
+        return;
+    }
 
     ULevelInstanceSubsystem *LevelInstanceSubsystem = GetWorld()->GetSubsystem<ULevelInstanceSubsystem>();
     if (!LevelInstanceSubsystem)
@@ -109,10 +195,21 @@ void AVFPhotoCatcherPref::SaveAPhotoInEditor()
 
     auto Photo2DRoot = TakeAPhoto();
     auto Photo3DRoot = Photo2DRoot->GetPhoto3D();
-    Photo3DRoot->GetAttachedActors(ActorsToMove, true, true);
-    // 最前/最后?
+
+    {
+        Texture2D = PhotoCapture->DrawATexture2D();
+        if (!Texture2D)
+        {
+            AfterFailure(TEXT("invalid Texture2D"));
+            return;
+        }
+		Texture2D->ClearFlags(RF_Transient);
+		Texture2D->SetFlags(RF_Public | RF_Standalone);
+    }
+    
     ActorsToMove.AddUnique(Photo2DRoot);
     ActorsToMove.AddUnique(Photo3DRoot);
+    Photo3DRoot->GetAttachedActors(ActorsToMove, false, true);
 
     RestoreSourceComponents();
     if (bUseTempRenderTarget)
@@ -143,7 +240,7 @@ void AVFPhotoCatcherPref::SaveAPhotoInEditor()
     Params.Type = ELevelInstanceCreationType::LevelInstance;
     Params.PivotType = ELevelInstancePivotType::Actor;
     Params.PivotActor = Photo2DRoot;
-    Params.SetForceExternalActors(LevelInstanceSubsystem->GetWorld()->IsPartitionedWorld());
+    Params.SetExternalActors(LevelInstanceSubsystem->GetWorld()->IsPartitionedWorld());
     ILevelInstanceInterface *LevelInstance = LevelInstanceSubsystem->CreateLevelInstanceFrom(ActorsToMove, Params);
     if (!LevelInstance)
     {
@@ -153,6 +250,8 @@ void AVFPhotoCatcherPref::SaveAPhotoInEditor()
 
     // 修复Photo2D对Photo3D的引用关系
     LevelInstance->EnterEdit();
+
+    TArray<AVFPhoto2D *> Photo2DsInSame;
     ULevel *Level = LevelInstance->GetLoadedLevel();
     {
         TMap<FName, AVFPhoto2D *> Photo2DMap;
@@ -169,6 +268,20 @@ void AVFPhotoCatcherPref::SaveAPhotoInEditor()
                         Photo2D->Tags.Remove(Guid);
                         break;
                     }
+                }
+
+                // 最外层Photo2D
+                if (Photo2D->MaterialInstance)
+                {
+                    MIDynamic = Photo2D->MaterialInstance;
+                    Photo2D->MaterialInstance = nullptr;
+                    Photo2DsInSame.Add(Photo2D);
+                }
+
+                // 内层递归Photo2D
+                if (Photo2D->bIsRecursive)
+                {
+                    Photo2DsInSame.Add(Photo2D);
                 }
             }
             else if (auto Photo3D = Cast<AVFPhoto3D>(Actor))
@@ -194,15 +307,79 @@ void AVFPhotoCatcherPref::SaveAPhotoInEditor()
         }
     }
 
-    for (auto &Actor : Level->Actors)
     {
-        auto Photo2D = Cast<AVFPhoto2D>(Actor);
-        if (!Photo2D)
-            continue;
+        const TSoftObjectPtr<UWorld> &Asset = LevelInstance->GetWorldAsset();
+        FAssetToolsModule &AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
+
+        FString NewAssetPath = FPaths::GetPath(Asset.ToString());
+        FString Timestamp = FDateTime::Now().ToString(TEXT("%Y%m%d_%H%M%S"));
+        FString BaseName = FPaths::GetBaseFilename(LevelInstance->GetWorldAssetPackage());
+        FString NewAssetPrefix = FString::Printf(TEXT("%s_%s"), *BaseName, *Timestamp);
+        if (!MIDynamic)
+        {
+            AfterFailure(TEXT("invalid  MIDynamic."));
+            return;
+        }
+
+        FString NewAssetName = FString::Printf(TEXT("%s_MIC"), *NewAssetPrefix);
+        MIContant = SaveDynamicAsConstant(AssetTools, MIDynamic, NewAssetPath, NewAssetName);
+        if (!MIContant)
+        {
+            AfterFailure(TEXT("SaveDynamicAsConstant fails."));
+            return;
+        }
+
+        NewAssetName = FString::Printf(TEXT("%s_Texture2D"), *NewAssetPrefix);
+        UTexture2D *TextureAsset = Cast<UTexture2D>(AssetTools.Get().DuplicateAsset(
+            NewAssetName,
+            NewAssetPath,
+            Texture2D));
+        if (!TextureAsset)
+        {
+            AfterFailure(TEXT("Save textureAsset fails."));
+            return;
+        }
+
+        MIContant->SetTextureParameterValueEditorOnly(TEXT("Texture"), TextureAsset);
+    }
+
+    // 设置常量材质实例
+    {
+        for (auto &Photo2D : Photo2DsInSame)
+        {
+            Photo2D->StaticMesh->SetMaterial(0, MIContant);
+
+            if (Photo2D->bIsRecursive)
+            {
+                auto Comps = Photo2D->StaticMesh->GetAttachChildren();
+                for (auto &Comp : Comps)
+                {
+                    if (auto VFDMComp = Cast<UVFDynamicMeshComponent>(Comp))
+                    {
+                        VFDMComp->SourceComponent = Photo2D->StaticMesh;
+                        // VFDMComp->UpdateMaterials();
+                        VFDMComp->SetMaterial(0, MIContant);
+                        break;
+                    }
+                }
+            }
+            Photo2D->MarkPackageDirty();
+        }
     }
 
     LevelInstance->ExitEdit();
     VF_LOG(Log, TEXT("SaveAPhotoInEditor successed."));
+}
+
+AVFPhoto2D *AVFPhotoCatcherPref::TakeAPhoto_Implementation()
+{
+    if (GEngine && !GEngine->IsEditor())
+    {
+        VF_LOG(Error, TEXT("%s should only call in editor and not runtime."));
+        return nullptr;
+    }
+
+    return Super::TakeAPhoto_Implementation();
 }
 
 #endif

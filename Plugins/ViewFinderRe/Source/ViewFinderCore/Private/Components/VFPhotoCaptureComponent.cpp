@@ -74,7 +74,16 @@ UTexture2D *UVFPhotoCaptureComponent::DrawATexture2D()
 		void *Data = Mip.BulkData.Lock(LOCK_READ_WRITE);
 		FMemory::Memcpy(Data, PixelData.GetData(), PixelData.Num() * sizeof(FColor));
 		Mip.BulkData.Unlock();
-		Texture->UpdateResource();
+#if WITH_EDITOR
+		Texture->Source.Init2DWithMipChain(
+			Texture->GetSizeX(),
+			Texture->GetSizeY(),
+			ETextureSourceFormat::TSF_BGRA8);
+
+		uint8 *MipData = Texture->Source.LockMip(0);
+		FMemory::Memcpy(MipData, PixelData.GetData(), PixelData.Num() * sizeof(FColor));
+		Texture->Source.UnlockMip(0);
+#endif
 	}
 	else if (Format == EPixelFormat::PF_FloatRGBA)
 	{
@@ -82,17 +91,29 @@ UTexture2D *UVFPhotoCaptureComponent::DrawATexture2D()
 		RTResource->ReadFloat16Pixels(PixelData);
 
 		Texture = UTexture2D::CreateTransient(Size.X, Size.Y, PF_FloatRGBA);
+#if WITH_EDITOR
+		Texture->Source.Init2DWithMipChain( // 必须的
+			Texture->GetSizeX(),
+			Texture->GetSizeY(),
+			ETextureSourceFormat::TSF_RGBA16F);
+
+		uint8 *MipData = Texture->Source.LockMip(0);
+		FMemory::Memcpy(MipData, PixelData.GetData(), PixelData.Num() * sizeof(FFloat16Color));
+		Texture->Source.UnlockMip(0);
+#else
 		FTexture2DMipMap &Mip = Texture->GetPlatformData()->Mips[0];
 		void *Data = Mip.BulkData.Lock(LOCK_READ_WRITE);
 		FMemory::Memcpy(Data, PixelData.GetData(), PixelData.Num() * sizeof(FFloat16Color));
 		Mip.BulkData.Unlock();
-		Texture->UpdateResource();
+#endif
 	}
 
 	if (!ensure(Texture))
 	{
 		VF_LOG(Error, TEXT("Unimplemented EPixelFormat."));
+		return nullptr;
 	}
 
+	Texture->UpdateResource();
 	return Texture;
 }

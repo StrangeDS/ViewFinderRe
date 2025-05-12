@@ -4,6 +4,8 @@
 #include "VFPhotoCatcher.h"
 #include "VFPhotoCatcherPref.generated.h"
 
+class UMaterialInstanceConstant;
+
 /*
 已尝试过的思路:
 1. 编辑器中预处理需要拍到的Actors, BeginPlay中延迟一帧走正常拍照流程.
@@ -42,14 +44,24 @@ public:
 
 	virtual TArray<UPrimitiveComponent *> GetOverlapComps_Implementation() override;
 
-	#if WITH_EDITOR
-		// 你可以用视锥收集后, 再手动删除不需要的Actor. 减少工作量.
-		UFUNCTION(CallInEditor, Category = "ViewFinder")
-		void RecollectShowOnlyActors();
+#if WITH_EDITOR
+	// 你可以用视锥收集后, 再手动删除不需要的Actor. 减少工作量.
+	UFUNCTION(CallInEditor, Category = "ViewFinder")
+	void RecollectShowOnlyActors();
 
-		UFUNCTION(CallInEditor, Category = "ViewFinder")
-		void SaveAPhotoInEditor();
-	#endif
+	UFUNCTION(CallInEditor, Category = "ViewFinder")
+	void SaveAPhotoInEditor();
+
+	virtual AVFPhoto2D *TakeAPhoto_Implementation() override;
+
+#if WITH_EDITORONLY_DATA
+	UPROPERTY(EditAnywhere, Category = "ViewFinder")
+	TObjectPtr<UMaterialInstanceConstant> MaterialInstanceSource;
+
+	UPROPERTY(EditAnywhere, Category = "ViewFinder")
+	int IterationTimes = 3;
+#endif
+#endif
 
 public:
 	/// @brief 若不为空, 则只会对里面Actors进行处理.

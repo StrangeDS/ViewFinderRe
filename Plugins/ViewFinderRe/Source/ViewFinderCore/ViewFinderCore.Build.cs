@@ -63,7 +63,12 @@ public class ViewFinderCore : ModuleRules
 
 		if (Target.bBuildEditor == true)
 		{
-			PrivateDependencyModuleNames.Add("UnrealEd");
+			PrivateDependencyModuleNames.AddRange(
+				new string[] {
+					"UnrealEd",
+					"AssetTools"
+				}
+			);
 		}
 	}
 }

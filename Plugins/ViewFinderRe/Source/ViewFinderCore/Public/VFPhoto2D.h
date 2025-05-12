@@ -33,6 +33,8 @@ public:
 
 	virtual void BeginPlay() override;
 
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
+
 	virtual void SetActorHiddenInGame(bool bNewHidden) override;
 
 public:
@@ -108,4 +110,9 @@ public: // 迭代相关
 
 public: // IVFHelperInterface
 	virtual UVFHelperComponent *GetHelper_Implementation() override;
+	
+#if WITH_EDITOR
+private:
+	friend class AVFPhotoCatcherPref;
+#endif
 };

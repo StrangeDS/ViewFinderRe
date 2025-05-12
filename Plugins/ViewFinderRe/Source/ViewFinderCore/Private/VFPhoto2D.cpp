@@ -38,6 +38,14 @@ void AVFPhoto2D::BeginPlay()
 	}
 }
 
+void AVFPhoto2D::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	MaterialInstance = nullptr;
+	Texture2D = nullptr;
+
+	Super::EndPlay(EndPlayReason);
+}
+
 void AVFPhoto2D::SetActorHiddenInGame(bool bNewHidden)
 {
 	Super::SetActorHiddenInGame(bNewHidden);
