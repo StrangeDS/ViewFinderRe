@@ -30,6 +30,8 @@ class UMaterialInstanceConstant;
 	1. OnCopyAfterCopiedForPhoto? 此时外部的Photo3D已经生成, 仅需要手动调用Photo3D->RecordProperty(), 性能较差.
 	2. OnCopyAfterPlacedByPhoto? 此时外部Photo3D已被放置, 收起再复制会影响回溯, 复制后再收起?
 	3. (使用中)新增OnCopyBeginPlacedByPhoto.
+
+未修复BUG: 同时删除(关卡实例 && (Texture2D | MIC))时, 编辑器会无响应.
 */
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))

@@ -251,6 +251,8 @@ void AVFPhotoCatcherPref::SaveAPhotoInEditor()
     // 修复Photo2D对Photo3D的引用关系
     LevelInstance->EnterEdit();
 
+    
+    FVector RelativeScale3D;
     TArray<AVFPhoto2D *> Photo2DsInSame;
     ULevel *Level = LevelInstance->GetLoadedLevel();
     {
@@ -276,6 +278,7 @@ void AVFPhotoCatcherPref::SaveAPhotoInEditor()
                     MIDynamic = Photo2D->MaterialInstance;
                     Photo2D->MaterialInstance = nullptr;
                     Photo2DsInSame.Add(Photo2D);
+                    RelativeScale3D = Photo2D->GetActorRelativeScale3D();
                 }
 
                 // 内层递归Photo2D
@@ -351,13 +354,13 @@ void AVFPhotoCatcherPref::SaveAPhotoInEditor()
 
             if (Photo2D->bIsRecursive)
             {
+                Photo2D->SetActorRelativeScale3D(RelativeScale3D);
                 auto Comps = Photo2D->StaticMesh->GetAttachChildren();
                 for (auto &Comp : Comps)
                 {
                     if (auto VFDMComp = Cast<UVFDynamicMeshComponent>(Comp))
                     {
                         VFDMComp->SourceComponent = Photo2D->StaticMesh;
-                        // VFDMComp->UpdateMaterials();
                         VFDMComp->SetMaterial(0, MIContant);
                         break;
                     }
