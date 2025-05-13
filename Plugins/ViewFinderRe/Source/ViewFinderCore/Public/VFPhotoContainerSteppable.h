@@ -8,7 +8,7 @@
 class UVFStepsRecorderWorldSubsystem;
 
 UENUM(BlueprintType)
-enum class AVFPhotoContainerSteppableOperation : uint8
+enum class EVFPhotoContainerSteppableOperation : uint8
 {
 	None = 0,
 	Add,
@@ -27,7 +27,7 @@ struct FVFPhotoContainerStepInfo
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
-	AVFPhotoContainerSteppableOperation Operation = AVFPhotoContainerSteppableOperation::None;
+	EVFPhotoContainerSteppableOperation Operation = EVFPhotoContainerSteppableOperation::None;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	TObjectPtr<class AVFPhoto2D> Photo;

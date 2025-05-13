@@ -10,7 +10,7 @@ void AVFPhotoContainerSteppable::BeginPlay()
     StepRecorder = GetWorld()->GetSubsystem<UVFStepsRecorderWorldSubsystem>();
     check(StepRecorder);
     StepRecorder->RegisterTickable(this);
-    
+
     Steps.Reserve(UVFStepsRecorderWorldSubsystem::SizeRecommended);
 }
 
@@ -21,7 +21,7 @@ void AVFPhotoContainerSteppable::AddAPhoto(AVFPhoto2D *Photo)
     if (!StepRecorder->bIsRewinding)
     {
         Steps.Add(FVFPhotoContainerStepInfo{
-            AVFPhotoContainerSteppableOperation::Add,
+            EVFPhotoContainerSteppableOperation::Add,
             Photo,
             StepRecorder->GetTime()});
     }
@@ -29,17 +29,16 @@ void AVFPhotoContainerSteppable::AddAPhoto(AVFPhoto2D *Photo)
 
 void AVFPhotoContainerSteppable::PlaceCurrentPhoto()
 {
-    if (!StepRecorder->bIsRewinding)
+    if (!StepRecorder->bIsRewinding && CurrentPhoto2D)
     {
-        StepRecorder->SubmitStep(
-            this,
-            FVFStepInfo{
-                TEXT("Place a Photo"),
-                true});
+        auto Photo2D = CurrentPhoto2D;
+        Super::PlaceCurrentPhoto();
+
         Steps.Add(FVFPhotoContainerStepInfo{
-            AVFPhotoContainerSteppableOperation::Place,
-            CurrentPhoto2D,
+            EVFPhotoContainerSteppableOperation::Place,
+            Photo2D,
             StepRecorder->GetTime()});
+        return;
     }
 
     Super::PlaceCurrentPhoto();
@@ -52,7 +51,7 @@ void AVFPhotoContainerSteppable::PrepareCurrentPhoto()
     if (!StepRecorder->bIsRewinding)
     {
         Steps.Add(FVFPhotoContainerStepInfo{
-            AVFPhotoContainerSteppableOperation::Prepare,
+            EVFPhotoContainerSteppableOperation::Prepare,
             CurrentPhoto2D,
             StepRecorder->GetTime()});
     }
@@ -65,7 +64,7 @@ void AVFPhotoContainerSteppable::GiveUpPreparing()
     if (!StepRecorder->bIsRewinding)
     {
         Steps.Add(FVFPhotoContainerStepInfo{
-            AVFPhotoContainerSteppableOperation::GiveUpPreparing,
+            EVFPhotoContainerSteppableOperation::GiveUpPreparing,
             CurrentPhoto2D,
             StepRecorder->GetTime()});
     }
@@ -78,8 +77,8 @@ void AVFPhotoContainerSteppable::ChangeCurrentPhoto(const bool Next)
     if (!StepRecorder->bIsRewinding)
     {
         Steps.Add(FVFPhotoContainerStepInfo{
-            Next ? AVFPhotoContainerSteppableOperation::ChangeNext
-                 : AVFPhotoContainerSteppableOperation::ChangeLast,
+            Next ? EVFPhotoContainerSteppableOperation::ChangeNext
+                 : EVFPhotoContainerSteppableOperation::ChangeLast,
             CurrentPhoto2D,
             StepRecorder->GetTime()});
     }
@@ -92,8 +91,8 @@ void AVFPhotoContainerSteppable::SetEnabled(const bool &Enabled)
     if (!StepRecorder->bIsRewinding)
     {
         Steps.Add(FVFPhotoContainerStepInfo{
-            Enabled ? AVFPhotoContainerSteppableOperation::Enabled
-                    : AVFPhotoContainerSteppableOperation::Disabled,
+            Enabled ? EVFPhotoContainerSteppableOperation::Enabled
+                    : EVFPhotoContainerSteppableOperation::Disabled,
             CurrentPhoto2D,
             StepRecorder->GetTime()});
     }
@@ -101,35 +100,35 @@ void AVFPhotoContainerSteppable::SetEnabled(const bool &Enabled)
 
 bool AVFPhotoContainerSteppable::StepBack_Implementation(FVFStepInfo &StepInfo)
 {
-    auto Step = StringToEnum<AVFPhotoContainerSteppableOperation>(StepInfo.Info);
+    auto Step = StringToEnum<EVFPhotoContainerSteppableOperation>(StepInfo.Info);
     switch (Step)
     {
-    case AVFPhotoContainerSteppableOperation::Prepare:
+    case EVFPhotoContainerSteppableOperation::Prepare:
     {
         GiveUpPreparing();
         break;
     }
-    case AVFPhotoContainerSteppableOperation::GiveUpPreparing:
+    case EVFPhotoContainerSteppableOperation::GiveUpPreparing:
     {
         PrepareCurrentPhoto();
         break;
     }
-    case AVFPhotoContainerSteppableOperation::ChangeNext:
+    case EVFPhotoContainerSteppableOperation::ChangeNext:
     {
         ChangeCurrentPhoto(false);
         break;
     }
-    case AVFPhotoContainerSteppableOperation::ChangeLast:
+    case EVFPhotoContainerSteppableOperation::ChangeLast:
     {
         ChangeCurrentPhoto(true);
         break;
     }
-    case AVFPhotoContainerSteppableOperation::Enabled:
+    case EVFPhotoContainerSteppableOperation::Enabled:
     {
         SetEnabled(false);
         break;
     }
-    case AVFPhotoContainerSteppableOperation::Disabled:
+    case EVFPhotoContainerSteppableOperation::Disabled:
     {
         SetEnabled(true);
         break;
@@ -151,7 +150,7 @@ void AVFPhotoContainerSteppable::TickBackward_Implementation(float Time)
 
         switch (StepInfo.Operation)
         {
-        case AVFPhotoContainerSteppableOperation::Add:
+        case EVFPhotoContainerSteppableOperation::Add:
         {
             auto &Photo = StepInfo.Photo;
             if (ensure(Photo2Ds.Last() == StepInfo.Photo))
@@ -166,7 +165,7 @@ void AVFPhotoContainerSteppable::TickBackward_Implementation(float Time)
             }
             break;
         }
-        case AVFPhotoContainerSteppableOperation::Place:
+        case EVFPhotoContainerSteppableOperation::Place:
         {
             auto &Photo = StepInfo.Photo;
             AddAPhoto(Photo);
@@ -174,32 +173,32 @@ void AVFPhotoContainerSteppable::TickBackward_Implementation(float Time)
             GiveUpPreparing();
             break;
         }
-        case AVFPhotoContainerSteppableOperation::Prepare:
+        case EVFPhotoContainerSteppableOperation::Prepare:
         {
             GiveUpPreparing();
             break;
         }
-        case AVFPhotoContainerSteppableOperation::GiveUpPreparing:
+        case EVFPhotoContainerSteppableOperation::GiveUpPreparing:
         {
             PrepareCurrentPhoto();
             break;
         }
-        case AVFPhotoContainerSteppableOperation::ChangeNext:
+        case EVFPhotoContainerSteppableOperation::ChangeNext:
         {
             ChangeCurrentPhoto(false);
             break;
         }
-        case AVFPhotoContainerSteppableOperation::ChangeLast:
+        case EVFPhotoContainerSteppableOperation::ChangeLast:
         {
             ChangeCurrentPhoto(true);
             break;
         }
-        case AVFPhotoContainerSteppableOperation::Enabled:
+        case EVFPhotoContainerSteppableOperation::Enabled:
         {
             SetEnabled(false);
             break;
         }
-        case AVFPhotoContainerSteppableOperation::Disabled:
+        case EVFPhotoContainerSteppableOperation::Disabled:
         {
             SetEnabled(true);
             break;
