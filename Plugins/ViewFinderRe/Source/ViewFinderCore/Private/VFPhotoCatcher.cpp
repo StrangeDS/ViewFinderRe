@@ -207,7 +207,7 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 		auto ActorsCopied = UVFFunctions::CopyActorsFromVFDMComps(GetWorld(), VFDMComps, CopiedComps);
 		for (auto &Actor : ActorsCopied)
 		{
-			if (!Actor->GetAttachParentActor())
+			if (!ActorsCopied.Contains(Actor->GetAttachParentActor()))
 				Actor->AttachToActor(Photo3D, FAttachmentTransformRules::KeepWorldTransform);
 		}
 	}
