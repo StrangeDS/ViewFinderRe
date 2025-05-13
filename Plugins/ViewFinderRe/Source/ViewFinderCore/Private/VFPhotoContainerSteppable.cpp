@@ -155,22 +155,20 @@ void AVFPhotoContainerSteppable::TickBackward_Implementation(float Time)
             auto &Photo = StepInfo.Photo;
             if (ensure(Photo2Ds.Last() == StepInfo.Photo))
             {
-                // 或许该考虑在AVFPhotoContainer中写一个Drop
-                Photo->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	            Photo->SetActorEnableCollision(true);
-                CurrentPhoto2D = nullptr;   // 避免后续再隐藏
-                Photo2Ds.PopLast();
-                UpdateCurrentPhoto();
                 Photo->SetActorHiddenInGame(false);
+                Photo2Ds.PopLast();
+                Photo->SetActorEnableCollision(true);
+                UpdateCurrentPhoto();
             }
             break;
         }
         case EVFPhotoContainerSteppableOperation::Place:
         {
+            if (CurrentPhoto2D)
+                CurrentPhoto2D->SetActorHiddenInGame(true);
             auto &Photo = StepInfo.Photo;
             AddAPhoto(Photo);
             SetEnabled(true);
-            GiveUpPreparing();
             break;
         }
         case EVFPhotoContainerSteppableOperation::Prepare:

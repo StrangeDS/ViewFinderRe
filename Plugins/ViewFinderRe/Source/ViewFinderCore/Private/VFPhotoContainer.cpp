@@ -30,6 +30,9 @@ void AVFPhotoContainer::AddAPhoto(AVFPhoto2D *Photo)
 {
 	check(Photo);
 
+	if (CurrentPhoto2D)
+		CurrentPhoto2D->SetActorHiddenInGame(true);
+
 	Photo->SetActorEnableCollision(false);
 	Photo2Ds.EmplaceLast(Photo);
 
@@ -78,8 +81,8 @@ void AVFPhotoContainer::PlaceCurrentPhoto()
 
 	CurrentPhoto2D->ReattachToComponent(nullptr);
 	CurrentPhoto2D->PlaceDown();
-	Photo2Ds.PopLast();
 	GiveUpPreparing();
+	Photo2Ds.PopLast();
 	UpdateCurrentPhoto();
 }
 
@@ -90,6 +93,9 @@ void AVFPhotoContainer::ChangeCurrentPhoto(const bool Next)
 
 	if (bFocusOn)
 		return;
+
+	if (CurrentPhoto2D)
+		CurrentPhoto2D->SetActorHiddenInGame(true);
 
 	if (Next)
 	{
@@ -109,9 +115,6 @@ void AVFPhotoContainer::ChangeCurrentPhoto(const bool Next)
 void AVFPhotoContainer::UpdateCurrentPhoto()
 {
 	GetWorldTimerManager().ClearTimer(PrepareTimeHandle);
-
-	if (CurrentPhoto2D)
-		CurrentPhoto2D->SetActorHiddenInGame(true);
 
 	CurrentPhoto2D = Photo2Ds.IsEmpty() ? nullptr : Photo2Ds.Last();
 	if (CurrentPhoto2D)
