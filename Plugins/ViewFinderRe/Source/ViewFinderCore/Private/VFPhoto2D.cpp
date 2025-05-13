@@ -34,7 +34,7 @@ void AVFPhoto2D::BeginPlay()
 	Helper->OnOriginalEndTakingPhoto.AddUniqueDynamic(this, &AVFPhoto2D::CopyPhoto3D);
 	if (bIsRecursive)
 	{
-		Helper->OnCopyBeforeBeingEnabled.AddUniqueDynamic(this, &AVFPhoto2D::CopyOuterPhoto3D);
+		Helper->OnCopyBeforeBeingEnabled.AddUniqueDynamic(this, &AVFPhoto2D::CopyRecursivePhoto3D);
 	}
 }
 
@@ -44,14 +44,6 @@ void AVFPhoto2D::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Texture2D = nullptr;
 
 	Super::EndPlay(EndPlayReason);
-}
-
-void AVFPhoto2D::SetActorHiddenInGame(bool bNewHidden)
-{
-	Super::SetActorHiddenInGame(bNewHidden);
-
-	if (bNewHidden) // SetActorEnableCollision(true)需要手动开启. 拿在手上不开启碰撞
-		SetActorEnableCollision(false);
 }
 
 void AVFPhoto2D::SetPhoto3D(AVFPhoto3D *Photo)
@@ -132,7 +124,7 @@ void AVFPhoto2D::PlaceDown()
 		return;
 	State = EVFPhoto2DState::Placed;
 
-	Photo3D->SetActorTransform(GetActorTransform());
+	Photo3D->SetActorTransform(FTransform(GetActorRotation(), GetActorLocation()));
 	Photo3D->PlaceDown();
 	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);
@@ -177,7 +169,7 @@ bool AVFPhoto2D::ReattachToComponent(USceneComponent *Target)
 	return true;
 }
 
-void AVFPhoto2D::CopyOuterPhoto3D(UObject *Sender)
+void AVFPhoto2D::CopyRecursivePhoto3D(UObject *Sender)
 {
 	auto Photo3DOuter = Cast<AVFPhoto3D>(Sender);
 	if (!Photo3DOuter)

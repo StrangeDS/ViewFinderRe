@@ -35,8 +35,6 @@ public:
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
 
-	virtual void SetActorHiddenInGame(bool bNewHidden) override;
-
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void SetPhoto3D(AVFPhoto3D *Photo);
@@ -103,7 +101,7 @@ public:
 
 public: // 迭代相关
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void CopyOuterPhoto3D(UObject *Sender);
+	void CopyRecursivePhoto3D(UObject *Sender);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	bool bIsRecursive = false;
