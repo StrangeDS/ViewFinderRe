@@ -37,12 +37,7 @@ void AVFPhotoDecal::OnConstruction(const FTransform &Transform)
     Decal->SetRelativeScale3D(FVector(Scale.X, Scale.Y, Scale.Y / AspectRatio));
 }
 
-// void AVFPhotoDecal::BeginPlay()
-// {
-//     Super::BeginPlay();
-// }
-
-void AVFPhotoDecal::DrawDecal()
+void AVFPhotoDecal::DrawDecal(bool ForceToUpdate)
 {
     if (bOnlyCatchManagedActors)
     {
@@ -64,7 +59,8 @@ void AVFPhotoDecal::DrawDecal()
         MaterialInstance->SetScalarParameterValue(TEXT("AspectRatio"), PhotoCapture->GetTargetAspectRatio());
 
         PhotoCapture->CaptureScene();
-        Texture2D = PhotoCapture->DrawATexture2D();
+        if (!Texture2D || ForceToUpdate)
+            Texture2D = PhotoCapture->DrawATexture2D();
         MaterialInstance->SetTextureParameterValue(TEXT("Texture"), Texture2D);
     }
     else

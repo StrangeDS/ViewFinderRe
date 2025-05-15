@@ -23,11 +23,9 @@ public:
 
 	virtual void OnConstruction(const FTransform &Transform) override;
 
-	// virtual void BeginPlay() override;
-
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void DrawDecal();
+	void DrawDecal(bool ForceToUpdate = false);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, CallInEditor, Category = "ViewFinder")
 	void ReplaceWithDecal();
