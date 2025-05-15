@@ -7,13 +7,12 @@
 
 AVFPhotoCatcherPref::AVFPhotoCatcherPref() : Super()
 {
-#if WITH_EDITORONLY_DATA
-    static ConstructorHelpers::FObjectFinder<UMaterialInstanceConstant> MaterialInstanceSelector(
-        TEXT("/ViewFinderRe/Materials/Photo/MI_PhotoWithBorder.MI_PhotoWithBorder"));
-    MaterialInstanceSource = MaterialInstanceSelector.Object;
+#if WITH_EDITOR
+    bIsEditorOnlyActor = true;
 #endif
 }
 
+#if WITH_EDITOR
 void AVFPhotoCatcherPref::OnConstruction(const FTransform &Transform)
 {
     Super::OnConstruction(Transform);
@@ -31,6 +30,12 @@ void AVFPhotoCatcherPref::OnConstruction(const FTransform &Transform)
 
 TArray<UPrimitiveComponent *> AVFPhotoCatcherPref::GetOverlapComps_Implementation()
 {
+    if (GetWorld() && GetWorld()->WorldType != EWorldType::Editor)
+    {
+        VF_LOG(Error, TEXT("%s must be called in editor."), __FUNCTIONW__);
+        return {};
+    }
+
     auto Comps = Super::GetOverlapComps_Implementation();
     if (OnlyActorsCatched.Num() > 0)
     {
@@ -44,8 +49,6 @@ TArray<UPrimitiveComponent *> AVFPhotoCatcherPref::GetOverlapComps_Implementatio
 
     return Comps;
 }
-
-#if WITH_EDITOR
 
 void AVFPhotoCatcherPref::RecollectShowOnlyActors()
 {
@@ -68,23 +71,11 @@ void AVFPhotoCatcherPref::RecollectShowOnlyActors()
 #include "VFPhoto3D.h"
 #include "VFDynamicMeshComponent.h"
 
-UMaterialInstanceConstant *SaveDynamicAsConstant(FAssetToolsModule &AssetTools,
-                                                 UMaterialInstanceDynamic *MIDynamic,
-                                                 const FString &AssetPath,
-                                                 const FString &AssetName)
+UMaterialInstanceConstant *CreateMICFromMID(UMaterialInstanceDynamic *MIDynamic)
 {
-    if (!MIDynamic)
-    {
-        VF_LOG(Error, TEXT("%s invalid MIDynamic."), __FUNCTIONW__);
-        return nullptr;
-    }
-
-    auto ParentMaterial = MIDynamic->Parent;
-    if (!IsValid(ParentMaterial))
-    {
-        VF_LOG(Error, TEXT("%s invalid ParentMaterial"), __FUNCTIONW__);
-        return nullptr;
-    }
+    check(MIDynamic);
+    TObjectPtr<UMaterialInterface> ParentMaterial = MIDynamic->Parent;
+    check(ParentMaterial);
 
     UMaterialInstanceConstant *MIConstant = NewObject<UMaterialInstanceConstant>(
         GetTransientPackage(),
@@ -122,23 +113,43 @@ UMaterialInstanceConstant *SaveDynamicAsConstant(FAssetToolsModule &AssetTools,
         }
     }
 
-    UMaterialInstanceConstant *SavedMIC = Cast<UMaterialInstanceConstant>(
-        AssetTools.Get().DuplicateAsset(AssetName, AssetPath, MIConstant));
-
-    return SavedMIC;
+    return MIConstant;
 }
 
-void AVFPhotoCatcherPref::SaveAPhotoInEditor()
-{
-    TArray<AActor *> ActorsToMove;
-    TArray<UPrimitiveComponent *> CompsOverlapped = Super::GetOverlapComps();
-    UMaterialInstanceDynamic *MIDynamic = nullptr;
-    UMaterialInstanceConstant *MIContant = nullptr;
-    UTexture2D *Texture2D = nullptr;
+#include "Engine/TextureRenderTarget2D.h"
 
-    auto RestoreSourceComponents = [this, &CompsOverlapped]()
+void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
+{
+    if (IterationTimes < 0 || IterationTimes > 10)
     {
-        // 移除用于替换的VFDMComps
+        VF_LOG(Error, TEXT("%s invalid IterationTimes(%i)."),
+               __FUNCTIONW__, IterationTimes);
+        return;
+    }
+
+    ULevelInstanceSubsystem *LevelInstanceSubsystem =
+        GetWorld()->GetSubsystem<ULevelInstanceSubsystem>();
+    if (!LevelInstanceSubsystem)
+    {
+        VF_LOG(Error, TEXT("%s invalid LevelInstanceSubsystem."), __FUNCTIONW__);
+        return;
+    }
+
+    // 临时数据
+    TArray<UPrimitiveComponent *> CompsOverlapped = GetOverlapComps();
+    TArray<AActor *> ActorsToMove;
+    UTexture2D *Texture2D = nullptr;
+    UMaterialInstanceConstant *MIConstant = nullptr;
+    bool bUseTempRenderTarget = PhotoCapture->TextureTarget == nullptr;
+
+    // 清理临时数据
+    auto ClearTemporary = [this,
+                           &CompsOverlapped,
+                           Texture2D,
+                           MIConstant,
+                           &bUseTempRenderTarget]()
+    {
+        // 移除原场景用于替换的VFDMComps
         TArray<UVFDynamicMeshComponent *> VFDMComps;
         for (auto &Comp : CompsOverlapped)
         {
@@ -154,68 +165,132 @@ void AVFPhotoCatcherPref::SaveAPhotoInEditor()
                 }
             }
         }
+        CompsOverlapped.Reset();
+
+        if (Texture2D)
+        {
+            Texture2D->ClearFlags(RF_Public | RF_Standalone);
+            Texture2D->MarkAsGarbage();
+        }
+
+        if (MIConstant)
+        {
+            MIConstant->ClearFlags(RF_Public | RF_Standalone);
+            MIConstant->MarkAsGarbage();
+        }
+
+        if (bUseTempRenderTarget)
+            PhotoCapture->TextureTarget = nullptr;
     };
 
+    // 失败资源回收
     auto AfterFailure = [this,
                          &ActorsToMove,
-                         &RestoreSourceComponents](const FString &Reason)
+                         &ClearTemporary](const FString &Reason)
     {
         // 移除复制出来的Actor
         for (auto Actor : ActorsToMove)
+        {
             GetWorld()->EditorDestroyActor(Actor, false);
+        }
+        ActorsToMove.Reset();
         GEditor->RedrawLevelEditingViewports();
-        VF_LOG(Error, TEXT("%s EditorDestroyActor: %i."), __FUNCTIONW__, ActorsToMove.Num());
 
-        RestoreSourceComponents();
         VF_LOG(Error, TEXT("%s Fails: %s."), __FUNCTIONW__, *Reason);
+
+        ClearTemporary();
     };
 
-    if (!MaterialInstanceSource)
-    {
-        AfterFailure(TEXT("invalid MaterialInstanceSource"));
-        return;
-    }
-
-    if (IterationTimes < 0 || IterationTimes > 10)
-    {
-        AfterFailure(TEXT("invalid IterationTimes"));
-        return;
-    }
-
-    ULevelInstanceSubsystem *LevelInstanceSubsystem = GetWorld()->GetSubsystem<ULevelInstanceSubsystem>();
-    if (!LevelInstanceSubsystem)
-    {
-        AfterFailure(TEXT("invalid LevelInstanceSubsystem"));
-        return;
-    }
-
-    bool bUseTempRenderTarget = PhotoCapture->TextureTarget == nullptr;
+    // 支持编辑器中指定渲染目标
     if (bUseTempRenderTarget)
         PhotoCapture->Init();
 
+    // 拍照生成
     auto Photo2DRoot = TakeAPhoto();
     auto Photo3DRoot = Photo2DRoot->GetPhoto3D();
 
+    // 纹理和常量材质实例生成
     {
+        PhotoCapture->CaptureScene();
         Texture2D = PhotoCapture->DrawATexture2D();
         if (!Texture2D)
         {
             AfterFailure(TEXT("invalid Texture2D"));
             return;
         }
-		Texture2D->ClearFlags(RF_Transient);
-		Texture2D->SetFlags(RF_Public | RF_Standalone);
+        Texture2D->ClearFlags(RF_Transient);
+        Texture2D->SetFlags(RF_Public | RF_Standalone);
     }
-    
+    {
+        MIConstant = CreateMICFromMID(Photo2DRoot->MaterialInstance);
+        if (!MIConstant)
+        {
+            AfterFailure(TEXT("invalid MIConstant"));
+            return;
+        }
+        MIConstant->ClearFlags(RF_Transient);
+        MIConstant->SetFlags(RF_Public | RF_Standalone);
+        MIConstant->SetTextureParameterValueEditorOnly(TextureName, Texture2D);
+    }
+
+    // Photo2D的收集和处理
+    {
+        TArray<AActor *> Actors;
+        TArray<AVFPhoto2D *> Photo2DsInSame;
+        Photo3DRoot->GetAttachedActors(Actors, true, true);
+        for (auto &Actor : Actors)
+        {
+            if (auto Photo2D = Cast<AVFPhoto2D>(Actor))
+            {
+                if (Photo2D->bIsRecursive)
+                    Photo2DsInSame.Add(Photo2D);
+            }
+        }
+
+        FVector RelativeScale3D = Photo2DRoot->GetActorRelativeScale3D();
+        for (auto &Photo2D : Photo2DsInSame)
+        {
+            Photo2D->StaticMesh->SetMaterial(MaterialIndex, MIConstant);
+
+            if (Photo2D->bIsRecursive)
+            {
+                Photo2D->SetActorRelativeScale3D(RelativeScale3D);
+                auto Comps = Photo2D->StaticMesh->GetAttachChildren();
+                for (auto &Comp : Comps)
+                {
+                    if (auto VFDMComp = Cast<UVFDynamicMeshComponent>(Comp))
+                    {
+                        VFDMComp->SourceComponent = Photo2D->StaticMesh;
+                        VFDMComp->SetMaterial(MaterialIndex, MIConstant);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // // 迭代照相
+        // for (int i = 0; i < IterationTimes; ++i)
+        // {
+        //     PhotoCapture->CaptureScene();
+        //     PhotoCapture->TextureTarget->UpdateTexture2D(Texture2D, Texture2D->Source.GetFormat());
+        //     Texture2D->MarkPackageDirty();
+        // }
+
+        // 迭代照相
+        // for (int i = 0; i < IterationTimes; ++i)
+        // {
+        //     PhotoCapture->CaptureScene();
+        //     Texture2D = PhotoCapture->DrawATexture2D();
+        //     MIConstant->SetTextureParameterValueEditorOnly(TextureName, Texture2D);
+        // }
+        // Texture2D->ClearFlags(RF_Transient);
+        // Texture2D->SetFlags(RF_Public | RF_Standalone);
+    }
+
+    // 迁移前准备
     ActorsToMove.AddUnique(Photo2DRoot);
     ActorsToMove.AddUnique(Photo3DRoot);
     Photo3DRoot->GetAttachedActors(ActorsToMove, false, true);
-
-    RestoreSourceComponents();
-    if (bUseTempRenderTarget)
-    {
-        PhotoCapture->TextureTarget = nullptr;
-    }
 
     // 在移动到新的关卡实例后, Photo2D对Photo3D的引用关系会消失, 需要修复.
     // 使用Tags来修复引用关系, 配对的Photo2D和Photo3D给一组guid.
@@ -236,6 +311,7 @@ void AVFPhotoCatcherPref::SaveAPhotoInEditor()
         }
     }
 
+    // 迁移到关卡实例
     FNewLevelInstanceParams Params;
     Params.Type = ELevelInstanceCreationType::LevelInstance;
     Params.PivotType = ELevelInstancePivotType::Actor;
@@ -248,14 +324,17 @@ void AVFPhotoCatcherPref::SaveAPhotoInEditor()
         return;
     }
 
-    // 修复Photo2D对Photo3D的引用关系
+    ActorsToMove.Reset();
+    // 编辑关卡实例
     LevelInstance->EnterEdit();
 
-    
-    FVector RelativeScale3D;
+    // 需要的数据
+    AVFPhoto2D *Photo2DRootInLevel = nullptr;
     TArray<AVFPhoto2D *> Photo2DsInSame;
+
     ULevel *Level = LevelInstance->GetLoadedLevel();
     {
+        // 修复Photo2D对Photo3D的引用关系
         TMap<FName, AVFPhoto2D *> Photo2DMap;
         TMap<FName, AVFPhoto3D *> Photo3DMap;
         for (auto &Actor : Level->Actors)
@@ -273,12 +352,9 @@ void AVFPhotoCatcherPref::SaveAPhotoInEditor()
                 }
 
                 // 最外层Photo2D
-                if (Photo2D->MaterialInstance)
+                if (Photo2D->MaterialInstance && !Photo2D->bIsRecursive)
                 {
-                    MIDynamic = Photo2D->MaterialInstance;
-                    Photo2D->MaterialInstance = nullptr;
-                    Photo2DsInSame.Add(Photo2D);
-                    RelativeScale3D = Photo2D->GetActorRelativeScale3D();
+                    Photo2DRootInLevel = Photo2D;
                 }
 
                 // 内层递归Photo2D
@@ -310,32 +386,28 @@ void AVFPhotoCatcherPref::SaveAPhotoInEditor()
         }
     }
 
+    if (!Photo2DRootInLevel)
     {
-        const TSoftObjectPtr<UWorld> &Asset = LevelInstance->GetWorldAsset();
+        AfterFailure(TEXT("fails to find Photo2DRootInLevel."));
+        return;
+    }
+
+    UTexture2D *TextureAsset = nullptr;
+    UMaterialInstanceConstant *MIContantAsset = nullptr;
+
+    {
+        const TSoftObjectPtr<UWorld> &LevelAsset = LevelInstance->GetWorldAsset();
         FAssetToolsModule &AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
 
-        FString NewAssetPath = FPaths::GetPath(Asset.ToString());
-        FString Timestamp = FDateTime::Now().ToString(TEXT("%Y%m%d_%H%M%S"));
+        FString AssetPath = FPaths::GetPath(LevelAsset.ToString());
+        FString TimeStamp = FDateTime::Now().ToString(TEXT("%Y%m%d_%H%M%S"));
         FString BaseName = FPaths::GetBaseFilename(LevelInstance->GetWorldAssetPackage());
-        FString NewAssetPrefix = FString::Printf(TEXT("%s_%s"), *BaseName, *Timestamp);
-        if (!MIDynamic)
-        {
-            AfterFailure(TEXT("invalid  MIDynamic."));
-            return;
-        }
+        FString AssetPrefix = FString::Printf(TEXT("%s_%s"), *BaseName, *TimeStamp);
 
-        FString NewAssetName = FString::Printf(TEXT("%s_MIC"), *NewAssetPrefix);
-        MIContant = SaveDynamicAsConstant(AssetTools, MIDynamic, NewAssetPath, NewAssetName);
-        if (!MIContant)
-        {
-            AfterFailure(TEXT("SaveDynamicAsConstant fails."));
-            return;
-        }
-
-        NewAssetName = FString::Printf(TEXT("%s_Texture2D"), *NewAssetPrefix);
-        UTexture2D *TextureAsset = Cast<UTexture2D>(AssetTools.Get().DuplicateAsset(
-            NewAssetName,
-            NewAssetPath,
+        FString AssetName = FString::Printf(TEXT("%s_Texture2D"), *AssetPrefix);
+        TextureAsset = Cast<UTexture2D>(AssetTools.Get().DuplicateAsset(
+            AssetName,
+            AssetPath,
             Texture2D));
         if (!TextureAsset)
         {
@@ -343,35 +415,103 @@ void AVFPhotoCatcherPref::SaveAPhotoInEditor()
             return;
         }
 
-        MIContant->SetTextureParameterValueEditorOnly(TEXT("Texture"), TextureAsset);
+        AssetName = FString::Printf(TEXT("%s_MIC"), *AssetPrefix);
+        MIContantAsset = Cast<UMaterialInstanceConstant>(AssetTools.Get().DuplicateAsset(
+            AssetName,
+            AssetPath,
+            MIConstant));
+        if (!MIContantAsset)
+        {
+            AfterFailure(TEXT("save MIContantAsset fails."));
+            return;
+        }
+
+        MIContantAsset->SetTextureParameterValueEditorOnly(TextureName, TextureAsset);
     }
 
-    // 设置常量材质实例
+    // 替换成常量材质资产
     {
+        Photo2DsInSame.Add(Photo2DRootInLevel);
+        FVector RelativeScale3D = Photo2DRootInLevel->GetActorRelativeScale3D();
         for (auto &Photo2D : Photo2DsInSame)
         {
-            Photo2D->StaticMesh->SetMaterial(0, MIContant);
-
             if (Photo2D->bIsRecursive)
             {
                 Photo2D->SetActorRelativeScale3D(RelativeScale3D);
-                auto Comps = Photo2D->StaticMesh->GetAttachChildren();
-                for (auto &Comp : Comps)
+                for (auto &Comp : Photo2D->StaticMesh->GetAttachChildren())
                 {
                     if (auto VFDMComp = Cast<UVFDynamicMeshComponent>(Comp))
                     {
                         VFDMComp->SourceComponent = Photo2D->StaticMesh;
-                        VFDMComp->SetMaterial(0, MIContant);
+                        VFDMComp->SetMaterial(MaterialIndex, MIContantAsset);
                         break;
                     }
                 }
             }
+            Photo2D->StaticMesh->SetMaterial(MaterialIndex, MIContantAsset);
+            Photo2D->MaterialInstance = nullptr;
             Photo2D->MarkPackageDirty();
         }
     }
 
     LevelInstance->ExitEdit();
+
+    // 原场景迭代拍照
+    {
+        TArray<AVFPhoto2D *> Photo2DsOrigial;
+        for (auto &Comp : CompsOverlapped)
+        {
+            auto Actor = Comp->GetOwner();
+            if (auto Photo2D = Cast<AVFPhoto2D>(Actor))
+            {
+                if (Photo2D->bIsRecursive)
+                {
+                    Photo2DsOrigial.AddUnique(Photo2D);
+                }
+            }
+        }
+        for (auto &Photo2D : Photo2DsOrigial)
+        {
+            Photo2D->StaticMesh->SetMaterial(MaterialIndex, MIContantAsset);
+        }
+        PhotoCapture->CaptureScene();
+        PhotoCapture->TextureTarget->UpdateTexture2D(TextureAsset, TextureAsset->Source.GetFormat());
+    }
+
+    ClearTemporary();
     VF_LOG(Log, TEXT("SaveAPhotoInEditor successed."));
+}
+
+void AVFPhotoCatcherPref::UpdateMIC()
+{
+    if (!Texture2DAsset)
+    {
+        VF_LOG(Error,
+               TEXT("%s invalid Texture2DAsset. Select or Prefabricate first."),
+               __FUNCTIONW__);
+        return;
+    }
+
+    if (!MIConstantAsset)
+    {
+        VF_LOG(Error,
+               TEXT("%s invalid MaterialInstanceConstant. Select or Prefabricate first."),
+               __FUNCTIONW__);
+        return;
+    }
+
+    bool bUseTempRenderTarget = PhotoCapture->TextureTarget == nullptr;
+    if (bUseTempRenderTarget)
+        PhotoCapture->Init();
+
+    for (int i = 0; i < IterationTimes; ++i)
+    {
+        PhotoCapture->CaptureScene();
+        PhotoCapture->TextureTarget->UpdateTexture2D(Texture2DAsset, Texture2DAsset->Source.GetFormat());
+    }
+
+    if (bUseTempRenderTarget)
+        PhotoCapture->TextureTarget = nullptr;
 }
 
 AVFPhoto2D *AVFPhotoCatcherPref::TakeAPhoto_Implementation()
@@ -384,5 +524,4 @@ AVFPhoto2D *AVFPhotoCatcherPref::TakeAPhoto_Implementation()
 
     return Super::TakeAPhoto_Implementation();
 }
-
 #endif

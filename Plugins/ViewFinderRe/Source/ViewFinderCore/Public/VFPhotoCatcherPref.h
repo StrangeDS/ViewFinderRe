@@ -42,34 +42,42 @@ class VIEWFINDERCORE_API AVFPhotoCatcherPref : public AVFPhotoCatcher
 public:
 	AVFPhotoCatcherPref();
 
+#if WITH_EDITOR
 	virtual void OnConstruction(const FTransform &Transform) override;
 
 	virtual TArray<UPrimitiveComponent *> GetOverlapComps_Implementation() override;
 
-#if WITH_EDITOR
 	// 你可以用视锥收集后, 再手动删除不需要的Actor. 减少工作量.
 	UFUNCTION(CallInEditor, Category = "ViewFinder")
 	void RecollectShowOnlyActors();
 
 	UFUNCTION(CallInEditor, Category = "ViewFinder")
-	void SaveAPhotoInEditor();
+	void PrefabricateAPhotoLevel();
+
+	UFUNCTION(CallInEditor, Category = "ViewFinder")
+	void UpdateMIC();
 
 	virtual AVFPhoto2D *TakeAPhoto_Implementation() override;
 
 #if WITH_EDITORONLY_DATA
 	UPROPERTY(EditAnywhere, Category = "ViewFinder")
-	TObjectPtr<UMaterialInstanceConstant> MaterialInstanceSource;
+	int IterationTimes = 3;
 
 	UPROPERTY(EditAnywhere, Category = "ViewFinder")
-	int IterationTimes = 3;
-#endif
-#endif
+	FName TextureName = TEXT("Texture");
 
-public:
+	UPROPERTY(EditAnywhere, Category = "ViewFinder")
+	int MaterialIndex = 0;
+
 	/// @brief 若不为空, 则只会对里面Actors进行处理.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	TArray<TObjectPtr<AActor>> OnlyActorsCatched;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder", meta = (MakeEditWidget))
-	FTransform PhotoSpawnPoint = FTransform::Identity;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	TObjectPtr<UMaterialInstanceConstant> MIConstantAsset;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	TObjectPtr<UTexture2D> Texture2DAsset;
+#endif
+#endif
 };
