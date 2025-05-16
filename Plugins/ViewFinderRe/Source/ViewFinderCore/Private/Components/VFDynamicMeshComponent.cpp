@@ -183,7 +183,7 @@ void UVFDynamicMeshComponent::ReplaceMeshForComponentInEditor()
     auto Source = Cast<UPrimitiveComponent>(GetAttachParent());
     if (!Source)
         VF_LOG(Error, TEXT("%s GetAttachParent() is not a UPrimitiveComponent."), __FUNCTIONW__);
-    
+
     Modify();
     ReplaceMeshForComponent(Source);
     SourceComponent = nullptr;
@@ -197,7 +197,7 @@ void UVFDynamicMeshComponent::RestoreSourceComponentInEditor()
     auto Source = Cast<UPrimitiveComponent>(GetAttachParent());
     if (!Source)
         VF_LOG(Error, TEXT("%s GetAttachParent() is not a UPrimitiveComponent."), __FUNCTIONW__);
-    
+
     Modify();
     SourceComponent = Source;
     RestoreSourceComponent();

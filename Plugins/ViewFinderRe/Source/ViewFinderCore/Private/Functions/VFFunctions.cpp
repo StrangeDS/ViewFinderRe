@@ -206,7 +206,6 @@ TArray<AActor *> UVFFunctions::CopyActorsFromVFDMComps(
 			AActor *Copy = CloneActorRuntime(Original, CopiedComps);
 			ActorsMap.Add(Original, Copy);
 		}
-		AActor *Copied = ActorsMap[Original];
 	}
 
 	TArray<AActor *> Result;

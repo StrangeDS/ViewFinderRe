@@ -16,14 +16,17 @@ void AVFPhoto2DSteppable::BeginPlay()
 
 void AVFPhoto2DSteppable::FoldUp()
 {
+    bool FirstFold = State == EVFPhoto2DState::None;
+
     Super::FoldUp();
 
     if (StepRecorder && !StepRecorder->bIsRewinding)
     {
-        StepRecorder->SubmitStep(
-            this,
-            FVFStepInfo{EnumToString<EVFPhoto2DSteppableOperation>(
-                EVFPhoto2DSteppableOperation::Folded)});
+        if (!FirstFold)
+            StepRecorder->SubmitStep(
+                this,
+                FVFStepInfo{EnumToString<EVFPhoto2DSteppableOperation>(
+                    EVFPhoto2DSteppableOperation::Folded)});
     }
 }
 

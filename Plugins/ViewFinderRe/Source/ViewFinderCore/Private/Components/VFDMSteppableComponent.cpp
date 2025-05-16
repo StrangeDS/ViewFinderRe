@@ -95,6 +95,8 @@ void UVFDMSteppableComponent::ReplaceMeshForComponent(UPrimitiveComponent *Sourc
 
 void UVFDMSteppableComponent::IntersectMeshWithDMComp(UDynamicMeshComponent *Tool)
 {
+    Super::IntersectMeshWithDMComp(Tool);
+
     if (StepRecorder && !StepRecorder->bIsRewinding)
     {
         Steps.Add(FVFDMCompStep{
@@ -102,8 +104,6 @@ void UVFDMSteppableComponent::IntersectMeshWithDMComp(UDynamicMeshComponent *Too
             RequestACopiedMesh(),
             StepRecorder->Time});
     }
-
-    Super::IntersectMeshWithDMComp(Tool);
 }
 
 void UVFDMSteppableComponent::SubtractMeshWithDMComp(UDynamicMeshComponent *Tool)
