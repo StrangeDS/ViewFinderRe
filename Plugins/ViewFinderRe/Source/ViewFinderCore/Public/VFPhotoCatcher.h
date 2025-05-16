@@ -53,7 +53,7 @@ public:
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	float ViewAngle = 90.0f;
+	float ViewAngle = 60.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	float AspectRatio = 16.0f / 9;
