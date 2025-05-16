@@ -63,12 +63,12 @@ void AVFPhoto2D::SetPhoto(UVFPhotoCaptureComponent *PhotoCapture)
 		PhotoCapture->CaptureScene();
 		Texture2D = PhotoCapture->DrawATexture2D();
 		float Scale = PhotoCapture->FOVAngle / 90.0f;
-		SetActorRelativeScale3D(FVector(GetActorRelativeScale3D().X, Scale, Scale));
+		StaticMesh->SetRelativeScale3D(FVector(StaticMesh->GetRelativeScale3D().X, Scale, Scale));
 	}
 	else
 	{
 		Texture2D = nullptr;
-		SetActorRelativeScale3D(FVector::OneVector);
+		StaticMesh->SetRelativeScale3D(FVector::OneVector);
 	}
 
 	if (GetMaterialInstance())
