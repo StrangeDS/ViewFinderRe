@@ -5,8 +5,6 @@
 #include "VFStepsRecordInterface.h"
 #include "VFPhotoContainerSteppable.generated.h"
 
-class UVFStepsRecorderWorldSubsystem;
-
 UENUM(BlueprintType)
 enum class EVFPhotoContainerSteppableOperation : uint8
 {
@@ -60,8 +58,6 @@ public: // Implements IVFStepsRecordInterface:
 	virtual void TickBackward_Implementation(float Time) override;
 
 	virtual bool StepBack_Implementation(FVFStepInfo &StepInfo) override;
-
-	TObjectPtr<UVFStepsRecorderWorldSubsystem> StepRecorder;
 
 	UPROPERTY(BlueprintReadOnly, Category = "ViewFinder")
 	TArray<FVFPhotoContainerStepInfo> Steps;

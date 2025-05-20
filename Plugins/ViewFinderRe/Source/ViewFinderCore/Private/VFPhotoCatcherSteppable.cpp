@@ -5,16 +5,16 @@
 void AVFPhotoCatcherSteppable::BeginPlay()
 {
     Super::BeginPlay();
-
-    StepRecorder = GetWorld()->GetSubsystem<UVFStepsRecorderWorldSubsystem>();
-    check(StepRecorder);
 }
 
 AVFPhoto2D *AVFPhotoCatcherSteppable::TakeAPhoto_Implementation()
 {
-    StepRecorder->SubmitStep(this, FVFStepInfo{TEXT("Take A Photo"), true});
-
     return Super::TakeAPhoto_Implementation();
+
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
+    {
+        StepsRecorder->SubmitStep(this, FVFStepInfo{TEXT("Take A Photo"), true});
+    }
 }
 
 bool AVFPhotoCatcherSteppable::StepBack_Implementation(FVFStepInfo &StepInfo)

@@ -5,8 +5,6 @@
 #include "VFStepsRecordInterface.h"
 #include "VFPhoto2DSteppable.generated.h"
 
-class UVFStepsRecorderWorldSubsystem;
-
 UENUM(BlueprintType)
 enum class EVFPhoto2DSteppableOperation : uint8
 {
@@ -49,7 +47,4 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TArray<FVFPhoto2DHierarchyInfo> HierarchyRecorder;
-
-	UPROPERTY(BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<UVFStepsRecorderWorldSubsystem> StepRecorder;
 };

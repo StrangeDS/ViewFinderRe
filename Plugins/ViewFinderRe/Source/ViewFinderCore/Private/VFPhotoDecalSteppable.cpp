@@ -4,9 +4,6 @@
 
 void AVFPhotoDecalSteppable::BeginPlay()
 {
-    StepRecorder = GetWorld()->GetSubsystem<UVFStepsRecorderWorldSubsystem>();
-    check(StepRecorder);
-
     Super::BeginPlay();
 }
 
@@ -14,9 +11,9 @@ void AVFPhotoDecalSteppable::ReplaceWithDecal_Implementation()
 {
     Super::ReplaceWithDecal_Implementation();
 
-    if (StepRecorder && !StepRecorder->bIsRewinding)
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
-        StepRecorder->SubmitStep(
+        StepsRecorder->SubmitStep(
             this,
             FVFStepInfo{
                 EnumToString<AVFPhotoDecalOperation>(
@@ -29,9 +26,9 @@ void AVFPhotoDecalSteppable::RestoreWithActors_Implementation()
 {
     Super::RestoreWithActors_Implementation();
 
-    if (StepRecorder && !StepRecorder->bIsRewinding)
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
-        StepRecorder->SubmitStep(
+        StepsRecorder->SubmitStep(
             this,
             FVFStepInfo{
                 EnumToString<AVFPhotoDecalOperation>(

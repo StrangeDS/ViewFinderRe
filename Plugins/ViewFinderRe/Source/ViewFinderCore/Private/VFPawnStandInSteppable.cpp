@@ -6,9 +6,10 @@ void AVFPawnStandInSteppable::BeginPlay()
 {
     Super::BeginPlay();
 
-    StepRecorder = GetWorld()->GetSubsystem<UVFStepsRecorderWorldSubsystem>();
-    check(StepRecorder);
-    StepRecorder->SubmitStep(this, FVFStepInfo{TEXT("PawnStandIn")});
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
+    {
+        StepsRecorder->SubmitStep(this, FVFStepInfo{TEXT("PawnStandIn")});
+    }
 }
 
 bool AVFPawnStandInSteppable::StepBack_Implementation(FVFStepInfo &StepInfo)

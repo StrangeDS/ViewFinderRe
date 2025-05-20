@@ -4,8 +4,8 @@
 #include "Engine/StaticMeshActor.h"
 
 #include "VFCommon.h"
-#include "VFTransformRecordVolume.h"
 #include "VFFunctions.h"
+#include "VFTransformRecordVolume.h"
 
 bool FVFTransCompInfo::operator==(const FVFTransCompInfo &Other) const
 {
@@ -19,18 +19,24 @@ bool FVFTransCompInfo::operator==(const FVFTransCompInfo &Other) const
 AVFTransfromRecorderActor::AVFTransfromRecorderActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
+
+	RootComponent = CreateDefaultSubobject<USceneComponent>("RootComponent");
 }
 
 void AVFTransfromRecorderActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	StepRecorder = GetWorld()->GetSubsystem<UVFStepsRecorderWorldSubsystem>();
-	check(StepRecorder);
+	if (!GetStepsRecorder())
+	{
+		VF_LOG(Error, TEXT("%s invalid StepsRecorder."));
+		return;
+	}
+
+	StepsRecorder->RegisterTransformRecordere(this);
+
+	Steps.Reserve(UVFStepsRecorderWorldSubsystem::SizeRecommended);
 	ReCollectComponents();
-	StepRecorder->RegisterTransformRecordere(this);
-	
-    Steps.Reserve(UVFStepsRecorderWorldSubsystem::SizeRecommended);
 }
 
 void AVFTransfromRecorderActor::AddToRecord(USceneComponent *Component)
@@ -48,6 +54,12 @@ void AVFTransfromRecorderActor::ReCollectComponents_Implementation()
 {
 	Components.Reset();
 	CompInfoMap.Reset();
+
+	if (!GetStepsRecorder())
+	{
+		VF_LOG(Error, TEXT("%s invalid StepsRecorder."));
+		return;
+	}
 
 	TArray<AActor *> Volumes;
 	UGameplayStatics::GetAllActorsOfClass(
@@ -69,7 +81,7 @@ void AVFTransfromRecorderActor::ReCollectComponents_Implementation()
 		CompInfoMap.Add(Comp, Info);
 		Infos.Add(Info);
 	}
-	FVFTransStepInfo StepInfo(StepRecorder->TIME_MIN, Infos);
+	FVFTransStepInfo StepInfo(UVFStepsRecorderWorldSubsystem::TIME_MIN, Infos);
 	Steps.Add(StepInfo);
 }
 
@@ -96,7 +108,7 @@ void AVFTransfromRecorderActor::TickForward_Implementation(float Time)
 
 	if (!Infos.IsEmpty())
 	{
-		FVFTransStepInfo StepInfo(StepRecorder->GetTime(), Infos);
+		FVFTransStepInfo StepInfo(StepsRecorder->GetTime(), Infos);
 		Steps.Add(StepInfo);
 	}
 }
@@ -128,14 +140,14 @@ void AVFTransfromRecorderActor::TickBackward_Implementation(float Time)
 	for (auto It = CompInfoMap.CreateIterator(); It; ++It)
 	{
 		auto &[Comp, Info] = *It;
-		if (!Comp) 
+		if (!Comp)
 		{
 			VF_LOG(Warning, TEXT("%s: Comp销毁"), __FUNCTIONW__);
 			It.RemoveCurrent();
 			continue;
 		}
 
-		auto Delta = StepRecorder->GetDeltaTime() / (StepRecorder->GetTime() - TimeLast);
+		auto Delta = StepsRecorder->GetDeltaTime() / (StepsRecorder->GetTime() - TimeLast);
 		Delta = FMath::Min(Delta, 1.0f);
 		Comp->SetWorldTransform(UVFFunctions::TransformLerp(Comp->GetComponentTransform(), Info.Transform, Delta));
 		Comp->ComponentVelocity = FMath::Lerp(Comp->GetComponentVelocity(), Info.Velocity, Delta);

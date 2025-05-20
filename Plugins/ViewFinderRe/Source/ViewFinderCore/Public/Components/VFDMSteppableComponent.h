@@ -6,7 +6,6 @@
 #include "VFDMSteppableComponent.generated.h"
 
 class VFStepsRecordInterface;
-class UVFStepsRecorderWorldSubsystem;
 
 UENUM(BlueprintType)
 enum class UVFDMCompStepOperation
@@ -67,9 +66,6 @@ public:
 
 public:
 	virtual void TickBackward_Implementation(float Time) override;
-
-	UPROPERTY(BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<UVFStepsRecorderWorldSubsystem> StepRecorder;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TArray<FVFDMCompStep> Steps;

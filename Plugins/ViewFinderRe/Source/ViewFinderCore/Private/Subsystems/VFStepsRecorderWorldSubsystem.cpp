@@ -2,6 +2,7 @@
 
 #include "TimerManager.h"
 
+#include "VFCommon.h"
 #include "VFStepsRecordInterface.h"
 #include "VFTransfromRecorderActor.h"
 
@@ -195,5 +196,29 @@ void UVFStepsRecorderWorldSubsystem::RewindToLastKey()
                 false);
             return;
         }
+    }
+}
+
+UVFStepsRecorderWorldSubsystem *UVFStepsRecorderWorldSubsystem::GetStepsRecorder(
+    const UObject *WorldContext,
+    const EVFStepsRecorderSubsystemCheckMode &Mode)
+{
+    const UWorld *World = WorldContext->GetWorld();
+    bool IsRuntime = World && (World->WorldType == EWorldType::Game ||
+                               World->WorldType == EWorldType::PIE);
+    if (!IsRuntime)
+    {
+        VF_LOG(Error, TEXT("%s should only be called in runtime."), __FUNCTIONW__);
+        return nullptr;
+    }
+
+    auto System = World->GetSubsystem<UVFStepsRecorderWorldSubsystem>();
+    switch (Mode)
+    {
+    case EVFStepsRecorderSubsystemCheckMode::RequireRewinding:
+        return System->bIsRewinding ? nullptr : System;
+    case EVFStepsRecorderSubsystemCheckMode::IgnoreRewinding:
+    default:
+        return System;
     }
 }

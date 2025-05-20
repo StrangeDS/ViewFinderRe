@@ -5,8 +5,6 @@
 #include "VFStepsRecordInterface.h"
 #include "VFPhotoCatcherSteppable.generated.h"
 
-class UVFStepsRecorderWorldSubsystem;
-
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERCORE_API AVFPhotoCatcherSteppable : public AVFPhotoCatcher, public IVFStepsRecordInterface
 {
@@ -14,12 +12,9 @@ class VIEWFINDERCORE_API AVFPhotoCatcherSteppable : public AVFPhotoCatcher, publ
 
 public:
 	virtual void BeginPlay() override;
-	
+
 	virtual AVFPhoto2D *TakeAPhoto_Implementation() override;
 
 public:
 	virtual bool StepBack_Implementation(FVFStepInfo &StepInfo) override;
-	
-	UPROPERTY(BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<UVFStepsRecorderWorldSubsystem> StepRecorder;
 };

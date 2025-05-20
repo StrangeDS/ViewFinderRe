@@ -6,12 +6,13 @@ void AVFPhoto2DSteppable::BeginPlay()
 {
     Super::BeginPlay();
 
-    StepRecorder = GetWorld()->GetSubsystem<UVFStepsRecorderWorldSubsystem>();
-    check(StepRecorder);
-    StepRecorder->SubmitStep(
-        this,
-        FVFStepInfo{EnumToString<EVFPhoto2DSteppableOperation>(
-            EVFPhoto2DSteppableOperation::None)});
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
+    {
+        StepsRecorder->SubmitStep(
+            this,
+            FVFStepInfo{EnumToString<EVFPhoto2DSteppableOperation>(
+                EVFPhoto2DSteppableOperation::None)});
+    }
 }
 
 void AVFPhoto2DSteppable::FoldUp()
@@ -20,10 +21,10 @@ void AVFPhoto2DSteppable::FoldUp()
 
     Super::FoldUp();
 
-    if (StepRecorder && !StepRecorder->bIsRewinding)
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
         if (!FirstFold)
-            StepRecorder->SubmitStep(
+            StepsRecorder->SubmitStep(
                 this,
                 FVFStepInfo{EnumToString<EVFPhoto2DSteppableOperation>(
                     EVFPhoto2DSteppableOperation::Folded)});
@@ -34,9 +35,9 @@ void AVFPhoto2DSteppable::PlaceDown()
 {
     Super::PlaceDown();
 
-    if (StepRecorder && !StepRecorder->bIsRewinding)
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
-        StepRecorder->SubmitStep(
+        StepsRecorder->SubmitStep(
             this,
             FVFStepInfo{EnumToString<EVFPhoto2DSteppableOperation>(
                 EVFPhoto2DSteppableOperation::Placed)});
@@ -45,7 +46,7 @@ void AVFPhoto2DSteppable::PlaceDown()
 
 bool AVFPhoto2DSteppable::ReattachToComponent(USceneComponent *Target)
 {
-    if (StepRecorder && !StepRecorder->bIsRewinding)
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
         auto AttachParent = RootComponent->GetAttachParent();
         auto RelativeTransform = RootComponent->GetRelativeTransform();
@@ -54,7 +55,7 @@ bool AVFPhoto2DSteppable::ReattachToComponent(USceneComponent *Target)
         {
             HierarchyRecorder.Add({AttachParent, RelativeTransform});
 
-            StepRecorder->SubmitStep(
+            StepsRecorder->SubmitStep(
                 this,
                 FVFStepInfo{EnumToString<EVFPhoto2DSteppableOperation>(
                     EVFPhoto2DSteppableOperation::ReattachTo)});

@@ -15,23 +15,25 @@ void UVFDMSteppableComponent::BeginPlay()
 {
     Super::BeginPlay();
 
-    StepRecorder = GetWorld()->GetSubsystem<UVFStepsRecorderWorldSubsystem>();
-    check(StepRecorder);
-
     Steps.Reserve(200);
-    Steps.Add(FVFDMCompStep{
-        UVFDMCompStepOperation::BeginPlay,
-        nullptr,
-        StepRecorder->Time});
-    StepRecorder->RegisterTickable(this);
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
+    {
+        Steps.Add(FVFDMCompStep{
+            UVFDMCompStepOperation::BeginPlay,
+            nullptr,
+            StepsRecorder->Time});
+        StepsRecorder->RegisterTickable(this);
+    }
 
     LocalPool = NewObject<UDynamicMeshPool>(this);
 }
 
 void UVFDMSteppableComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-    StepRecorder->UnregisterTickable(this);
-    StepRecorder = nullptr;
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
+    {
+        StepsRecorder->UnregisterTickable(this);
+    }
     Steps.Reset();
     LocalPool->ReturnAllMeshes();
 
@@ -61,21 +63,21 @@ void UVFDMSteppableComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
 {
     Super::CopyMeshFromComponent(Source);
 
-    if (StepRecorder && !StepRecorder->bIsRewinding)
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
         Steps.Add(FVFDMCompStep{
             UVFDMCompStepOperation::CopyMeshFromComponent,
             nullptr,
-            StepRecorder->Time});
+            StepsRecorder->Time});
 
         if (bSimulatePhysicsRecorder)
         {
-            StepRecorder->RecordTransform(this);
+            StepsRecorder->RecordTransform(this);
 
             Steps.Add(FVFDMCompStep{
                 UVFDMCompStepOperation::RegisterToTransformRecorder,
                 nullptr,
-                StepRecorder->Time});
+                StepsRecorder->Time});
         }
     }
 }
@@ -84,12 +86,12 @@ void UVFDMSteppableComponent::ReplaceMeshForComponent(UPrimitiveComponent *Sourc
 {
     Super::ReplaceMeshForComponent(Source);
 
-    if (StepRecorder && !StepRecorder->bIsRewinding)
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
         Steps.Add(FVFDMCompStep{
             UVFDMCompStepOperation::ReplaceMeshForComponent,
             nullptr,
-            StepRecorder->Time});
+            StepsRecorder->Time});
     }
 }
 
@@ -97,23 +99,23 @@ void UVFDMSteppableComponent::IntersectMeshWithDMComp(UDynamicMeshComponent *Too
 {
     Super::IntersectMeshWithDMComp(Tool);
 
-    if (StepRecorder && !StepRecorder->bIsRewinding)
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
         Steps.Add(FVFDMCompStep{
             UVFDMCompStepOperation::IntersectMeshWithDMComp,
             RequestACopiedMesh(),
-            StepRecorder->Time});
+            StepsRecorder->Time});
     }
 }
 
 void UVFDMSteppableComponent::SubtractMeshWithDMComp(UDynamicMeshComponent *Tool)
 {
-    if (StepRecorder && !StepRecorder->bIsRewinding)
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
         Steps.Add(FVFDMCompStep{
             UVFDMCompStepOperation::SubtractMeshWithDMComp,
             RequestACopiedMesh(),
-            StepRecorder->Time});
+            StepsRecorder->Time});
     }
 
     Super::SubtractMeshWithDMComp(Tool);
@@ -121,12 +123,12 @@ void UVFDMSteppableComponent::SubtractMeshWithDMComp(UDynamicMeshComponent *Tool
 
 void UVFDMSteppableComponent::UnionMeshWithDMComp(UDynamicMeshComponent *Tool)
 {
-    if (StepRecorder && !StepRecorder->bIsRewinding)
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
         Steps.Add(FVFDMCompStep{
             UVFDMCompStepOperation::UnionMeshWithDMComp,
             RequestACopiedMesh(),
-            StepRecorder->Time});
+            StepsRecorder->Time});
     }
 
     Super::UnionMeshWithDMComp(Tool);
@@ -156,7 +158,11 @@ void UVFDMSteppableComponent::TickBackward_Implementation(float Time)
         }
         case UVFDMCompStepOperation::RegisterToTransformRecorder:
         {
-            StepRecorder->UnrecordTransform(this);
+            auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this);
+            if (ensure(StepsRecorder))
+            {
+                StepsRecorder->UnrecordTransform(this);
+            }
             break;
         }
         case UVFDMCompStepOperation::ReplaceMeshForComponent:

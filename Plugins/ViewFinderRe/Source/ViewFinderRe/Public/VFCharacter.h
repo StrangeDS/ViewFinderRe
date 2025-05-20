@@ -5,6 +5,7 @@
 #include "VFPhotoContainerInterface.h"
 #include "VFStepsRecordInterface.h"
 #include "VFHelperInterface.h"
+#include "VFStepsRecorderWorldSubsystem.h"
 #include "VFCharacter.generated.h"
 
 class UCameraComponent;
@@ -16,7 +17,6 @@ class UInputMappingContext;
 class AVFPhotoContainer_Input;
 class UVFHelperComponent;
 class IVFInteractInterface;
-class UVFStepsRecorderWorldSubsystem;
 class IVFActivatableInterface;
 
 USTRUCT(BlueprintType)
@@ -136,7 +136,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TArray<FVFPawnTransformInfo> Steps;
 
-	TObjectPtr<UVFStepsRecorderWorldSubsystem> StepRecorder;
+	DECLARE_STEPSRECORDER_SUBSYSTEM_ACCESSOR(StepsRecorder);
 
 public: // IVFPhotoContainerInterface
 	virtual int GetPhoto2DNum_Implementation() override;

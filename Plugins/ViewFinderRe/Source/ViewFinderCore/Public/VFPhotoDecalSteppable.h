@@ -5,8 +5,6 @@
 #include "VFStepsRecordInterface.h"
 #include "VFPhotoDecalSteppable.generated.h"
 
-class UVFStepsRecorderWorldSubsystem;
-
 UENUM(BlueprintType)
 enum class AVFPhotoDecalOperation : uint8
 {
@@ -29,6 +27,4 @@ public:
 
 public:
 	virtual bool StepBack_Implementation(FVFStepInfo &StepInfo) override;
-
-	TObjectPtr<UVFStepsRecorderWorldSubsystem> StepRecorder;
 };

@@ -4,14 +4,15 @@
 
 void AVFPhoto3DSteppable::BeginPlay()
 {
-    StepRecorder = GetWorld()->GetSubsystem<UVFStepsRecorderWorldSubsystem>();
-    check(StepRecorder);
-    StepRecorder->SubmitStep(
-        this,
-        FVFStepInfo{EnumToString<EVFPhoto3DState>(
-            EVFPhoto3DState::None)});
-
     Super::BeginPlay();
+
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
+    {
+        StepsRecorder->SubmitStep(
+            this,
+            FVFStepInfo{EnumToString<EVFPhoto3DState>(
+                EVFPhoto3DState::None)});
+    }
 }
 
 void AVFPhoto3DSteppable::FoldUp()
@@ -20,9 +21,9 @@ void AVFPhoto3DSteppable::FoldUp()
 
     Super::FoldUp();
 
-    if (StepRecorder && !StepRecorder->bIsRewinding)
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
-        StepRecorder->SubmitStep(
+        StepsRecorder->SubmitStep(
             this,
             FVFStepInfo{EnumToString<EVFPhoto3DState>(
                 FirstFold ? EVFPhoto3DState::FirstFold
@@ -34,9 +35,9 @@ void AVFPhoto3DSteppable::PlaceDown()
 {
     Super::PlaceDown();
 
-    if (StepRecorder && !StepRecorder->bIsRewinding)
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
-        StepRecorder->SubmitStep(
+        StepsRecorder->SubmitStep(
             this,
             FVFStepInfo{EnumToString<EVFPhoto3DState>(
                 EVFPhoto3DState::Placed)});

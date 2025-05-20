@@ -2,10 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-
 #include "VFStepsRecordInterface.h"
 #include "VFStepsRecorderWorldSubsystem.h"
-
 #include "VFTransfromRecorderActor.generated.h"
 
 USTRUCT(BlueprintType)
@@ -60,10 +58,10 @@ public:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void AddToRecord(USceneComponent* Component);
-	
+	void AddToRecord(USceneComponent *Component);
+
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void RemoveFromRecord(USceneComponent* Component);
+	void RemoveFromRecord(USceneComponent *Component);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "ViewFinder")
 	void ReCollectComponents();
@@ -78,7 +76,11 @@ protected:
 
 public: // Implements IVFStepsRecordInterface:
 	virtual void TickForward_Implementation(float Time) override;
+
 	virtual void TickBackward_Implementation(float Time) override;
-	TObjectPtr<UVFStepsRecorderWorldSubsystem> StepRecorder;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TArray<FVFTransStepInfo> Steps;
+
+	DECLARE_STEPSRECORDER_SUBSYSTEM_ACCESSOR(StepsRecorder);
 };

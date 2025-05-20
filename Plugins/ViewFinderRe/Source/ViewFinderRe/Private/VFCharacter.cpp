@@ -65,17 +65,19 @@ void AVFCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	StepRecorder = GetWorld()->GetSubsystem<UVFStepsRecorderWorldSubsystem>();
-	check(StepRecorder);
-	StepRecorder->RegisterTickable(this);
-
-	Steps.Reserve(UVFStepsRecorderWorldSubsystem::SizeRecommended);
-
 	Container = GetWorld()->SpawnActor<AVFPhotoContainer_Input>(ContainerClass);
 	Container->AttachToComponent(Camera, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 	if (PlayerController)
 		Container->SetPlayerController(PlayerController);
 	Equipments.Add(Container);
+
+	if (!GetStepsRecorder())
+	{
+		VF_LOG(Error, TEXT("%s invalid StepsRecorder."), __FUNCTIONW__);
+		return;
+	}
+	Steps.Reserve(UVFStepsRecorderWorldSubsystem::SizeRecommended);
+	StepsRecorder->RegisterTickable(this);
 }
 
 void AVFCharacter::Tick(float DeltaTime)
@@ -234,7 +236,7 @@ void AVFCharacter::TickForward_Implementation(float Time)
 {
 	const static float Permitted = 0.1f;
 
-	FVFPawnTransformInfo Info(this, StepRecorder->Time);
+	FVFPawnTransformInfo Info(this, StepsRecorder->Time);
 	if (Steps.IsEmpty())
 	{
 		Steps.Add(Info);
@@ -249,7 +251,7 @@ void AVFCharacter::TickForward_Implementation(float Time)
 		auto LastInfo = Steps.Last();
 		if (Time - LastInfo.Time > Permitted)
 		{
-			FVFPawnTransformInfo RepeatInfo(LastInfo, StepRecorder->Time);
+			FVFPawnTransformInfo RepeatInfo(LastInfo, StepsRecorder->Time);
 			Steps.Add(RepeatInfo);
 		}
 
@@ -277,7 +279,7 @@ void AVFCharacter::TickBackward_Implementation(float Time)
 	}
 
 	auto &Step = Steps.Last();
-	auto Delta = StepRecorder->GetDeltaTime() / (StepRecorder->GetTime() - Step.Time);
+	auto Delta = StepsRecorder->GetDeltaTime() / (StepsRecorder->GetTime() - Step.Time);
 	Delta = FMath::Min(Delta, 1.0f);
 	SetActorLocation(FMath::Lerp(GetActorLocation(), Step.Location, Delta));
 

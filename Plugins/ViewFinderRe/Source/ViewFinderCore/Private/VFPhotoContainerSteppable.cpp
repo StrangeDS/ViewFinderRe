@@ -7,9 +7,10 @@ void AVFPhotoContainerSteppable::BeginPlay()
 {
     Super::BeginPlay();
 
-    StepRecorder = GetWorld()->GetSubsystem<UVFStepsRecorderWorldSubsystem>();
-    check(StepRecorder);
-    StepRecorder->RegisterTickable(this);
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
+    {
+        StepsRecorder->RegisterTickable(this);
+    }
 
     Steps.Reserve(UVFStepsRecorderWorldSubsystem::SizeRecommended);
 }
@@ -18,27 +19,30 @@ void AVFPhotoContainerSteppable::AddAPhoto(AVFPhoto2D *Photo)
 {
     Super::AddAPhoto(Photo);
 
-    if (!StepRecorder->bIsRewinding)
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
         Steps.Add(FVFPhotoContainerStepInfo{
             EVFPhotoContainerSteppableOperation::Add,
             Photo,
-            StepRecorder->GetTime()});
+            StepsRecorder->GetTime()});
     }
 }
 
 void AVFPhotoContainerSteppable::PlaceCurrentPhoto()
 {
-    if (!StepRecorder->bIsRewinding && CurrentPhoto2D)
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
-        auto Photo2D = CurrentPhoto2D;
-        Super::PlaceCurrentPhoto();
+        if (CurrentPhoto2D)
+        {
+            auto Photo2D = CurrentPhoto2D;
+            Super::PlaceCurrentPhoto();
 
-        Steps.Add(FVFPhotoContainerStepInfo{
-            EVFPhotoContainerSteppableOperation::Place,
-            Photo2D,
-            StepRecorder->GetTime()});
-        return;
+            Steps.Add(FVFPhotoContainerStepInfo{
+                EVFPhotoContainerSteppableOperation::Place,
+                Photo2D,
+                StepsRecorder->GetTime()});
+            return;
+        }
     }
 
     Super::PlaceCurrentPhoto();
@@ -48,12 +52,12 @@ void AVFPhotoContainerSteppable::PrepareCurrentPhoto()
 {
     Super::PrepareCurrentPhoto();
 
-    if (!StepRecorder->bIsRewinding)
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
         Steps.Add(FVFPhotoContainerStepInfo{
             EVFPhotoContainerSteppableOperation::Prepare,
             CurrentPhoto2D,
-            StepRecorder->GetTime()});
+            StepsRecorder->GetTime()});
     }
 }
 
@@ -61,12 +65,12 @@ void AVFPhotoContainerSteppable::GiveUpPreparing()
 {
     Super::GiveUpPreparing();
 
-    if (!StepRecorder->bIsRewinding)
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
         Steps.Add(FVFPhotoContainerStepInfo{
             EVFPhotoContainerSteppableOperation::GiveUpPreparing,
             CurrentPhoto2D,
-            StepRecorder->GetTime()});
+            StepsRecorder->GetTime()});
     }
 }
 
@@ -74,13 +78,13 @@ void AVFPhotoContainerSteppable::ChangeCurrentPhoto(const bool Next)
 {
     Super::ChangeCurrentPhoto(Next);
 
-    if (!StepRecorder->bIsRewinding)
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
         Steps.Add(FVFPhotoContainerStepInfo{
             Next ? EVFPhotoContainerSteppableOperation::ChangeNext
                  : EVFPhotoContainerSteppableOperation::ChangeLast,
             CurrentPhoto2D,
-            StepRecorder->GetTime()});
+            StepsRecorder->GetTime()});
     }
 }
 
@@ -88,13 +92,13 @@ void AVFPhotoContainerSteppable::SetEnabled(const bool &Enabled)
 {
     Super::SetEnabled(Enabled);
 
-    if (!StepRecorder->bIsRewinding)
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
         Steps.Add(FVFPhotoContainerStepInfo{
             Enabled ? EVFPhotoContainerSteppableOperation::Enabled
                     : EVFPhotoContainerSteppableOperation::Disabled,
             CurrentPhoto2D,
-            StepRecorder->GetTime()});
+            StepsRecorder->GetTime()});
     }
 }
 

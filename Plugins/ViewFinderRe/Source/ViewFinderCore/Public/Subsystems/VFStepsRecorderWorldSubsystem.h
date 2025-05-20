@@ -4,7 +4,14 @@
 #include "Subsystems/WorldSubsystem.h"
 #include "VFStepsRecorderWorldSubsystem.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FVFStepRecorderDelegate, float, Time);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FVFStepsRecorderDelegate, float, Time);
+
+UENUM(BlueprintType)
+enum class EVFStepsRecorderSubsystemCheckMode : uint8
+{
+	RequireRewinding, // 必须处于回放状态
+	IgnoreRewinding,  // 不检查回放状态
+};
 
 class IVFStepsRecordInterface;
 
@@ -48,7 +55,7 @@ public:
 	void TickBackward(float DeltaTime);
 
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
-	FVFStepRecorderDelegate OnTickTime;
+	FVFStepsRecorderDelegate OnTickTime;
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void RegisterTickable(const TScriptInterface<IVFStepsRecordInterface> &Target);
@@ -73,13 +80,13 @@ public:
 	void StartRewinding();
 
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
-	FVFStepRecorderDelegate OnStartRewinding;
+	FVFStepsRecorderDelegate OnStartRewinding;
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void EndRewinding();
 
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
-	FVFStepRecorderDelegate OnEndRewinding;
+	FVFStepsRecorderDelegate OnEndRewinding;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	bool bIsRewinding = false;
@@ -118,4 +125,37 @@ public:
 	float TimeOfRewindToLastKey = 3.0f;
 
 	FTimerHandle RewindHandle;
+
+	// 实时获取, 适合低频率, 事件驱动
+public:
+	static UVFStepsRecorderWorldSubsystem *GetStepsRecorder(
+		const UObject *WorldContext,
+		const EVFStepsRecorderSubsystemCheckMode &Mode = EVFStepsRecorderSubsystemCheckMode::RequireRewinding);
 };
+
+// 使用成员变量的方式, 需要头文件
+// 成员变量缓存, 适合高频率访问
+// VarName为成员变量名
+#define DECLARE_STEPSRECORDER_SUBSYSTEM_ACCESSOR(VarName)                         \
+private:                                                                          \
+	mutable TObjectPtr<UVFStepsRecorderWorldSubsystem> VarName = nullptr;         \
+                                                                                  \
+public:                                                                           \
+	/* 主访问器：返回指针并自动验证条件 */                                         \
+	FORCEINLINE UVFStepsRecorderWorldSubsystem *GetStepsRecorder() const          \
+	{                                                                             \
+		if (!VarName && IsAtRuntime())                                            \
+		{                                                                         \
+			VarName = GetWorld()->GetSubsystem<UVFStepsRecorderWorldSubsystem>(); \
+		}                                                                         \
+		return VarName;                                                           \
+	}                                                                             \
+                                                                                  \
+private:                                                                          \
+	/* 初始化条件封装 */                                                          \
+	FORCEINLINE bool IsAtRuntime() const                                          \
+	{                                                                             \
+		const UWorld *World = GetWorld();                                         \
+		return World && (World->WorldType == EWorldType::Game ||                  \
+						 World->WorldType == EWorldType::PIE);                    \
+	}
