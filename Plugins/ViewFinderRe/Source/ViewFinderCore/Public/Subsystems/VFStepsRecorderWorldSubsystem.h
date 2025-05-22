@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
+#include "Engine/World.h"
 #include "VFStepsRecorderWorldSubsystem.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FVFStepsRecorderDelegate, float, Time);
@@ -141,7 +142,7 @@ private:                                                                        
 	mutable TObjectPtr<UVFStepsRecorderWorldSubsystem> VarName = nullptr;         \
                                                                                   \
 public:                                                                           \
-	/* 主访问器：返回指针并自动验证条件 */                                         \
+	/* 主访问器：返回指针并自动验证条件 */                                        \
 	FORCEINLINE UVFStepsRecorderWorldSubsystem *GetStepsRecorder() const          \
 	{                                                                             \
 		if (!VarName && IsAtRuntime())                                            \
