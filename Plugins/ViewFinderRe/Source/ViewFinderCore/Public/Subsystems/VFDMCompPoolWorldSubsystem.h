@@ -6,6 +6,15 @@
 
 class UVFDynamicMeshComponent;
 
+USTRUCT(BlueprintType)
+struct FVFDMCompPool
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TArray<TObjectPtr<UVFDynamicMeshComponent>> Comps;
+};
+
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERCORE_API UVFDMCompPoolWorldSubsystem : public UWorldSubsystem
 {
@@ -14,6 +23,8 @@ class VIEWFINDERCORE_API UVFDMCompPoolWorldSubsystem : public UWorldSubsystem
 	UVFDMCompPoolWorldSubsystem();
 
 public:
+	virtual void Initialize(FSubsystemCollectionBase &Collection) override;
+
 	virtual void Deinitialize() override;
 
 public:
@@ -27,16 +38,20 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder | DMCompPool")
 	void ReturnComp(UVFDynamicMeshComponent *Comp);
 
+	// 预生成池
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder | DMCompPool")
+	void PreparePools();
+
 	// 清理地址
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder | DMCompPool")
-	void ClearComps(bool bForceGarbage = true);
+	void ClearPools(bool bForceGarbage = true);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder | DMCompPool")
-	TArray<TObjectPtr<UVFDynamicMeshComponent>> AvailableComps;
+	TMap<TSubclassOf<UVFDynamicMeshComponent>, FVFDMCompPool> PoolsOfAvailable;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder | DMCompPool")
-	TArray<TObjectPtr<UVFDynamicMeshComponent>> AllComps;
+	TMap<TSubclassOf<UVFDynamicMeshComponent>, FVFDMCompPool> PoolsOfAll;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder | DMCompPool")
-	int SizeOfPool = 10000;
+	TMap<TSubclassOf<UVFDynamicMeshComponent>, int> PrepareNum;
 };

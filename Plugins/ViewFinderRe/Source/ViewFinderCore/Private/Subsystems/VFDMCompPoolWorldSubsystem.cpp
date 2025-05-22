@@ -2,17 +2,27 @@
 
 #include "UnrealEngine.h"
 
-#include "VFCommon.h"
 #include "VFDynamicMeshComponent.h"
-#include "VFGeometryFunctions.h"
+#include "VFDMSteppableComponent.h"
 
 UVFDMCompPoolWorldSubsystem::UVFDMCompPoolWorldSubsystem()
 {
+    PrepareNum = {
+        {UVFDynamicMeshComponent::StaticClass(), 100},
+        {UVFDMSteppableComponent::StaticClass(), 100},
+    };
+}
+
+void UVFDMCompPoolWorldSubsystem::Initialize(FSubsystemCollectionBase &Collection)
+{
+    Super::Initialize(Collection);
+
+    PreparePools();
 }
 
 void UVFDMCompPoolWorldSubsystem::Deinitialize()
 {
-    ClearComps();
+    ClearPools();
 
     Super::Deinitialize();
 }
@@ -25,36 +35,50 @@ UVFDynamicMeshComponent *UVFDMCompPoolWorldSubsystem::GetOrCreateComp(
     if (!Outer || !CompClass)
         return CompRes;
 
-    for (auto Comp : AvailableComps)
+    if (PoolsOfAvailable.FindOrAdd(CompClass).Comps.Num() > 0)
     {
-        if (Comp->GetClass() == CompClass)
-        {
-            CompRes = Comp.Get();
-            AvailableComps.RemoveSwap(Comp);
-            CompRes->Rename(nullptr, Outer);
-            return CompRes;
-        }
+        CompRes = PoolsOfAvailable[CompClass].Comps.Pop();
+        CompRes->Rename(nullptr, Outer);
+        return CompRes;
     }
 
     CompRes = NewObject<UVFDynamicMeshComponent>(Outer, CompClass, NAME_None);
-    AllComps.Add(CompRes);
+    PoolsOfAll.FindOrAdd(CompClass).Comps.Add(CompRes);
 
     return CompRes;
 }
 
 void UVFDMCompPoolWorldSubsystem::ReturnComp(UVFDynamicMeshComponent *Comp)
 {
-    if (!AllComps.Contains(Comp))
+    auto CompClass = Comp->GetClass();
+    if (!PoolsOfAll.Contains(CompClass) || !PoolsOfAll[CompClass].Comps.Contains(Comp))
         return;
 
     Comp->Rename(nullptr, this);
-    AvailableComps.AddUnique(Comp);
+    PoolsOfAvailable.FindOrAdd(CompClass).Comps.AddUnique(Comp);
 }
 
-void UVFDMCompPoolWorldSubsystem::ClearComps(bool bForceGarbage)
+void UVFDMCompPoolWorldSubsystem::PreparePools()
 {
-    AllComps.Reset(SizeOfPool);
-    AvailableComps.Reset(SizeOfPool);
+    for (auto [CompClass, Num] : PrepareNum)
+    {
+        PoolsOfAll.FindOrAdd(CompClass).Comps.Reset(Num);
+        PoolsOfAvailable.FindOrAdd(CompClass).Comps.Reset(Num);
+
+        for (int i = 0; i < Num; i++)
+        {
+            UVFDynamicMeshComponent *Comp = NewObject<UVFDynamicMeshComponent>(
+                this, CompClass, NAME_None);
+            PoolsOfAll[CompClass].Comps.Emplace(Comp);
+            PoolsOfAvailable[CompClass].Comps.Emplace(Comp);
+        }
+    }
+}
+
+void UVFDMCompPoolWorldSubsystem::ClearPools(bool bForceGarbage)
+{
+    PoolsOfAll.Reset();
+    PoolsOfAvailable.Reset();
     if (bForceGarbage)
         GEngine->ForceGarbageCollection(true);
 }
