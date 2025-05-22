@@ -56,8 +56,8 @@ AActor *UVFFunctions::CloneActorRuntime(
 	for (auto &DMComp : DMComps)
 	{
 		Parents.Add(DMComp, DMComp->GetAttachParent());
-		Original->RemoveInstanceComponent(DMComp);
 		DMComp->UnregisterComponent();
+		Original->RemoveInstanceComponent(DMComp);
 	}
 
 	// 复制Actor
@@ -88,6 +88,7 @@ AActor *UVFFunctions::CloneActorRuntime(
 		CopiedComp->AttachToComponent(
 			GetComponentByName(Copy, Parent->GetFName()),
 			FAttachmentTransformRules::SnapToTargetIncludingScale);
+		CopiedComp->Init(DMComp);
 		CopiedComp->CopyMeshFromComponent(DMComp);
 	}
 
@@ -153,6 +154,7 @@ TArray<UVFDynamicMeshComponent *> UVFFunctions::CheckVFDMComps(
 					Actor->AddInstanceComponent(VFDMComp);
 					VFDMComp->RegisterComponent();
 					VFDMComp->AttachToComponent(PrimComp, FAttachmentTransformRules::SnapToTargetIncludingScale);
+					VFDMComp->Init(PrimComp);
 					VFDMComp->ReplaceMeshForComponent(PrimComp);
 
 					Result.Add(VFDMComp);
@@ -218,7 +220,7 @@ TArray<AActor *> UVFFunctions::CopyActorsFromVFDMComps(
 	// 修复层级关系
 	if (bRetainHierarchy)
 	{
-		for (auto &[Original, Copy]: ActorsMap)
+		for (auto &[Original, Copy] : ActorsMap)
 		{
 			auto Parent = Original->GetAttachParentActor();
 			if (ActorsMap.Contains(Parent))

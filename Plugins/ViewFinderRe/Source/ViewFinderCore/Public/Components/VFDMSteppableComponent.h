@@ -11,7 +11,7 @@ UENUM(BlueprintType)
 enum class UVFDMCompStepOperation
 {
 	None = 0,
-	BeginPlay,
+	Init,
 	CopyMeshFromComponent,
 	RegisterToTransformRecorder,
 	ReplaceMeshForComponent,
@@ -44,11 +44,9 @@ class VIEWFINDERCORE_API UVFDMSteppableComponent : public UVFDynamicMeshComponen
 public:
 	UVFDMSteppableComponent(const FObjectInitializer &ObjectInitializer = FObjectInitializer::Get());
 
-	virtual void BeginPlay() override;
+	virtual void Init(UPrimitiveComponent *Source) override;
 
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
-	virtual void DestroyComponent(bool bPromoteChildren = false) override;
+	virtual void Clear() override;
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	UDynamicMesh *RequestACopiedMesh();

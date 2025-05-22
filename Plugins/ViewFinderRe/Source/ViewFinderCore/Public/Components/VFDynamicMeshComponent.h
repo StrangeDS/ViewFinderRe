@@ -12,6 +12,14 @@ class VIEWFINDERCORE_API UVFDynamicMeshComponent : public UDynamicMeshComponent
 public:
 	UVFDynamicMeshComponent(const FObjectInitializer &ObjectInitializer = FObjectInitializer::Get());
 
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	virtual void Init(UPrimitiveComponent *Source);
+
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	virtual void Clear();
+
 public: // Mesh
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	virtual void CopyMeshFromComponent(UPrimitiveComponent *Source);
@@ -52,7 +60,7 @@ public: // SourceComponent
 	// 仅用于替换父组件
 	UFUNCTION(CallInEditor, Category = "ViewFinder", meta = (DisplayName = "ReplaceMeshForComponent"))
 	void ReplaceMeshForComponentInEditor();
-#endif 
+#endif
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
 	TObjectPtr<UPrimitiveComponent> SourceComponent;

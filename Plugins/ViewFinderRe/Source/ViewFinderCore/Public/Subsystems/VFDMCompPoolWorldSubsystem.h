@@ -39,7 +39,4 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder | DMCompPool")
 	int SizeOfPool = 10000;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder | DMCompPool")
-	bool bUsingPool = false;
 };

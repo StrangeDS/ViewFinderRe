@@ -25,17 +25,14 @@ UVFDynamicMeshComponent *UVFDMCompPoolWorldSubsystem::GetOrCreateComp(
     if (!Outer || !CompClass)
         return CompRes;
 
-    if (bUsingPool)
+    for (auto Comp : AvailableComps)
     {
-        for (auto Comp : AvailableComps)
+        if (Comp->GetClass() == CompClass)
         {
-            if (Comp->GetClass() == CompClass)
-            {
-                CompRes = Comp.Get();
-                AvailableComps.RemoveSwap(Comp);
-                CompRes->Rename(nullptr, Outer);
-                return CompRes;
-            }
+            CompRes = Comp.Get();
+            AvailableComps.RemoveSwap(Comp);
+            CompRes->Rename(nullptr, Outer);
+            return CompRes;
         }
     }
 
@@ -47,7 +44,7 @@ UVFDynamicMeshComponent *UVFDMCompPoolWorldSubsystem::GetOrCreateComp(
 
 void UVFDMCompPoolWorldSubsystem::ReturnComp(UVFDynamicMeshComponent *Comp)
 {
-    if (!bUsingPool || !AllComps.Contains(Comp))
+    if (!AllComps.Contains(Comp))
         return;
 
     Comp->Rename(nullptr, this);

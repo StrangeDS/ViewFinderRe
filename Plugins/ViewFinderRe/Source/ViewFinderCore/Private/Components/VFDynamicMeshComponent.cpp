@@ -10,11 +10,27 @@ UVFDynamicMeshComponent::UVFDynamicMeshComponent(const FObjectInitializer &Objec
     SetMobility(EComponentMobility::Movable);
 }
 
-void UVFDynamicMeshComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
+void UVFDynamicMeshComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    Clear();
+
+    Super::EndPlay(EndPlayReason);
+}
+
+
+void UVFDynamicMeshComponent::Init(UPrimitiveComponent *Source)
 {
     check(Source);
     SourceComponent = Source;
+}
 
+void UVFDynamicMeshComponent::Clear()
+{
+    SourceComponent = nullptr;
+}
+
+void UVFDynamicMeshComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
+{
     // 复制网格
     UVFGeometryFunctions::CopyMeshFromComponent(
         Source,

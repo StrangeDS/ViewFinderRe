@@ -11,15 +11,15 @@ UVFDMSteppableComponent::UVFDMSteppableComponent(const FObjectInitializer &Objec
 {
 }
 
-void UVFDMSteppableComponent::BeginPlay()
+void UVFDMSteppableComponent::Init(UPrimitiveComponent *Source)
 {
-    Super::BeginPlay();
+    Super::Init(Source);
 
     Steps.Reserve(200);
     if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
         Steps.Add(FVFDMCompStep{
-            UVFDMCompStepOperation::BeginPlay,
+            UVFDMCompStepOperation::Init,
             nullptr,
             StepsRecorder->Time});
         StepsRecorder->RegisterTickable(this);
@@ -28,28 +28,20 @@ void UVFDMSteppableComponent::BeginPlay()
     LocalPool = NewObject<UDynamicMeshPool>(this);
 }
 
-void UVFDMSteppableComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void UVFDMSteppableComponent::Clear()
 {
-    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
+    // 对于已经在池中的组件, GetWorld()是nullptr, 故需要这层保护.
+    if (auto World = GetWorld())
     {
-        StepsRecorder->UnregisterTickable(this);
+        if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
+        {
+            StepsRecorder->UnregisterTickable(this);
+        }
     }
     Steps.Reset();
     LocalPool->ReturnAllMeshes();
 
-    Super::EndPlay(EndPlayReason);
-}
-
-void UVFDMSteppableComponent::DestroyComponent(bool bPromoteChildren)
-{
-    auto World = GetWorld();
-
-    Super::DestroyComponent(bPromoteChildren);
-
-    if (auto CompsPool = World->GetSubsystem<UVFDMCompPoolWorldSubsystem>())
-    {
-        CompsPool->ReturnComp(this);
-    }
+    Super::Clear();
 }
 
 UDynamicMesh *UVFDMSteppableComponent::RequestACopiedMesh()
@@ -144,12 +136,34 @@ void UVFDMSteppableComponent::TickBackward_Implementation(float Time)
 
         switch (StepInfo.Operation)
         {
-        case UVFDMCompStepOperation::BeginPlay:
+        case UVFDMCompStepOperation::Init:
         {
-            if (GetSourceVFDMComp()) // 复制体上的
-                GetOwner()->Destroy();
+            auto Actor = GetOwner();
+            bool NeedToDestroyActor = false;
+            auto PoolSubsystem = GetWorld()->GetSubsystem<UVFDMCompPoolWorldSubsystem>();
+            if (GetSourceVFDMComp())
+            {
+                TInlineComponentArray<UVFDMSteppableComponent *> VFDMSComps(Actor);
+                Actor->GetComponents<UVFDMSteppableComponent>(VFDMSComps);
+                NeedToDestroyActor = VFDMSComps.Num() == 1;
+            }
+
+            UnregisterComponent();
+            Actor->RemoveInstanceComponent(this);
+            Clear();
+            if (PoolSubsystem)
+            {
+                PoolSubsystem->ReturnComp(this);
+            }
             else
-                DestroyComponent(); // 原网格上的(ReplaceMeshForComponent)创建的
+            {
+                DestroyComponent(false);
+            }
+
+            if (NeedToDestroyActor)
+            {
+                Actor->Destroy();
+            }
             return;
         }
         case UVFDMCompStepOperation::CopyMeshFromComponent:
