@@ -55,8 +55,8 @@ Photo2D索引Photo3D，所以最简单的做法就是把场景放置在Photo3D�
 递归照片解决方案：Photo2D的Help中，在被放置后复制外层Photo3D，初始化为None并FlodUp，即可解决。
 
 ### 还未解决
-- [ ] 贴花颜色无法与场景完全一致（AVFPhotoDecal）。可能ViewFinder也没有解决这个问题（它使用的光照贴图）
-- [ ] 组件对象池（UVFDMCompPoolWorldSubsystem）。默认关闭。
+- [ ] 贴花颜色无法与场景完全一致(AVFPhotoDecal).ViewFinder应该使用的全静态光照.  (我偷懒没有进行尝试)
+- [ ] 场景捕捉与虚拟阴影贴图不兼容. 在使用VSM时, 捕捉到的阴影会出现块状缺失. 项目已关闭VSM. [官方对其的问题描述](https://dev.epicgames.com/documentation/en-us/unreal-engine/virtual-shadow-maps-in-unreal-engine#scene-capture)
 
 ### 原游戏流程记录
 0.1 板子坏，时间回溯；照片出现传送门。  
