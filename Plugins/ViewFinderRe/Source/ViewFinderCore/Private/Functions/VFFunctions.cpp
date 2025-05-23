@@ -77,8 +77,8 @@ AActor *UVFFunctions::CloneActorRuntime(
 		// 还原组件
 		auto Parent = Parents[DMComp];
 		Original->AddInstanceComponent(DMComp);
-		DMComp->AttachToComponent(Parent, FAttachmentTransformRules::SnapToTargetIncludingScale);
 		DMComp->RegisterComponent();
+		DMComp->AttachToComponent(Parent, FAttachmentTransformRules::SnapToTargetIncludingScale);
 
 		UVFDynamicMeshComponent *CopiedComp = NewVFDMComp(Copy, DMComp->GetClass());
 		CopiedComps.Add(CopiedComp);

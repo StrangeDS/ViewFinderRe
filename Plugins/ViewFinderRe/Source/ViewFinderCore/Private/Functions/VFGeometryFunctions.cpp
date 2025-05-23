@@ -414,20 +414,25 @@ UDynamicMesh *UVFGeometryFunctions::AppendFrustum(
 	// 计算并放置视锥各点的位置
 	TArray<FVector> Positions;
 	{
+		float x = StartDis;
+		float y = StartDis * tanf(FMath::DegreesToRadians(Angle) / 2);
+		float z = y / AspectRatio;
+		float xDistance = EndDis;
+		float yDistance = EndDis * tanf(FMath::DegreesToRadians(Angle) / 2);
+		float zDistance = yDistance / AspectRatio;
+
+		// Box顶顶啊顺序为底面由左下顺时针到右下; 顶面由左下顺时针到右下.
 		Positions.Reserve(8);
-		auto CalculatePositions = [&](float Distance)
-		{
-			float x = Distance;
-			float y = Distance * tanf(FMath::DegreesToRadians(Angle) / 2);
-			float z = y / AspectRatio;
-			Positions.Push({x, -y, -z});
-			Positions.Push({x, y, -z});
-			Positions.Push({x, y, z});
-			Positions.Push({x, -y, z});
-		};
-		CalculatePositions(StartDis);
-		CalculatePositions(EndDis);
+		Positions.Push({-x, -y, -z});
+		Positions.Push({xDistance, -yDistance, -zDistance});
+		Positions.Push({xDistance, yDistance, -zDistance});
+		Positions.Push({-x, y, -z});
+		Positions.Push({-x, -y, z});
+		Positions.Push({xDistance, -yDistance, zDistance});
+		Positions.Push({xDistance, yDistance, zDistance});
+		Positions.Push({-x, y, z});
 	}
+
 	for (int i = 0; i < 8; i++)
 	{
 		bool Success;
