@@ -45,13 +45,13 @@ public:
 	EVF_GeometryScriptCollisionGenerationMethod Method = EVF_GeometryScriptCollisionGenerationMethod::ConvexHulls;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
-	bool bAutoDetectSpheres = false;
+	bool bAutoDetectSpheres = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
-	bool bAutoDetectBoxes = false;
+	bool bAutoDetectBoxes = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
-	bool bAutoDetectCapsules = false;
+	bool bAutoDetectCapsules = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
 	float MinThickness = 1.0;
@@ -60,10 +60,10 @@ public:
 	bool bSimplifyHulls = true;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
-	int ConvexHullTargetFaceCount = 25;
+	int ConvexHullTargetFaceCount = 12;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
-	int MaxConvexHullsPerMesh = 1;
+	int MaxConvexHullsPerMesh = 2;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
 	float ConvexDecompositionSearchFactor = .5f;
