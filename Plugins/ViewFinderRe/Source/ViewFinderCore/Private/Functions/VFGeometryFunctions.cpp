@@ -423,14 +423,14 @@ UDynamicMesh *UVFGeometryFunctions::AppendFrustum(
 
 		// Box顶顶啊顺序为底面由左下顺时针到右下; 顶面由左下顺时针到右下.
 		Positions.Reserve(8);
-		Positions.Push({-x, -y, -z});
+		Positions.Push({x, -y, -z});
 		Positions.Push({xDistance, -yDistance, -zDistance});
 		Positions.Push({xDistance, yDistance, -zDistance});
-		Positions.Push({-x, y, -z});
-		Positions.Push({-x, -y, z});
+		Positions.Push({x, y, -z});
+		Positions.Push({x, -y, z});
 		Positions.Push({xDistance, -yDistance, zDistance});
 		Positions.Push({xDistance, yDistance, zDistance});
-		Positions.Push({-x, y, z});
+		Positions.Push({x, y, z});
 	}
 
 	for (int i = 0; i < 8; i++)

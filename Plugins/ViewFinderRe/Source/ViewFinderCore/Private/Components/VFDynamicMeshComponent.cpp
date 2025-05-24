@@ -17,7 +17,6 @@ void UVFDynamicMeshComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
     Super::EndPlay(EndPlayReason);
 }
 
-
 void UVFDynamicMeshComponent::Init(UPrimitiveComponent *Source)
 {
     check(Source);
@@ -27,6 +26,9 @@ void UVFDynamicMeshComponent::Init(UPrimitiveComponent *Source)
 void UVFDynamicMeshComponent::Clear()
 {
     SourceComponent = nullptr;
+
+    MeshObject->Reset();
+    ClearSimpleCollisionShapes(true);
 }
 
 void UVFDynamicMeshComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
