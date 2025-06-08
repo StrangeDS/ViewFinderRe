@@ -16,6 +16,7 @@ public class ViewFinderCore : ModuleRules
 				Path.Combine(ModuleDirectory, "Public/Functions"),
 				Path.Combine(ModuleDirectory, "Public/Interfaces"),
 				Path.Combine(ModuleDirectory, "Public/Subsystems"),
+				Path.Combine(ModuleDirectory, "Public/Generators"),
 			}
 			);
 
