@@ -207,7 +207,7 @@ UDynamicMesh *UVFGeometryFunctions::CopyMeshFromStaticMesh(
 
 	if (!ensure(FromStaticMeshAsset->bAllowCPUAccess))
 	{
-		VF_LOG(Warning, TEXT("Mesh %s bAllowCPUAccess needs to be true."), *FromStaticMeshAsset->GetName());
+		VF_LOG(Error, TEXT("Mesh %s bAllowCPUAccess needs to be true."), *FromStaticMeshAsset->GetName());
 #if !WITH_EDITOR
 		return ToDynamicMesh;
 #endif
@@ -373,72 +373,32 @@ UDynamicMesh *UVFGeometryFunctions::ApplyMeshSelfUnion(
 	return TargetMesh;
 }
 
+#include "FFrustumGenerator.h"
+
 UDynamicMesh *UVFGeometryFunctions::AppendFrustum(
 	UDynamicMesh *TargetMesh,
 	FVF_GeometryScriptPrimitiveOptions PrimitiveOptions,
-	float Angle,
+	float ViewAngle,
 	float AspectRatio,
 	float StartDis,
 	float EndDis)
 {
 	check(TargetMesh);
-	// 实现: 从简单盒上修改点位置制成视锥.
-	// 更好的做法是写一个FMeshShapeGenerator.
 
-	// 生成盒状
-	// from UGeometryScriptLibrary_MeshPrimitiveFunctions::AppendBox()
-	float DimensionX = 100.0f, DimensionY = 100.0f, DimensionZ = 100.0f;
-	int32 StepsX = 0, StepsY = 0, StepsZ = 0;
+	UE::Geometry::Frustum::FFrustumGenerator Generator;
+	Generator.VerticalFOV = ViewAngle;
+	Generator.AspectRatio = AspectRatio;
+	Generator.NearPlaneDis = StartDis;
+	Generator.FarPlaneDis = EndDis;
+	Generator.Generate();
 
-	UE::Geometry::FAxisAlignedBox3d ConvertBox(
-		FVector3d(-DimensionX / 2, -DimensionY / 2, 0),
-		FVector3d(DimensionX / 2, DimensionY / 2, DimensionZ));
-	FGridBoxMeshGenerator GridBoxGenerator;
-	GridBoxGenerator.Box = UE::Geometry::FOrientedBox3d(ConvertBox);
-	GridBoxGenerator.EdgeVertices = FIndex3i(FMath::Max(0, StepsX), FMath::Max(0, StepsY), FMath::Max(0, StepsZ));
-	GridBoxGenerator.Generate();
-
-	FVector3d OriginShift = FVector3d(0, 0, -DimensionZ / 2);
-	// from UGeometryScriptLibrary_MeshPrimitiveFunctions::AppendPrimitive()
 	TargetMesh->EditMesh([&](FDynamicMesh3 &EditMesh)
 						 {
-			EditMesh.Copy(&GridBoxGenerator);
-			// from UGeometryScriptLibrary_MeshPrimitiveFunctions.cpp ApplyPrimitiveOptionsToMesh()
-			MeshTransforms::Translate(EditMesh, OriginShift);
-			MeshTransforms::ApplyTransform(EditMesh, (FTransformSRT3d)FTransform::Identity, true);
-			for (int32 tid : EditMesh.TriangleIndicesItr())
-			{
-				EditMesh.SetTriangleGroup(tid, 0);
-			} }, EDynamicMeshChangeType::GeneralEdit, EDynamicMeshAttributeChangeFlags::Unknown, false);
-
-	// 计算并放置视锥各点的位置
-	TArray<FVector> Positions;
-	{
-		float x = StartDis;
-		float y = StartDis * tanf(FMath::DegreesToRadians(Angle) / 2);
-		float z = y / AspectRatio;
-		float xDistance = EndDis;
-		float yDistance = EndDis * tanf(FMath::DegreesToRadians(Angle) / 2);
-		float zDistance = yDistance / AspectRatio;
-
-		// Box顶顶啊顺序为底面由左下顺时针到右下; 顶面由左下顺时针到右下.
-		Positions.Reserve(8);
-		Positions.Push({x, -y, -z});
-		Positions.Push({xDistance, -yDistance, -zDistance});
-		Positions.Push({xDistance, yDistance, -zDistance});
-		Positions.Push({x, y, -z});
-		Positions.Push({x, -y, z});
-		Positions.Push({xDistance, -yDistance, zDistance});
-		Positions.Push({xDistance, yDistance, zDistance});
-		Positions.Push({x, y, z});
-	}
-
-	for (int i = 0; i < 8; i++)
-	{
-		bool Success;
-		SetVertexPosition(TargetMesh, i, Positions[i], Success, i != 7);
-	}
-
+			EditMesh.Copy(&Generator);
+			MeshTransforms::ApplyTransform(EditMesh, (FTransformSRT3d)FTransform::Identity, true); },
+						 EDynamicMeshChangeType::GeneralEdit,
+						 EDynamicMeshAttributeChangeFlags::Unknown,
+						 false);
 	return TargetMesh;
 }
 

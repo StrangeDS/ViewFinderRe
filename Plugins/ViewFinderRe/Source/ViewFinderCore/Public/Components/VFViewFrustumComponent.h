@@ -25,10 +25,7 @@ public:
 	void RegenerateViewFrustum(float Angle = 90.f, float AspectRatio = 1.77778f, float StartDis = 10.0f, float EndDis = 500.0f);
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void RecordViewFrustum(UVFViewFrustumComponent* Other);
-	
-	// UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	// void GetOverlapedPrimitiveComps(TArray<UPrimitiveComponent*> Out);
+	void RecordViewFrustum(UVFViewFrustumComponent *Other);
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
@@ -44,8 +41,16 @@ protected:
 		false,
 		false,
 		1.0,
+		false,
+		6,
+		1,
+		.5f,
+		0,
+		0.1f,
+		0.1f,
+		EVF_GeometryScriptSweptHullAxis::Z,
 		true,
-		6};
+		1};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	TObjectPtr<UMaterialInterface> Matirial;

@@ -4,6 +4,7 @@
 
 UVFViewFrustumComponent::UVFViewFrustumComponent()
 {
+    CastShadow = false;
     SetComplexAsSimpleCollisionEnabled(false);
     // 对比OverlapAll差异为: ViewFrustum物体与ViewFrustum物体为ignore
     SetCollisionProfileName(TEXT("ViewFrustum"));

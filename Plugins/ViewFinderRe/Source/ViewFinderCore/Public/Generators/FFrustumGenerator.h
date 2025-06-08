@@ -65,7 +65,7 @@ namespace UE::Geometry::Frustum
         // 0 -> near, 1 -> far, 2 -> left, 3 -> right, 4 -> bottom, 5 -> top
         TArray<int> NumOfPlaneVertices;
         TArray<int> NumOfPlaneTriangles;
-        TArray<FVector3f> PlaneNormals; // 事实上，点法线和面法线并不需要手动填入(没有需要平滑的), 会自动计算.
+        TArray<FVector3f> PlaneNormals; // 事实上，点法线和面法线并不需要手动填入(无需平滑, 光照), 会自动计算.
 
     public:
         virtual FMeshShapeGenerator &Generate() override
@@ -560,7 +560,7 @@ namespace UE::Geometry::Frustum
                     int Index = GetVertexIndexOfFrontPlane(bIsNear, i, j);
                     Vertices[Index] = FVector(Offset, Ys[j], Zs[i]);
                     // Normals[Index - IndexOfPlaneStart] = bIsNear ? PlaneNormals[0] : PlaneNormals[1];
-                    NormalParentVertex[Index - IndexOfPlaneStart] = Index;
+                    // NormalParentVertex[Index - IndexOfPlaneStart] = Index;
                 }
             }
         }
