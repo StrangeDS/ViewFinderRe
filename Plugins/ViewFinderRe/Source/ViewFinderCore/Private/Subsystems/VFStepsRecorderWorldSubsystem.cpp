@@ -155,6 +155,11 @@ void UVFStepsRecorderWorldSubsystem::UnregisterTickable(const TScriptInterface<I
     }
 }
 
+bool UVFStepsRecorderWorldSubsystem::IsTickableRegistered(const TScriptInterface<IVFStepsRecordInterface> &Target)
+{
+    return TickTargets.Contains(Target);
+}
+
 void UVFStepsRecorderWorldSubsystem::StartRewinding()
 {
     if (bIsRewinding)

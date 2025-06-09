@@ -67,6 +67,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void UnregisterTickable(const TScriptInterface<IVFStepsRecordInterface> &Target);
 
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	bool IsTickableRegistered(const TScriptInterface<IVFStepsRecordInterface> &Target);
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TArray<TScriptInterface<IVFStepsRecordInterface>> TickTargets;
 

@@ -6,9 +6,23 @@
 #include "VFDMCompPoolWorldSubsystem.h"
 #include "VFStepsRecorderWorldSubsystem.h"
 
+bool IsEditorCreated(UObject *Object)
+{
+    return Object->HasAnyFlags(RF_WasLoaded | RF_LoadCompleted);
+}
+
 UVFDMSteppableComponent::UVFDMSteppableComponent(const FObjectInitializer &ObjectInitializer)
     : UVFDynamicMeshComponent(ObjectInitializer)
 {
+}
+
+void UVFDMSteppableComponent::BeginPlay()
+{
+    Super::BeginPlay();
+
+    LocalPool = NewObject<UDynamicMeshPool>(this);
+    if (IsEditorCreated(this))
+        Init(Cast<UPrimitiveComponent>(GetAttachParent()));
 }
 
 void UVFDMSteppableComponent::Init(UPrimitiveComponent *Source)
@@ -24,8 +38,6 @@ void UVFDMSteppableComponent::Init(UPrimitiveComponent *Source)
             StepsRecorder->Time});
         StepsRecorder->RegisterTickable(this);
     }
-
-    LocalPool = NewObject<UDynamicMeshPool>(this);
 }
 
 void UVFDMSteppableComponent::Clear()
@@ -35,7 +47,8 @@ void UVFDMSteppableComponent::Clear()
     {
         if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
         {
-            StepsRecorder->UnregisterTickable(this);
+            if (StepsRecorder->IsTickableRegistered(this))
+                StepsRecorder->UnregisterTickable(this);
         }
     }
     Steps.Reset();

@@ -44,6 +44,8 @@ class VIEWFINDERCORE_API UVFDMSteppableComponent : public UVFDynamicMeshComponen
 public:
 	UVFDMSteppableComponent(const FObjectInitializer &ObjectInitializer = FObjectInitializer::Get());
 
+	virtual void BeginPlay() override;
+
 	virtual void Init(UPrimitiveComponent *Source) override;
 
 	virtual void Clear() override;
