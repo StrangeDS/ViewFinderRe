@@ -55,7 +55,8 @@ public: // 记录属性
 	void RecordProperty(
 		UVFViewFrustumComponent *ViewFrustum,
 		bool OnlyWithHelps,
-		const TArray<TEnumAsByte<EObjectTypeQuery>> &ObjectTypes);
+		const TArray<TEnumAsByte<EObjectTypeQuery>> &ObjectTypes,
+		EVFPhoto3DState StateIn = EVFPhoto3DState::None);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	TObjectPtr<UVFViewFrustumComponent> ViewFrustumRecorder;

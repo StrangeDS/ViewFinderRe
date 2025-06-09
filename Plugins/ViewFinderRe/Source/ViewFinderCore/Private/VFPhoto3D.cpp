@@ -163,9 +163,11 @@ void AVFPhoto3D::SetVFDMCompsEnabled(const bool &Enabled)
 void AVFPhoto3D::RecordProperty(
 	UVFViewFrustumComponent *ViewFrustum,
 	bool OnlyWithHelps,
-	const TArray<TEnumAsByte<EObjectTypeQuery>> &ObjectTypes)
+	const TArray<TEnumAsByte<EObjectTypeQuery>> &ObjectTypes,
+	EVFPhoto3DState StateIn)
 {
 	ViewFrustumRecorder->RecordViewFrustum(ViewFrustum);
 	bOnlyOverlapWithHelps = OnlyWithHelps;
 	ObjectTypesToOverlap = ObjectTypes;
+	State = StateIn;
 }
