@@ -54,6 +54,7 @@ public:
 	UFUNCTION(CallInEditor, Category = "ViewFinder")
 	void PrefabricateAPhotoLevel();
 
+	// 手动迭代, 避开同时读写造成的黑, 也是从版本兼容性考虑
 	UFUNCTION(CallInEditor, Category = "ViewFinder")
 	void UpdateMIC();
 
@@ -61,15 +62,12 @@ public:
 
 #if WITH_EDITORONLY_DATA
 	UPROPERTY(EditAnywhere, Category = "ViewFinder")
-	int IterationTimes = 3;
-
-	UPROPERTY(EditAnywhere, Category = "ViewFinder")
 	FName TextureName = TEXT("Texture");
 
 	UPROPERTY(EditAnywhere, Category = "ViewFinder")
 	int MaterialIndex = 0;
 
-	/// @brief 若不为空, 则只会对里面Actors进行处理.
+	// 若不为空, 则只会对里面Actors进行处理.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	TArray<TObjectPtr<AActor>> OnlyActorsCatched;
 

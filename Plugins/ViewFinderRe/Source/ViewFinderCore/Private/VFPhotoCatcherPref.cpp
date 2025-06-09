@@ -120,13 +120,6 @@ UMaterialInstanceConstant *CreateMICFromMID(UMaterialInstanceDynamic *MIDynamic)
 
 void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
 {
-    if (IterationTimes < 0 || IterationTimes > 10)
-    {
-        VF_LOG(Error, TEXT("%s invalid IterationTimes(%i)."),
-               __FUNCTIONW__, IterationTimes);
-        return;
-    }
-
     ULevelInstanceSubsystem *LevelInstanceSubsystem =
         GetWorld()->GetSubsystem<ULevelInstanceSubsystem>();
     if (!LevelInstanceSubsystem)
@@ -267,24 +260,6 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
                 }
             }
         }
-
-        // // 迭代照相
-        // for (int i = 0; i < IterationTimes; ++i)
-        // {
-        //     PhotoCapture->CaptureScene();
-        //     PhotoCapture->TextureTarget->UpdateTexture2D(Texture2D, Texture2D->Source.GetFormat());
-        //     Texture2D->MarkPackageDirty();
-        // }
-
-        // 迭代照相
-        // for (int i = 0; i < IterationTimes; ++i)
-        // {
-        //     PhotoCapture->CaptureScene();
-        //     Texture2D = PhotoCapture->DrawATexture2D();
-        //     MIConstant->SetTextureParameterValueEditorOnly(TextureName, Texture2D);
-        // }
-        // Texture2D->ClearFlags(RF_Transient);
-        // Texture2D->SetFlags(RF_Public | RF_Standalone);
     }
 
     // 迁移前准备
@@ -393,7 +368,7 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
     }
 
     UTexture2D *TextureAsset = nullptr;
-    UMaterialInstanceConstant *MIContantAsset = nullptr;
+    UMaterialInstanceConstant *MICAsset = nullptr;
 
     {
         const TSoftObjectPtr<UWorld> &LevelAsset = LevelInstance->GetWorldAsset();
@@ -416,17 +391,17 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
         }
 
         AssetName = FString::Printf(TEXT("%s_MIC"), *AssetPrefix);
-        MIContantAsset = Cast<UMaterialInstanceConstant>(AssetTools.Get().DuplicateAsset(
+        MICAsset = Cast<UMaterialInstanceConstant>(AssetTools.Get().DuplicateAsset(
             AssetName,
             AssetPath,
             MIConstant));
-        if (!MIContantAsset)
+        if (!MICAsset)
         {
-            AfterFailure(TEXT("save MIContantAsset fails."));
+            AfterFailure(TEXT("save MICAsset fails."));
             return;
         }
 
-        MIContantAsset->SetTextureParameterValueEditorOnly(TextureName, TextureAsset);
+        MICAsset->SetTextureParameterValueEditorOnly(TextureName, TextureAsset);
     }
 
     // 替换成常量材质资产
@@ -443,12 +418,12 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
                     if (auto VFDMComp = Cast<UVFDynamicMeshComponent>(Comp))
                     {
                         VFDMComp->SourceComponent = Photo2D->StaticMesh;
-                        VFDMComp->SetMaterial(MaterialIndex, MIContantAsset);
+                        VFDMComp->SetMaterial(MaterialIndex, MICAsset);
                         break;
                     }
                 }
             }
-            Photo2D->StaticMesh->SetMaterial(MaterialIndex, MIContantAsset);
+            Photo2D->StaticMesh->SetMaterial(MaterialIndex, MICAsset);
             Photo2D->MaterialInstance = nullptr;
             Photo2D->MarkPackageDirty();
         }
@@ -456,7 +431,7 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
 
     LevelInstance->ExitEdit();
 
-    // 原场景迭代拍照
+    // 原场景拍照
     {
         TArray<AVFPhoto2D *> Photo2DsOrigial;
         for (auto &Comp : CompsOverlapped)
@@ -472,13 +447,17 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
         }
         for (auto &Photo2D : Photo2DsOrigial)
         {
-            Photo2D->StaticMesh->SetMaterial(MaterialIndex, MIContantAsset);
+            Photo2D->StaticMesh->SetMaterial(MaterialIndex, MICAsset);
         }
         PhotoCapture->CaptureScene();
         PhotoCapture->TextureTarget->UpdateTexture2D(TextureAsset, TextureAsset->Source.GetFormat());
     }
 
     ClearTemporary();
+
+    Texture2DAsset = TextureAsset;
+    MIConstantAsset = MICAsset;
+
     VF_LOG(Log, TEXT("SaveAPhotoInEditor successed."));
 }
 
@@ -500,18 +479,22 @@ void AVFPhotoCatcherPref::UpdateMIC()
         return;
     }
 
+    FScopedTransaction Transaction(FText::FromString(TEXT("UpdateMIC")));
+    Texture2DAsset->Modify();
+    MIConstantAsset->Modify();
+
     bool bUseTempRenderTarget = PhotoCapture->TextureTarget == nullptr;
     if (bUseTempRenderTarget)
         PhotoCapture->Init();
 
-    for (int i = 0; i < IterationTimes; ++i)
-    {
-        PhotoCapture->CaptureScene();
-        PhotoCapture->TextureTarget->UpdateTexture2D(Texture2DAsset, Texture2DAsset->Source.GetFormat());
-    }
-
+    PhotoCapture->CaptureScene();
+    PhotoCapture->TextureTarget->UpdateTexture2D(Texture2DAsset, Texture2DAsset->Source.GetFormat());
     if (bUseTempRenderTarget)
         PhotoCapture->TextureTarget = nullptr;
+
+    Texture2DAsset->PostEditChange();
+    Texture2DAsset->MarkPackageDirty();
+    MIConstantAsset->MarkPackageDirty();
 }
 
 AVFPhoto2D *AVFPhotoCatcherPref::TakeAPhoto_Implementation()
