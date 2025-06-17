@@ -13,10 +13,6 @@ UVFPhotoCaptureComponent::UVFPhotoCaptureComponent()
 	bCaptureOnMovement = false;
 	bAlwaysPersistRenderingState = false;
 	PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_RenderScenePrimitives;
-	PostProcessSettings.bOverride_DynamicGlobalIlluminationMethod = 1;
-	PostProcessSettings.DynamicGlobalIlluminationMethod = EDynamicGlobalIlluminationMethod::Type::Lumen;
-	PostProcessSettings.bOverride_ReflectionMethod = 1;
-	PostProcessSettings.ReflectionMethod = EReflectionMethod::Type::Lumen;
 }
 
 void UVFPhotoCaptureComponent::BeginPlay()

@@ -14,6 +14,7 @@ class VIEWFINDERCORE_API UVFPhotoCaptureComponent : public USceneCaptureComponen
 public:
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void Init();
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
