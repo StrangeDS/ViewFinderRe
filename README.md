@@ -61,12 +61,23 @@ Photo2D索引Photo3D, 所以最简单的做法就是把场景放置在Photo3D中
 递归照片解决方案: Photo2D的Help中, 在被放置后复制外层Photo3D, 初始化为None并FlodUp, 即可解决.
 #### 迭代照片
 
-### 还未解决
-- [ ] 贴花颜色无法与场景完全一致(AVFPhotoDecal).ViewFinder应该使用的全静态光照.  (我偷懒没有进行尝试)
-- [X] 场景捕捉与虚拟阴影贴图不兼容. 在使用VSM时, 捕捉到的阴影会出现块状缺失. 项目已关闭VSM. [官方对这个问题的描述](https://dev.epicgames.com/documentation/en-us/unreal-engine/virtual-shadow-maps-in-unreal-engine#scene-capture)
-- [ ] 编辑器中查看组件属性, 会出现报错, 原因未知, 无影响, 忽略."LogOutputDevice: Error: Ensure condition failed: PropertyNodeMap.ParentProperty == CurObjectNode [File:D:\build\++UE5\Sync\Engine\Source\Editor\PropertyEditor\Private\DetailLayoutHelpers.cpp] [Line: 137]"
-- [ ] 视锥偶尔碰撞检测不到物体, 换个角度/位置, 甚至重新来一次就行, 原因不确定. 天空盒缺失也是这个原因, 它没有被碰撞到, 没有被复制到照片, 放置出来便是空的. 猜测可能是球体被挖空后生成的碰撞有问题. 目前认为是三角面被过分拉长, 导致重叠检测失效, 考虑视锥分段.
+### 还未完全解决, 打勾是有暂时的处理办法
+- [x] 贴花颜色无法与场景完全一致(AVFPhotoDecal).  
+      - 已知问题为:   场景捕捉的本身就与玩家相机颜色存在偏差. 一个可能的解决方案: [插件CameraCapture](https://zhuanlan.zhihu.com/p/702941885).   
 
+      更新:   
+      1. 主因: 二次光照. 贴花映射的物体再进行了一次PBR流程, 导致颜色偏暗/亮. 同时光源的暖色和间接光(?)也因为二次关照, 导致颜色偏红/黄.
+      2. 依据为: 调整场景主光源强度, 强度越高,贴花越亮; 强度越弱, 贴花越暗. 测试强度为3.7 lux时较为合适.
+      3. 虽然能够设置光源的"不适用暖色"和ShowFlags不显示大气, 但似乎存在不可设置的间接光(不确定)依然导致偏色.
+      4. 这样的办法, 在不同的距离下颜色也不协调, 但对于ViewFinder来说，它就应该是那个距离的光照.
+- [X] 场景捕捉与虚拟阴影贴图不兼容. 在使用VSM时, 捕捉到的阴影会出现块状缺失.  
+      项目已关闭VSM. [官方对此问题的描述](https://dev.epicgames.com/documentation/en-us/unreal-engine/virtual-shadow-maps-in-unreal-engine#scene-capture)
+- [ ] 编辑器中查看组件属性, 会出现报错, 原因未知, 无影响, 忽略."LogOutputDevice: Error: Ensure condition failed: PropertyNodeMap.ParentProperty == CurObjectNode [File:D:\build\++UE5\Sync\Engine\Source\Editor\PropertyEditor\Private\DetailLayoutHelpers.cpp] [Line: 137]"
+- [ ] 视锥偶尔碰撞检测不到物体, 换个角度/位置, 甚至重新来一次就行, 原因不确定. 天空盒缺失也是这个原因, 它没有被碰撞到, 没有被复制到照片, 放置出来便是空的. 猜测可能是球体被挖空后生成的碰撞有问题.  
+      通过视锥分段(commit: [6423631](https://github.com/StrangeDS/ViewFinderRe/commit/6423631) [7794c81](https://github.com/StrangeDS/ViewFinderRe/commit/7794c81)), 已排除**三角面被过分拉长, 导致重叠检测失效**的可能.
+
+      更新:   
+      1. 天空盒的错误目前认为是在几次截取后, 剩余的部分凸包近似已经无法办到了, 导致生成的简单碰撞失效.
 ### 原游戏流程记录
 0.1 板子坏, 时间回溯；照片出现传送门.  
 0.2 电池, 电路板开启传送门；照片出现电池.物理抓手.  
