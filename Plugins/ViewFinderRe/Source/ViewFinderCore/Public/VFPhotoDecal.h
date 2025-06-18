@@ -27,6 +27,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void DrawDecal(bool ForceToUpdate = false);
 
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	void DrawSceneDepth(bool ForceToUpdate = false);
+
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, CallInEditor, Category = "ViewFinder")
 	void ReplaceWithDecal();
 	virtual void ReplaceWithDecal_Implementation();
@@ -49,7 +52,13 @@ public:
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<UVFPhotoCaptureComponent> PhotoCapture;
+	TObjectPtr<USceneComponent> CaptureRoot;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	TObjectPtr<UVFPhotoCaptureComponent> CaptureOfDecal;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	TObjectPtr<UVFPhotoCaptureComponent> CaptureOfDepth;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<UVFViewFrustumComponent> ViewFrustum;
@@ -67,6 +76,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	float EndDis = 1000.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	float AspectRatio = 1.666667f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TArray<AActor *> ManagedActors;
@@ -89,7 +101,10 @@ public:
 	TObjectPtr<UMaterialInstanceDynamic> MaterialInstance;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<UTexture2D> Texture2D;
+	TObjectPtr<UTexture2D> TextureOfDecal;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	TObjectPtr<UTexture2D> TextureOfDepth;
 
 public:
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")

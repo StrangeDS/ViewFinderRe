@@ -11,11 +11,20 @@ AVFPhotoDecal::AVFPhotoDecal()
 {
     RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
 
-    PhotoCapture = CreateDefaultSubobject<UVFPhotoCaptureComponent>(TEXT("PhotoCapture"));
-    PhotoCapture->SetupAttachment(RootComponent);
+    CaptureRoot = CreateDefaultSubobject<USceneComponent>(TEXT("CaptureRoot"));
+    CaptureRoot->SetupAttachment(RootComponent);
+
+    CaptureOfDecal = CreateDefaultSubobject<UVFPhotoCaptureComponent>(TEXT("CaptureOfDecal"));
+    CaptureOfDecal->SetupAttachment(CaptureRoot);
+    CaptureOfDecal->CaptureSource = ESceneCaptureSource::SCS_SceneColorHDR;
+
+    CaptureOfDepth = CreateDefaultSubobject<UVFPhotoCaptureComponent>(TEXT("CaptureOfDepth"));
+    CaptureOfDepth->SetupAttachment(CaptureRoot);
+    CaptureOfDepth->CaptureSource = ESceneCaptureSource::SCS_SceneDepth;
+    CaptureOfDepth->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_RenderScenePrimitives;
 
     ViewFrustum = CreateDefaultSubobject<UVFViewFrustumComponent>(TEXT("ViewFrustum"));
-    ViewFrustum->SetupAttachment(PhotoCapture);
+    ViewFrustum->SetupAttachment(CaptureRoot);
 
     Decal = CreateDefaultSubobject<UDecalComponent>(TEXT("Decal"));
     Decal->SetupAttachment(RootComponent);
@@ -30,8 +39,13 @@ void AVFPhotoDecal::OnConstruction(const FTransform &Transform)
 {
     Super::OnConstruction(Transform);
 
-    PhotoCapture->FOVAngle = ViewAngle;
-    float AspectRatio = PhotoCapture->GetTargetAspectRatio();
+    CaptureOfDecal->FOVAngle = ViewAngle;
+    CaptureOfDecal->CustomNearClippingPlane = StartDis;
+    CaptureOfDecal->MaxViewDistanceOverride = EndDis;
+    CaptureOfDepth->FOVAngle = ViewAngle;
+    CaptureOfDepth->CustomNearClippingPlane = StartDis;
+    CaptureOfDepth->MaxViewDistanceOverride = EndDis;
+    AspectRatio = CaptureOfDecal->GetTargetAspectRatio();
     ViewFrustum->RegenerateViewFrustum(ViewAngle, AspectRatio, StartDis, EndDis);
     FVector Scale = Decal->GetRelativeScale3D();
     Decal->SetRelativeScale3D(FVector(Scale.X, Scale.Y, Scale.Y / AspectRatio));
@@ -41,31 +55,46 @@ void AVFPhotoDecal::DrawDecal(bool ForceToUpdate)
 {
     if (bOnlyCatchManagedActors)
     {
-        PhotoCapture->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList;
-        PhotoCapture->ShowOnlyActors = ManagedActors;
+        CaptureOfDecal->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList;
+        CaptureOfDecal->ShowOnlyActors = ManagedActors;
     }
     else
     {
-        PhotoCapture->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_RenderScenePrimitives;
-        PhotoCapture->ShowOnlyActors.Reset();
+        CaptureOfDecal->PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_RenderScenePrimitives;
+        CaptureOfDecal->ShowOnlyActors.Reset();
     }
 
     if (GetMaterialInstance())
     {
-        MaterialInstance->SetVectorParameterValue(TEXT("CameraPosition"), PhotoCapture->GetComponentLocation());
-        MaterialInstance->SetVectorParameterValue(TEXT("CameraFacing"), PhotoCapture->GetComponentRotation().Vector());
+        MaterialInstance->SetVectorParameterValue(TEXT("CameraPosition"), CaptureRoot->GetComponentLocation());
+        MaterialInstance->SetVectorParameterValue(TEXT("CameraFacing"), CaptureRoot->GetComponentRotation().Vector());
         MaterialInstance->SetVectorParameterValue(TEXT("DecalSize"), Decal->DecalSize);
-        MaterialInstance->SetScalarParameterValue(TEXT("FOVAngle"), PhotoCapture->FOVAngle);
-        MaterialInstance->SetScalarParameterValue(TEXT("AspectRatio"), PhotoCapture->GetTargetAspectRatio());
+        MaterialInstance->SetScalarParameterValue(TEXT("FOVAngle"), ViewAngle);
+        MaterialInstance->SetScalarParameterValue(TEXT("AspectRatio"), AspectRatio);
 
-        PhotoCapture->CaptureScene();
-        if (!Texture2D || ForceToUpdate)
-            Texture2D = PhotoCapture->DrawATexture2D();
-        MaterialInstance->SetTextureParameterValue(TEXT("Texture"), Texture2D);
+        CaptureOfDecal->CaptureScene();
+        if (!TextureOfDecal || ForceToUpdate)
+            TextureOfDecal = CaptureOfDecal->DrawATexture2D();
+        MaterialInstance->SetTextureParameterValue(TEXT("Texture"), TextureOfDecal);
     }
     else
     {
-        VF_LOG(Warning, TEXT("%s invalid MaterialInstance."), __FUNCTIONW__);
+        VF_LOG(Error, TEXT("%s invalid MaterialInstance."), __FUNCTIONW__);
+    }
+}
+
+void AVFPhotoDecal::DrawSceneDepth(bool ForceToUpdate)
+{
+    if (GetMaterialInstance())
+    {
+        CaptureOfDepth->CaptureScene();
+        if (!TextureOfDepth || ForceToUpdate)
+            TextureOfDepth = CaptureOfDepth->DrawATexture2D();
+        MaterialInstance->SetTextureParameterValue(TEXT("TextureOfDepth"), TextureOfDepth);
+    }
+    else
+    {
+        VF_LOG(Error, TEXT("%s invalid MaterialInstance."), __FUNCTIONW__);
     }
 }
 
@@ -77,6 +106,7 @@ void AVFPhotoDecal::ReplaceWithDecal_Implementation()
     bReplacing = true;
     DrawDecal();
     SetDecalEnabled(bReplacing);
+    DrawSceneDepth();
 
     OnReplace.Broadcast();
 }
