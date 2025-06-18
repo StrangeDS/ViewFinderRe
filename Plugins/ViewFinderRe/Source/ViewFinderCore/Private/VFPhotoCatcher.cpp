@@ -62,6 +62,7 @@ void AVFPhotoCatcher::OnConstruction(const FTransform &Transform)
 	ViewFrustum->RegenerateViewFrustum(ViewAngle, AspectRatio, StartDis, EndDis);
 	PhotoCapture->FOVAngle = ViewAngle;
 	PhotoCapture->CustomNearClippingPlane = StartDis;
+	PhotoCapture->MaxViewDistanceOverride = EndDis;
 }
 
 void AVFPhotoCatcher::BeginPlay()

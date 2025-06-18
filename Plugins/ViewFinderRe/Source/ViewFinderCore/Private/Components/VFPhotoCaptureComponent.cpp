@@ -21,12 +21,13 @@ void UVFPhotoCaptureComponent::BeginPlay()
 
 	Init();
 }
+
 void UVFPhotoCaptureComponent::Init()
 {
 	if (!IsValid(TextureTarget))
 	{
 		TextureTarget = NewObject<UTextureRenderTarget2D>(this);
-		TextureTarget->InitCustomFormat(TargetWidth, TargetHeight, PF_FloatRGBA, true);
+		TextureTarget->InitCustomFormat(TargetWidth, TargetHeight, PF_FloatRGBA, false);
 		TextureTarget->ClearColor = FLinearColor::Black;
 	}
 
@@ -64,12 +65,12 @@ UTexture2D *UVFPhotoCaptureComponent::DrawATexture2D()
 	FTextureRenderTargetResource *RTResource = TextureTarget->GameThread_GetRenderTargetResource();
 	const auto Format = TextureTarget->GetFormat();
 
-	if (Format == EPixelFormat::PF_B8G8R8A8)
+	if (Format == EPixelFormat::PF_R8G8B8A8)
 	{
 		TArray<FColor> PixelData;
 		RTResource->ReadPixels(PixelData);
 
-		Texture = UTexture2D::CreateTransient(Size.X, Size.Y, PF_B8G8R8A8);
+		Texture = UTexture2D::CreateTransient(Size.X, Size.Y, PF_R8G8B8A8);
 		FTexture2DMipMap &Mip = Texture->GetPlatformData()->Mips[0];
 		void *Data = Mip.BulkData.Lock(LOCK_READ_WRITE);
 		FMemory::Memcpy(Data, PixelData.GetData(), PixelData.Num() * sizeof(FColor));
@@ -91,8 +92,13 @@ UTexture2D *UVFPhotoCaptureComponent::DrawATexture2D()
 		RTResource->ReadFloat16Pixels(PixelData);
 
 		Texture = UTexture2D::CreateTransient(Size.X, Size.Y, PF_FloatRGBA);
+		Texture->CompressionSettings = TC_HDR;
+		FTexture2DMipMap &Mip = Texture->GetPlatformData()->Mips[0];
+		void *Data = Mip.BulkData.Lock(LOCK_READ_WRITE);
+		FMemory::Memcpy(Data, PixelData.GetData(), PixelData.Num() * sizeof(FFloat16Color));
+		Mip.BulkData.Unlock();
 #if WITH_EDITOR
-		Texture->Source.Init2DWithMipChain( // 必须的
+		Texture->Source.Init2DWithMipChain(
 			Texture->GetSizeX(),
 			Texture->GetSizeY(),
 			ETextureSourceFormat::TSF_RGBA16F);
@@ -100,11 +106,6 @@ UTexture2D *UVFPhotoCaptureComponent::DrawATexture2D()
 		uint8 *MipData = Texture->Source.LockMip(0);
 		FMemory::Memcpy(MipData, PixelData.GetData(), PixelData.Num() * sizeof(FFloat16Color));
 		Texture->Source.UnlockMip(0);
-#else
-		FTexture2DMipMap &Mip = Texture->GetPlatformData()->Mips[0];
-		void *Data = Mip.BulkData.Lock(LOCK_READ_WRITE);
-		FMemory::Memcpy(Data, PixelData.GetData(), PixelData.Num() * sizeof(FFloat16Color));
-		Mip.BulkData.Unlock();
 #endif
 	}
 
