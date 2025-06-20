@@ -268,10 +268,11 @@ public:
 	static UPARAM(DisplayName = "Target Mesh") UDynamicMesh *AppendFrustum(
 		UDynamicMesh *TargetMesh,
 		FVF_GeometryScriptPrimitiveOptions PrimitiveOptions,
-		float Angle,
-		float AspectRatio,
-		float StartDis,
-		float EndDis);
+		float Angle = 90.0f,
+		float AspectRatio = 1.6667f,
+		float StartDis = 10.0f,
+		float EndDis = 10000.0f,
+		FVector SegmentSize = FVector(2000.0f, 2000.0f, 2000.0f));
 
 	// from GeometryScript/SceneUtilityFunctions.h
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")

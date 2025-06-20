@@ -120,7 +120,7 @@ namespace UE::Geometry::Frustum
             case EFrustumPlane::Right:
             {
                 float Rate = 1 - (Depth - DepthOrRow) * SegmentSize.X / FarPlaneDis;
-                float Heigh = FarHeightHalf * Rate * 2;
+                float Heigh = FMath::Max(FarHeightHalf * Rate * 2, NearHeightHalf * 2);
                 Res = FloatFloor(Heigh / SegmentSize.Z) + 2;
                 break;
             }
@@ -128,7 +128,7 @@ namespace UE::Geometry::Frustum
             case EFrustumPlane::Top:
             {
                 float Rate = 1 - (Depth - DepthOrRow) * SegmentSize.X / FarPlaneDis;
-                float Width = FarWidthHalf * Rate * 2;
+                float Width = FMath::Max(FarWidthHalf * Rate * 2, NearWidthHalf * 2);
                 Res = FloatFloor(Width / SegmentSize.Y) + 2;
                 break;
             }

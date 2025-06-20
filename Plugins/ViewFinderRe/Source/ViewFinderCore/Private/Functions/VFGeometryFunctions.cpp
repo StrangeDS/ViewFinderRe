@@ -381,7 +381,8 @@ UDynamicMesh *UVFGeometryFunctions::AppendFrustum(
 	float ViewAngle,
 	float AspectRatio,
 	float StartDis,
-	float EndDis)
+	float EndDis,
+	FVector SegmentSize)
 {
 	check(TargetMesh);
 
@@ -390,6 +391,7 @@ UDynamicMesh *UVFGeometryFunctions::AppendFrustum(
 	Generator.AspectRatio = AspectRatio;
 	Generator.NearPlaneDis = StartDis;
 	Generator.FarPlaneDis = EndDis;
+	Generator.SegmentSize = SegmentSize;
 	Generator.Generate();
 
 	TargetMesh->EditMesh(
