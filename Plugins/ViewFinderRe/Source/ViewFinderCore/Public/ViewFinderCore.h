@@ -8,7 +8,12 @@
 class FViewFinderCoreModule : public IModuleInterface
 {
 public:
-	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
+
+#if WITH_EDITOR
+public:
+	void AddPropertySections();
+	void CheckConfigs();
+#endif
 };
