@@ -48,14 +48,15 @@ UVFDynamicMeshComponent *UVFDMCompPoolWorldSubsystem::GetOrCreateComp(
     return CompRes;
 }
 
-void UVFDMCompPoolWorldSubsystem::ReturnComp(UVFDynamicMeshComponent *Comp)
+bool UVFDMCompPoolWorldSubsystem::ReturnComp(UVFDynamicMeshComponent *Comp)
 {
     auto CompClass = Comp->GetClass();
     if (!PoolsOfAll.Contains(CompClass) || !PoolsOfAll[CompClass].Comps.Contains(Comp))
-        return;
+        return false;
 
     Comp->Rename(nullptr, this);
     PoolsOfAvailable.FindOrAdd(CompClass).Comps.AddUnique(Comp);
+    return true;
 }
 
 void UVFDMCompPoolWorldSubsystem::PreparePools()

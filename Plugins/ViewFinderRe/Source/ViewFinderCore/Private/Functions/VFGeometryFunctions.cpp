@@ -392,13 +392,15 @@ UDynamicMesh *UVFGeometryFunctions::AppendFrustum(
 	Generator.FarPlaneDis = EndDis;
 	Generator.Generate();
 
-	TargetMesh->EditMesh([&](FDynamicMesh3 &EditMesh)
-						 {
+	TargetMesh->EditMesh(
+		[&](FDynamicMesh3 &EditMesh)
+		{
 			EditMesh.Copy(&Generator);
-			MeshTransforms::ApplyTransform(EditMesh, (FTransformSRT3d)FTransform::Identity, true); },
-						 EDynamicMeshChangeType::GeneralEdit,
-						 EDynamicMeshAttributeChangeFlags::Unknown,
-						 false);
+			MeshTransforms::ApplyTransform(EditMesh, (FTransformSRT3d)FTransform::Identity, true);
+		},
+		EDynamicMeshChangeType::GeneralEdit,
+		EDynamicMeshAttributeChangeFlags::Unknown,
+		false);
 	return TargetMesh;
 }
 

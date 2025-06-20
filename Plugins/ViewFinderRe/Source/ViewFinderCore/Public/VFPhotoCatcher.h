@@ -73,9 +73,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder|ClassSetting")
 	TSubclassOf<AVFPhoto3D> VFPhoto3DClass;
 
+	// 只与携带了Helper组件的Actor进行交互. 对于插入已有场景来说会很方便.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	bool bOnlyOverlapWithHelps = false;
 
+	// 拍照是否切割原物体. 开启后则不是复制, 而是剪切.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	bool bCuttingOrignal = false;
 

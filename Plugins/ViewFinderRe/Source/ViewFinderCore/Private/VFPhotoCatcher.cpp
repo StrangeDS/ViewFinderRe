@@ -116,7 +116,6 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 			auto *HelperComp = HelperMap.Find(Comp); // 可能为nullptr
 			if (bOnlyOverlapWithHelps && !HelperComp)
 			{
-				ActorsNotTakenInPhoto.AddUnique(Comp->GetOwner());
 				It.RemoveCurrent();
 			}
 			else if (HelperComp && !HelperMap[Comp]->bCanBeTakenInPhoto)

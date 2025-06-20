@@ -36,7 +36,7 @@ public:
 
 	// 归还组件
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder | DMCompPool")
-	void ReturnComp(UVFDynamicMeshComponent *Comp);
+	bool ReturnComp(UVFDynamicMeshComponent *Comp);
 
 	// 预生成池
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder | DMCompPool")

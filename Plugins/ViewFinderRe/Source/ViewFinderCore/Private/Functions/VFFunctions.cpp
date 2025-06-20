@@ -21,7 +21,9 @@ static USceneComponent *GetComponentByName(AActor *Actor, const FName &Name)
 	return nullptr;
 }
 
-static UVFDynamicMeshComponent *NewVFDMComp(UObject *Outer, const TSubclassOf<UVFDynamicMeshComponent> &Class)
+static UVFDynamicMeshComponent *NewVFDMComp(
+	UObject *Outer,
+	const TSubclassOf<UVFDynamicMeshComponent> &Class)
 {
 	check(Outer && Class);
 	auto World = Outer->GetWorld();
