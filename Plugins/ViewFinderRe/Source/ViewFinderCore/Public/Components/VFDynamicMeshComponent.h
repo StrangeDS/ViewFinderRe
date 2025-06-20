@@ -12,6 +12,8 @@ class VIEWFINDERCORE_API UVFDynamicMeshComponent : public UDynamicMeshComponent
 public:
 	UVFDynamicMeshComponent(const FObjectInitializer &ObjectInitializer = FObjectInitializer::Get());
 
+	virtual void OnRegister() override;
+
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")

@@ -43,6 +43,7 @@ static UVFDynamicMeshComponent *NewVFDMComp(
 
 // 非递归拷贝Actor, Actor会在UVFDynamicMeshComponent被卸载后才进行复制, 而后组件又被装回.
 // 这意味着, UVFDynamicMeshComponent上不能有复制的层级关系. 若有, 请考虑根据层级还原.
+// 注意: 这也要求UVFDynamicMeshComponent不能是根组件, 是根组件会出现错误!
 AActor *UVFFunctions::CloneActorRuntime(
 	AActor *Original,
 	TArray<UVFDynamicMeshComponent *> &CopiedComps)

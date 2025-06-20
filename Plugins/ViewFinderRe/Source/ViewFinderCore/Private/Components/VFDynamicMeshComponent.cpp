@@ -10,6 +10,22 @@ UVFDynamicMeshComponent::UVFDynamicMeshComponent(const FObjectInitializer &Objec
     SetMobility(EComponentMobility::Movable);
 }
 
+void UVFDynamicMeshComponent::OnRegister()
+{
+    Super::OnRegister();
+
+    /*
+    在拍照流程的复制过程中, 组件会被拆卸(复制Actor), 然后重新组装.
+    若为根组件会出现错误. 详见UVFFunctions::CloneActorRuntime()
+    */
+    if (GetAttachParent() == nullptr)
+    {
+        VF_LOG(Warning,
+               TEXT("%s is RootComponent in %s."),
+               *GetName(), *GetOwner()->GetName());
+    }
+}
+
 void UVFDynamicMeshComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     Clear();

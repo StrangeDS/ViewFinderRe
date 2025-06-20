@@ -152,8 +152,11 @@ UDynamicMesh *UVFGeometryFunctions::SetDynamicMeshCollisionFromMesh(
 	check(ToDynamicMeshComponent);
 
 	FKAggregateGeom NewCollision;
-	FromDynamicMesh->ProcessMesh([&](const FDynamicMesh3 &ReadMesh)
-								 { ViewFinder::ComputeCollisionFromMesh(ReadMesh, NewCollision, Options); });
+	FromDynamicMesh->ProcessMesh(
+		[&](const FDynamicMesh3 &ReadMesh)
+		{
+			ViewFinder::ComputeCollisionFromMesh(ReadMesh, NewCollision, Options);
+		});
 
 #if WITH_EDITOR
 	if (Options.bEmitTransaction && GEditor)
@@ -896,7 +899,8 @@ UDynamicMesh *UVFGeometryFunctions::AppendFrustum(
 	float Angle,
 	float AspectRatio,
 	float StartDis,
-	float EndDis)
+	float EndDis,
+	FVector SegmentSize)
 {
 	check(TargetMesh);
 	// 实现: 从简单盒上修改点位置制成视锥.
