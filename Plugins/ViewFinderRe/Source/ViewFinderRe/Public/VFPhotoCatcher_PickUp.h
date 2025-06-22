@@ -43,7 +43,8 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
 	bool bReady = false;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<AVFPhotoContainer> Container;
 
 public:

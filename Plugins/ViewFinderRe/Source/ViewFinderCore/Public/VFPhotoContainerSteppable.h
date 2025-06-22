@@ -27,7 +27,8 @@ struct FVFPhotoContainerStepInfo
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	EVFPhotoContainerSteppableOperation Operation = EVFPhotoContainerSteppableOperation::None;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<class AVFPhoto2D> Photo;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")

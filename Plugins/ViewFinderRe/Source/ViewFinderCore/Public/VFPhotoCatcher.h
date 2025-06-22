@@ -93,22 +93,27 @@ protected:
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypesToOverlap;
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<UStaticMeshComponent> StaticMesh;
 
 	UPROPERTY()
 	TObjectPtr<UStaticMesh> CatcherMesh;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<UVFPhotoCaptureComponent> PhotoCapture;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<UVFBackgroundCaptureComponent> BackgroundCapture;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<UVFViewFrustumComponent> ViewFrustum;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<UVFHelperComponent> Helper;
 
 public:

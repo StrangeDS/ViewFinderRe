@@ -67,19 +67,24 @@ public:
 	virtual void UnPossessed() override;
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<UCameraComponent> Camera;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<UVFHelperComponent> Helper;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TSubclassOf<AVFPhotoContainer_Input> ContainerClass;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<AVFPhotoContainer_Input> Container;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<APlayerController> PlayerController;
 
 public:

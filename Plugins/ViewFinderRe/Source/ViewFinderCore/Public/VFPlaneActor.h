@@ -42,13 +42,16 @@ public:
 #endif
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<USceneComponent> TransformRoot;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<UStaticMeshComponent> Plane;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<UVFHelperComponent> Helper;
 
 public: // IVFHelperInterface

@@ -47,7 +47,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	EVFPhoto3DState State = EVFPhoto3DState::None;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<UStaticMeshComponent> StaticMesh;
 
 public: // 记录属性
@@ -58,7 +59,8 @@ public: // 记录属性
 		const TArray<TEnumAsByte<EObjectTypeQuery>> &ObjectTypes,
 		EVFPhoto3DState StateIn = EVFPhoto3DState::None);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<UVFViewFrustumComponent> ViewFrustumRecorder;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")

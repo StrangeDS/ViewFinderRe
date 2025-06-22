@@ -60,9 +60,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<UInputMappingContext> AimingMappingContext;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<APawn> Pawn;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<APlayerController> PlayerController;
 };

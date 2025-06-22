@@ -51,19 +51,24 @@ public:
 #endif
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<USceneComponent> CaptureRoot;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<UVFPhotoCaptureComponent> CaptureOfDecal;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<UVFPhotoCaptureComponent> CaptureOfDepth;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<UVFViewFrustumComponent> ViewFrustum;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<UDecalComponent> Decal;
 
 public:

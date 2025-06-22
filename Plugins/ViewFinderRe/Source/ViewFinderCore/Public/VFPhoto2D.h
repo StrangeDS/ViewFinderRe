@@ -61,17 +61,20 @@ protected: // 组件
 	UPROPERTY()
 	TObjectPtr<UStaticMesh> StaticMeshObject;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<UStaticMeshComponent> StaticMesh;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<UVFHelperComponent> Helper;
 
 protected: // 状态, 数据
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	EVFPhoto2DState State = EVFPhoto2DState::None;
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<AVFPhoto3D> Photo3D;
 
 public: // 动态材质实例相关

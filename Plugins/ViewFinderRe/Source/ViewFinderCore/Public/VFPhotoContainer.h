@@ -59,7 +59,8 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
 	FVFPhotoContainerEnabled OnEnabled;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<APlayerController> PlayerController;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
@@ -68,7 +69,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	bool bEnabled = false;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<AVFPhoto2D> CurrentPhoto2D;
 
 	// UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder") // 不能修饰
@@ -98,14 +100,17 @@ public:
 
 protected:
 	// Photo2D的实际位置
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<USceneComponent> Container;
 
 	// 预览Photo2D的位置
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<USceneComponent> Preview;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<class UVFHelperComponent> Helper;
 
 public: // IVFPhotoContainerInterface
