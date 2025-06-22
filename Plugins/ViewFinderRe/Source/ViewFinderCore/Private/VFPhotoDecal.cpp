@@ -29,7 +29,7 @@ AVFPhotoDecal::AVFPhotoDecal()
     Decal = CreateDefaultSubobject<UDecalComponent>(TEXT("Decal"));
     Decal->SetupAttachment(RootComponent);
     static ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialSelector(
-        TEXT("/ViewFinderRe/Materials/Decal/MDI_Photolize.MDI_Photolize"));
+        TEXT("/ViewFinderRe/Materials/Decal/MI_Decal_Photolize.MI_Decal_Photolize"));
     Matirial = MaterialSelector.Object;
     Decal->SetDecalMaterial(Matirial);
     Decal->SetHiddenInGame(true);
@@ -136,6 +136,11 @@ void AVFPhotoDecal::SetManagedActorsEnabled(bool Enabled)
     }
     for (auto &Actor : ManagedActors)
     {
+        if (IsValid(Actor))
+        {
+            VF_LOG(Error, TEXT("%s: Invalid Actor in ManagedActors."), __FUNCTIONW__);
+            continue;
+        }
         Actor->SetActorHiddenInGame(!Enabled);
         Actor->SetActorEnableCollision(Enabled);
     }
