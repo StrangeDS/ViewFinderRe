@@ -30,7 +30,7 @@ void AVFPhotoContainer::AddAPhoto(AVFPhoto2D *Photo)
 {
 	check(Photo);
 
-	if (CurrentPhoto2D)
+	if (IsValid(CurrentPhoto2D))
 		CurrentPhoto2D->SetActorHiddenInGame(true);
 
 	Photo->SetActorEnableCollision(false);
@@ -41,7 +41,7 @@ void AVFPhotoContainer::AddAPhoto(AVFPhoto2D *Photo)
 
 void AVFPhotoContainer::PrepareCurrentPhoto()
 {
-	if (!CurrentPhoto2D)
+	if (!IsValid(CurrentPhoto2D))
 		return;
 
 	PlayerController->GetPawn()->DisableInput(PlayerController);
@@ -57,7 +57,7 @@ void AVFPhotoContainer::PrepareCurrentPhoto()
 
 void AVFPhotoContainer::GiveUpPreparing()
 {
-	if (!CurrentPhoto2D)
+	if (!IsValid(CurrentPhoto2D))
 		return;
 
 	bFocusOn = false;
@@ -76,7 +76,7 @@ void AVFPhotoContainer::GiveUpPreparing()
 
 void AVFPhotoContainer::PlaceCurrentPhoto()
 {
-	if (!CurrentPhoto2D)
+	if (!IsValid(CurrentPhoto2D))
 		return;
 
 	CurrentPhoto2D->ReattachToComponent(nullptr);
@@ -94,7 +94,7 @@ void AVFPhotoContainer::ChangeCurrentPhoto(const bool Next)
 	if (bFocusOn)
 		return;
 
-	if (CurrentPhoto2D)
+	if (IsValid(CurrentPhoto2D))
 		CurrentPhoto2D->SetActorHiddenInGame(true);
 
 	if (Next)
@@ -117,7 +117,7 @@ void AVFPhotoContainer::UpdateCurrentPhoto()
 	GetWorldTimerManager().ClearTimer(PrepareTimeHandle);
 
 	CurrentPhoto2D = Photo2Ds.IsEmpty() ? nullptr : Photo2Ds.Last();
-	if (CurrentPhoto2D)
+	if (IsValid(CurrentPhoto2D))
 		CurrentPhoto2D->SetActorHiddenInGame(!bEnabled);
 }
 

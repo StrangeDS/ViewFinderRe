@@ -2,6 +2,7 @@
 
 #include "Blueprint/UserWidget.h"
 #include "EnhancedInputSubsystems.h"
+#include "InputMappingContext.h"
 
 #include "VFCommon.h"
 
@@ -10,11 +11,11 @@ bool AVFPhotoCatcher_Interact::StartAiming_Implementation(APlayerController *Con
 	if (!AimingHintUMGClass.Get())
 		return false;
 
-	if (!AimingHintUMG)
+	if (!IsValid(AimingHintUMG))
 		AimingHintUMG = CreateWidget<UUserWidget>(GetWorld(), AimingHintUMGClass);
 	AimingHintUMG->AddToViewport();
 
-	if (AimingMappingContext)
+	if (IsValid(AimingMappingContext))
 	{
 		// 具体事件的BindAction放在蓝图中进行(图个方便)
 		auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(Controller->GetLocalPlayer());
@@ -27,10 +28,10 @@ bool AVFPhotoCatcher_Interact::StartAiming_Implementation(APlayerController *Con
 
 bool AVFPhotoCatcher_Interact::EndAiming_Implementation(APlayerController *Controller)
 {
-	if (AimingHintUMG)
+	if (IsValid(AimingHintUMG))
 		AimingHintUMG->RemoveFromParent();
 
-	if (AimingMappingContext)
+	if (IsValid(AimingMappingContext))
 	{
 		auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(Controller->GetLocalPlayer());
 		if (Subsystem)

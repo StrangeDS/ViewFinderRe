@@ -75,9 +75,9 @@ void AVFPhoto3D::PlaceDown()
 		{
 			auto Comp = *It;
 			auto Helper = HelperMap.Find(Comp); // 可能为nullptr
-			if (bOnlyOverlapWithHelps && !Helper)
+			if (bOnlyOverlapWithHelps && !IsValid(*Helper))
 				It.RemoveCurrent();
-			else if (Helper && !HelperMap[Comp]->bCanBePlacedByPhoto)
+			else if (IsValid(*Helper) && !HelperMap[Comp]->bCanBePlacedByPhoto)
 				It.RemoveCurrent();
 		}
 
@@ -108,7 +108,7 @@ void AVFPhoto3D::PlaceDown()
 		GetAttachedActors(ActorsInPhoto3D, true, true);
 		for (const auto Actor : ActorsInPhoto3D)
 		{
-			if (auto Helper = Actor->GetComponentByClass<UVFHelperComponent>())
+			if (auto Helper = Actor->GetComponentByClass<UVFHelperComponent>(); IsValid(Helper))
 				HelpersInPhoto3D.AddUnique(Helper);
 		}
 	}

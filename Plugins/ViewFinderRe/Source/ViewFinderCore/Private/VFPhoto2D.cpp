@@ -58,7 +58,7 @@ AVFPhoto3D *AVFPhoto2D::GetPhoto3D()
 
 void AVFPhoto2D::SetPhoto(UVFPhotoCaptureComponent *PhotoCapture)
 {
-	if (PhotoCapture)
+	if (IsValid(PhotoCapture))
 	{
 		PhotoCapture->CaptureScene();
 		Texture2D = PhotoCapture->DrawATexture2D();
@@ -73,7 +73,7 @@ void AVFPhoto2D::SetPhoto(UVFPhotoCaptureComponent *PhotoCapture)
 
 	if (GetMaterialInstance())
 	{
-		if (PhotoCapture)
+		if (IsValid(PhotoCapture))
 		{
 			float AspectRatio = (float)PhotoCapture->TargetWidth / PhotoCapture->TargetHeight;
 			MaterialInstance->SetTextureParameterValue(TextureName, Texture2D);
@@ -93,7 +93,7 @@ void AVFPhoto2D::SetPhoto(UVFPhotoCaptureComponent *PhotoCapture)
 
 void AVFPhoto2D::FoldUp()
 {
-	if (!Photo3D)
+	if (!IsValid(Photo3D))
 		return;
 
 	if (State == EVFPhoto2DState::Folded)
@@ -105,7 +105,7 @@ void AVFPhoto2D::FoldUp()
 
 void AVFPhoto2D::Preview(const FTransform &WorldTrans, const bool &Enabled)
 {
-	if (!Photo3D)
+	if (!IsValid(Photo3D))
 		return;
 
 	if (Enabled)
@@ -117,7 +117,7 @@ void AVFPhoto2D::Preview(const FTransform &WorldTrans, const bool &Enabled)
 
 void AVFPhoto2D::PlaceDown()
 {
-	if (!Photo3D)
+	if (!IsValid(Photo3D))
 		return;
 
 	if (State == EVFPhoto2DState::Placed)
@@ -132,7 +132,7 @@ void AVFPhoto2D::PlaceDown()
 
 void AVFPhoto2D::CopyPhoto3D(UObject *Sender)
 {
-	if (!Photo3D)
+	if (!IsValid(Photo3D))
 	{
 		VF_LOG(Warning, TEXT("%s invalid Photo3D."), __FUNCTIONW__);
 		return;
@@ -147,14 +147,14 @@ void AVFPhoto2D::CopyPhoto3D(UObject *Sender)
 
 UMaterialInstanceDynamic *AVFPhoto2D::GetMaterialInstance_Implementation()
 {
-	if (!MaterialInstance)
+	if (!IsValid(MaterialInstance))
 		MaterialInstance = StaticMesh->CreateAndSetMaterialInstanceDynamic(0);
 	return MaterialInstance;
 }
 
 bool AVFPhoto2D::ReattachToComponent(USceneComponent *Target)
 {
-	if (Target)
+	if (IsValid(Target))
 	{
 		if (Target == GetRootComponent()->GetAttachParent())
 			return false;
@@ -172,7 +172,7 @@ bool AVFPhoto2D::ReattachToComponent(USceneComponent *Target)
 void AVFPhoto2D::CopyRecursivePhoto3D(UObject *Sender)
 {
 	auto Photo3DOuter = Cast<AVFPhoto3D>(Sender);
-	if (!Photo3DOuter)
+	if (!IsValid(Photo3DOuter))
 	{
 		VF_LOG(Warning, TEXT("%s invalid Photo3D."), __FUNCTIONW__);
 		return;

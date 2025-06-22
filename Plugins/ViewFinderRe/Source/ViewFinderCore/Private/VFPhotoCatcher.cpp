@@ -130,21 +130,21 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 			auto *HelperComp = HelperMap.Find(Comp); // 可能为nullptr
 
 			// 剔除不显示的Actor
-			if (HelperComp && !HelperMap[Comp]->bCanShowInPhoto)
+			if (IsValid(*HelperComp) && !HelperMap[Comp]->bCanShowInPhoto)
 			{
 				ActorsNotTakenInPhoto.AddUnique(Comp->GetOwner());
 			}
 
 			// 剔除不进入后续的Actor
-			if (bOnlyOverlapWithHelps && !HelperComp)
+			if (bOnlyOverlapWithHelps && !IsValid(*HelperComp))
 			{
 				It.RemoveCurrent();
 			}
-			else if (HelperComp && !HelperMap[Comp]->bCanBeTakenInPhoto)
+			else if (IsValid(*HelperComp) && !HelperMap[Comp]->bCanBeTakenInPhoto)
 			{
 				It.RemoveCurrent();
 			}
-			else if (HelperComp && HelperMap[Comp]->bReplacedWithStandIn)
+			else if (IsValid(*HelperComp) && HelperMap[Comp]->bReplacedWithStandIn)
 			{
 				// StandIn处理: 剔除自己的组件, 使用替身的组件.
 				It.RemoveCurrent();
@@ -323,7 +323,7 @@ FQuat AVFPhotoCatcher::GetFrustumQuat()
 
 UMaterialInstanceDynamic *AVFPhotoCatcher::GetScreenMID_Implementation()
 {
-	if (!ScreenMID)
+	if (!IsValid(ScreenMID))
 		ScreenMID = StaticMesh->CreateDynamicMaterialInstance(1);
 	return ScreenMID;
 }

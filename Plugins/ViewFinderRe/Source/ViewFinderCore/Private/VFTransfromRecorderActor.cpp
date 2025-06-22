@@ -91,7 +91,7 @@ void AVFTransfromRecorderActor::TickForward_Implementation(float Time)
 	for (auto It = Components.CreateIterator(); It; It++)
 	{
 		auto Comp = *It;
-		if (!Comp)
+		if (!IsValid(Comp))
 		{
 			VF_LOG(Warning, TEXT("%s: Comp销毁"), __FUNCTIONW__);
 			It.RemoveCurrent();
@@ -140,7 +140,7 @@ void AVFTransfromRecorderActor::TickBackward_Implementation(float Time)
 	for (auto It = CompInfoMap.CreateIterator(); It; ++It)
 	{
 		auto &[Comp, Info] = *It;
-		if (!Comp)
+		if (!IsValid(Comp))
 		{
 			VF_LOG(Warning, TEXT("%s: Comp销毁"), __FUNCTIONW__);
 			It.RemoveCurrent();

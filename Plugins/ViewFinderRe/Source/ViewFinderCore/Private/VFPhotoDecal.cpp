@@ -73,7 +73,7 @@ void AVFPhotoDecal::DrawDecal(bool ForceToUpdate)
         MaterialInstance->SetScalarParameterValue(TEXT("AspectRatio"), AspectRatio);
 
         CaptureOfDecal->CaptureScene();
-        if (!TextureOfDecal || ForceToUpdate)
+        if (!IsValid(TextureOfDecal) || ForceToUpdate)
             TextureOfDecal = CaptureOfDecal->DrawATexture2D();
         MaterialInstance->SetTextureParameterValue(TEXT("Texture"), TextureOfDecal);
     }
@@ -88,7 +88,7 @@ void AVFPhotoDecal::DrawSceneDepth(bool ForceToUpdate)
     if (GetMaterialInstance())
     {
         CaptureOfDepth->CaptureScene();
-        if (!TextureOfDepth || ForceToUpdate)
+        if (!IsValid(TextureOfDepth) || ForceToUpdate)
             TextureOfDepth = CaptureOfDepth->DrawATexture2D();
         MaterialInstance->SetTextureParameterValue(TEXT("TextureOfDepth"), TextureOfDepth);
     }
@@ -163,7 +163,7 @@ void AVFPhotoDecal::RecollectActorsWithFrustum()
 
 UMaterialInstanceDynamic *AVFPhotoDecal::GetMaterialInstance_Implementation()
 {
-    if (!MaterialInstance)
+    if (!IsValid(MaterialInstance))
         MaterialInstance = Decal->CreateDynamicMaterialInstance();
     return MaterialInstance;
 }

@@ -32,7 +32,7 @@ void AVFPhotoContainerSteppable::PlaceCurrentPhoto()
 {
     if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
-        if (CurrentPhoto2D)
+        if (IsValid(CurrentPhoto2D))
         {
             auto Photo2D = CurrentPhoto2D;
             Super::PlaceCurrentPhoto();
@@ -168,7 +168,7 @@ void AVFPhotoContainerSteppable::TickBackward_Implementation(float Time)
         }
         case EVFPhotoContainerSteppableOperation::Place:
         {
-            if (CurrentPhoto2D)
+            if (IsValid(CurrentPhoto2D))
                 CurrentPhoto2D->SetActorHiddenInGame(true);
             auto &Photo = StepInfo.Photo;
             AddAPhoto(Photo);

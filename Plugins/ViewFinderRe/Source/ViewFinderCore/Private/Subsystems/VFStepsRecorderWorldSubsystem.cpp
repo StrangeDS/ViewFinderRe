@@ -58,7 +58,7 @@ void UVFStepsRecorderWorldSubsystem::TickForward(float DeltaTime)
     for (auto It = TickTargets.CreateIterator(); It; ++It)
     {
         auto Target = *It;
-        if (!Target)
+        if (!IsValid(Target.GetObject()))
         {
             It.RemoveCurrent();
         }
@@ -102,7 +102,7 @@ void UVFStepsRecorderWorldSubsystem::TickBackward(float DeltaTime)
 
     for (auto &Target : TickTargets)
     {
-        if (Target)
+        if (IsValid(Target.GetObject()))
             IVFStepsRecordInterface::Execute_TickBackward(Target.GetObject(), Time);
     }
 }
@@ -119,7 +119,7 @@ void UVFStepsRecorderWorldSubsystem::SubmitStep(UObject *Sender, FVFStepInfo Inf
 
 void UVFStepsRecorderWorldSubsystem::RecordTransform(USceneComponent *Component)
 {
-    if (ensure(TransformRecorder))
+    if (ensure(IsValid(TransformRecorder)))
     {
         if (Component->Mobility == EComponentMobility::Movable)
             TransformRecorder->AddToRecord(Component);
@@ -128,7 +128,7 @@ void UVFStepsRecorderWorldSubsystem::RecordTransform(USceneComponent *Component)
 
 void UVFStepsRecorderWorldSubsystem::UnrecordTransform(USceneComponent *Component)
 {
-    if (ensure(TransformRecorder))
+    if (ensure(IsValid(TransformRecorder)))
     {
         TransformRecorder->RemoveFromRecord(Component);
     }
@@ -136,7 +136,7 @@ void UVFStepsRecorderWorldSubsystem::UnrecordTransform(USceneComponent *Componen
 
 void UVFStepsRecorderWorldSubsystem::RegisterTickable(const TScriptInterface<IVFStepsRecordInterface> &Target)
 {
-    if (Target)
+    if (IsValid(Target.GetObject()))
         TargetsNeedToAdd.AddUnique(Target);
 }
 

@@ -48,7 +48,7 @@ AActor *UVFFunctions::CloneActorRuntime(
 	AActor *Original,
 	TArray<UVFDynamicMeshComponent *> &CopiedComps)
 {
-	if (!Original || !Original->GetWorld())
+	if (!IsValid(Original) || !Original->GetWorld())
 		return nullptr;
 	UWorld *World = Original->GetWorld();
 
@@ -133,11 +133,11 @@ TArray<UVFDynamicMeshComponent *> UVFFunctions::CheckVFDMComps(
 		AActor *Actor = Component->GetOwner();
 
 		auto hasVFDMComp = Actor->GetComponentByClass<UVFDynamicMeshComponent>();
-		if (hasVFDMComp)
+		if (IsValid(hasVFDMComp))
 		{
 			// 存在意味着处理过, 只会是VFDMComp
 			auto VFDMComp = Cast<UVFDynamicMeshComponent>(Component);
-			if (VFDMComp)
+			if (IsValid(VFDMComp))
 				Result.Add(VFDMComp);
 		}
 		else

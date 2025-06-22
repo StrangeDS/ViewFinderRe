@@ -10,7 +10,7 @@ bool AVFPhoto2D_Interact::StartAiming_Implementation(APlayerController *Controll
     if (!AimingHintUMGClass.Get())
         return false;
 
-    if (!AimingHintUMG)
+    if (!IsValid(AimingHintUMG))
         AimingHintUMG = CreateWidget<UUserWidget>(GetWorld(), AimingHintUMGClass);
     AimingHintUMG->AddToViewport();
 
@@ -19,7 +19,7 @@ bool AVFPhoto2D_Interact::StartAiming_Implementation(APlayerController *Controll
 
 bool AVFPhoto2D_Interact::EndAiming_Implementation(APlayerController *Controller)
 {
-    if (AimingHintUMG)
+    if (IsValid(AimingHintUMG))
         AimingHintUMG->RemoveFromParent();
 
     return true;
@@ -28,7 +28,7 @@ bool AVFPhoto2D_Interact::EndAiming_Implementation(APlayerController *Controller
 bool AVFPhoto2D_Interact::Interact_Implementation(APlayerController *Controller)
 {
     auto Pawn = Controller->GetPawn();
-    if (Pawn->Implements<UVFPhotoContainerInterface>())
+    if (IsValid(Pawn) && Pawn->Implements<UVFPhotoContainerInterface>())
     {
         return IVFPhotoContainerInterface::Execute_TakeIn(Pawn, this);
     }

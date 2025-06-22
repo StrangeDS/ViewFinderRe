@@ -68,7 +68,7 @@ void AVFCharacter::BeginPlay()
 
 	Container = GetWorld()->SpawnActor<AVFPhotoContainer_Input>(ContainerClass);
 	Container->AttachToComponent(Camera, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	if (PlayerController)
+	if (IsValid(PlayerController))
 		Container->SetPlayerController(PlayerController);
 	Equipments.Add(Container);
 
@@ -108,18 +108,18 @@ void AVFCharacter::PossessedBy(AController *NewController)
 	Super::PossessedBy(NewController);
 
 	PlayerController = Cast<APlayerController>(Controller);
-	if (!PlayerController)
+	if (!IsValid(PlayerController))
 	{
 		VF_LOG(Warning, TEXT("%s: PlayerController 不存在"), __FUNCTIONW__);
 		return;
 	}
-	if (!PlayerController->GetLocalPlayer())
+	if (!IsValid(PlayerController->GetLocalPlayer()))
 	{
 		VF_LOG(Warning, TEXT("%s: GetLocalPlayer 不存在"), __FUNCTIONW__);
 		return;
 	}
 
-	if (Container)
+	if (IsValid(Container))
 		Container->SetPlayerController(PlayerController);
 
 	if (UEnhancedInputLocalPlayerSubsystem *Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
@@ -180,7 +180,7 @@ void AVFCharacter::TraceInteractable()
 		return;
 	}
 
-	if (Object)
+	if (IsValid(Object))
 		IVFInteractInterface::Execute_EndAiming(Object, PlayerController);
 
 	if (!Traced)
@@ -189,12 +189,12 @@ void AVFCharacter::TraceInteractable()
 		return;
 	}
 
-	if (Actor->Implements<UVFInteractInterface>())
+	if (IsValid(Actor) && Actor->Implements<UVFInteractInterface>())
 	{
 		InteractingObject = Actor;
 		IVFInteractInterface::Execute_StartAiming(Actor, PlayerController);
 	}
-	else if (Component->Implements<UVFInteractInterface>())
+	else if (IsValid(Component) && Component->Implements<UVFInteractInterface>())
 	{
 		InteractingObject = Component;
 		IVFInteractInterface::Execute_StartAiming(Component, PlayerController);
@@ -208,7 +208,7 @@ void AVFCharacter::TraceInteractable()
 void AVFCharacter::Move(const FInputActionValue &Value)
 {
 	FVector2D MovementVector = Value.Get<FVector2D>();
-	if (Controller)
+	if (IsValid(Controller))
 	{
 		AddMovementInput(GetActorForwardVector(), MovementVector.Y);
 		AddMovementInput(GetActorRightVector(), MovementVector.X);
@@ -218,7 +218,7 @@ void AVFCharacter::Move(const FInputActionValue &Value)
 void AVFCharacter::Look(const FInputActionValue &Value)
 {
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
-	if (Controller)
+	if (IsValid(Controller))
 	{
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
@@ -227,7 +227,7 @@ void AVFCharacter::Look(const FInputActionValue &Value)
 
 void AVFCharacter::Interact()
 {
-	if (auto Object = InteractingObject.GetObject())
+	if (auto Object = InteractingObject.GetObject(); IsValid(Object))
 	{
 		IVFInteractInterface::Execute_Interact(Object, PlayerController);
 	}
@@ -299,7 +299,7 @@ void AVFCharacter::TickBackward_Implementation(float Time)
 
 int AVFCharacter::GetPhoto2DNum_Implementation()
 {
-	if (Container->Implements<UVFPhotoContainerInterface>())
+	if (IsValid(Container) && Container->Implements<UVFPhotoContainerInterface>())
 	{
 		IVFPhotoContainerInterface::Execute_GetPhoto2DNum(Container);
 	}
@@ -308,7 +308,7 @@ int AVFCharacter::GetPhoto2DNum_Implementation()
 
 bool AVFCharacter::TakeIn_Implementation(AVFPhoto2D *Photo2D, const bool &Enabled)
 {
-	if (Container->Implements<UVFPhotoContainerInterface>())
+	if (IsValid(Container) && Container->Implements<UVFPhotoContainerInterface>())
 	{
 		if (IVFPhotoContainerInterface::Execute_TakeIn(Container, Photo2D))
 		{
@@ -368,7 +368,7 @@ void AVFCharacter::DeactivateCurEquipment_Implementation()
 	if (EquipmentCurIndex != INDEX_NONE)
 	{
 		auto Equipment = Equipments[EquipmentCurIndex].GetObject();
-		if (Equipment)
+		if (IsValid(Equipment))
 		{
 			if (IVFActivatableInterface::Execute_IsActive(Equipment))
 				IVFActivatableInterface::Execute_Deactivate(Equipment);

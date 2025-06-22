@@ -109,7 +109,7 @@ UTexture2D *UVFPhotoCaptureComponent::DrawATexture2D()
 #endif
 	}
 
-	if (!ensure(Texture))
+	if (!ensure(IsValid(Texture)))
 	{
 		VF_LOG(Error, TEXT("Unimplemented EPixelFormat."));
 		return nullptr;

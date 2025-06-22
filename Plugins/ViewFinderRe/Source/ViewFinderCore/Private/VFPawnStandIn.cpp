@@ -48,7 +48,7 @@ void AVFPawnStandIn::SetTargetPawn(APawn *Pawn)
 
 void AVFPawnStandIn::TeleportTargetPawn(UObject *Sender)
 {
-	if (!TargetPawn)
+	if (!IsValid(TargetPawn))
 	{
 		TargetPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 	}

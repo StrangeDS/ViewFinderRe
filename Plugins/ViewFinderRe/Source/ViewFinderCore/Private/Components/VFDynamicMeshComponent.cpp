@@ -195,14 +195,14 @@ UPrimitiveComponent *UVFDynamicMeshComponent::GetSourceComponent()
 
 UVFDynamicMeshComponent *UVFDynamicMeshComponent::GetSourceVFDMComp()
 {
-    if (!SourceComponent)
+    if (!IsValid(SourceComponent))
         return nullptr;
     return Cast<UVFDynamicMeshComponent>(SourceComponent);
 }
 
 void UVFDynamicMeshComponent::RestoreSourceComponent()
 {
-    if (!SourceComponent)
+    if (!IsValid(SourceComponent))
         return;
 
     SourceComponent->SetHiddenInGame(false);
@@ -218,7 +218,7 @@ void UVFDynamicMeshComponent::ReplaceMeshForComponentInEditor()
     const FScopedTransaction Transaction(FText::FromString("ReplaceMeshForComponentInEditor"));
 
     auto Source = Cast<UPrimitiveComponent>(GetAttachParent());
-    if (!Source)
+    if (!IsValid(Source))
         VF_LOG(Error, TEXT("%s GetAttachParent() is not a UPrimitiveComponent."), __FUNCTIONW__);
 
     Modify();
@@ -232,7 +232,7 @@ void UVFDynamicMeshComponent::RestoreSourceComponentInEditor()
     const FScopedTransaction Transaction(FText::FromString("RestoreSourceComponentInEditor"));
 
     auto Source = Cast<UPrimitiveComponent>(GetAttachParent());
-    if (!Source)
+    if (!IsValid(Source))
         VF_LOG(Error, TEXT("%s GetAttachParent() is not a UPrimitiveComponent."), __FUNCTIONW__);
 
     Modify();

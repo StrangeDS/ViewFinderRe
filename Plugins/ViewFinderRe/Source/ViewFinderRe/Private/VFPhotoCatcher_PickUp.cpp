@@ -3,6 +3,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "InputMappingContext.h"
 
 #include "VFCommon.h"
 #include "VFPhotoCaptureComponent.h"
@@ -39,7 +40,7 @@ AVFPhoto2D *AVFPhotoCatcher_PickUp::TakeAPhoto_Implementation()
     if (!bReady)
         return nullptr;
 
-    if (Pawn->Implements<UVFPhotoContainerInterface>())
+    if (IsValid(Pawn) && Pawn->Implements<UVFPhotoContainerInterface>())
     {
         auto Photo2D = Super::TakeAPhoto_Implementation();
         IVFPhotoContainerInterface::Execute_TakeIn(Pawn, Photo2D);
@@ -151,7 +152,7 @@ void AVFPhotoCatcher_PickUp::Activate_Implementation()
 {
     SetActorHiddenInGame(false);
 
-    if (HoldingMappingContext)
+    if (IsValid(HoldingMappingContext))
     {
         auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
         if (Subsystem)
@@ -162,7 +163,7 @@ void AVFPhotoCatcher_PickUp::Activate_Implementation()
 
 void AVFPhotoCatcher_PickUp::Deactivate_Implementation()
 {
-    if (HoldingMappingContext)
+    if (IsValid(HoldingMappingContext))
     {
         DisableInput(PlayerController);
         auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
