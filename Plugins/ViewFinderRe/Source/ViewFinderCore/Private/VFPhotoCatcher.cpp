@@ -37,7 +37,7 @@ AVFPhotoCatcher::AVFPhotoCatcher()
 	StaticMesh->SetupAttachment(RootComponent);
 	StaticMesh->SetCollisionProfileName(TEXT("OverlapOnlyPawn"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshSelector(
-		TEXT("/ViewFinderRe/StaticMeshes/CameraT.CameraT"));
+		TEXT("/ViewFinderRe/StaticMeshes/ST_Camera.ST_Camera"));
 	CatcherMesh = MeshSelector.Object;
 	StaticMesh->SetStaticMesh(CatcherMesh);
 

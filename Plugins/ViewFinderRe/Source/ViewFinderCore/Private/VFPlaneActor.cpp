@@ -22,7 +22,7 @@ AVFPlaneActor::AVFPlaneActor()
 	Plane->SetRelativeRotation(FRotator(0.f, 90.f, 90.f));
 	Plane->CastShadow = false;
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshSelector(
-		TEXT("/ViewFinderRe/StaticMeshes/Plane.Plane"));
+		TEXT("/ViewFinderRe/StaticMeshes/ST_Plane.ST_Plane"));
 	Plane->SetStaticMesh(MeshSelector.Object);
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialSelector(
 		TEXT("/ViewFinderRe/Materials/Background/MI_Background.MI_Background"));
