@@ -1,5 +1,7 @@
 #include "VFBackgroundCaptureComponent.h"
 
+#include "Components/StaticMeshComponent.h"
+
 #include "VFPlaneActor.h"
 #include "Subsystems/VFBackgroundWorldSubsystem.h"
 

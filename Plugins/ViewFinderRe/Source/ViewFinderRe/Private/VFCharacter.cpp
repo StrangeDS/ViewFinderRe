@@ -357,7 +357,10 @@ void AVFCharacter::RemoveEquipment_Implementation(const TScriptInterface<IVFActi
 	if (EquipmentCurIndex == Index)
 		DeactivateCurEquipment();
 	Equipments.Remove(Equipment);
-	EquipmentCurIndex = (EquipmentCurIndex + Equipments.Num()) / Equipments.Num();
+	if (EquipmentCurIndex >= Equipments.Num() - 1)
+	{
+		EquipmentCurIndex = INDEX_NONE;
+	}
 }
 
 void AVFCharacter::DeactivateCurEquipment_Implementation()

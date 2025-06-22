@@ -86,14 +86,6 @@ void AVFPhotoCatcher_PickUp::PickUp_Implementation(USceneComponent *ToAttach)
 
     AttachToComponent(ToAttach, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
     RootComponent->SetRelativeTransform(IdleTrans);
-
-    if (HoldingMappingContext)
-    {
-        auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
-        if (Subsystem)
-            Subsystem->AddMappingContext(HoldingMappingContext, 1);
-        EnableInput(PlayerController);
-    }
     bPickedUp = true;
 }
 
@@ -102,20 +94,20 @@ void AVFPhotoCatcher_PickUp::DropDown_Implementation()
     if (!bPickedUp)
         return;
 
-    if (HoldingMappingContext)
-    {
-        DisableInput(PlayerController);
-        auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
-        if (Subsystem)
-            Subsystem->RemoveMappingContext(HoldingMappingContext);
-    }
     ResetActorsToIgnore();
     ActorsToIgnore.AddUnique(GetAttachParentActor());
     DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 
+    if (auto VFCharacter = Cast<AVFCharacter>(Pawn))
+    {
+        TScriptInterface<IVFActivatableInterface> Equipment(this);
+        VFCharacter->RemoveEquipment(Equipment);
+    }
+
     Pawn = nullptr;
     PlayerController = nullptr;
     bPickedUp = false;
+    SetActorHiddenInGame(false);
     EnableInteract(true);
 }
 
@@ -158,10 +150,26 @@ void AVFPhotoCatcher_PickUp::LeaveFromPreview_Move()
 void AVFPhotoCatcher_PickUp::Activate_Implementation()
 {
     SetActorHiddenInGame(false);
+
+    if (HoldingMappingContext)
+    {
+        auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+        if (Subsystem)
+            Subsystem->AddMappingContext(HoldingMappingContext, 1);
+        EnableInput(PlayerController);
+    }
 }
 
 void AVFPhotoCatcher_PickUp::Deactivate_Implementation()
 {
+    if (HoldingMappingContext)
+    {
+        DisableInput(PlayerController);
+        auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+        if (Subsystem)
+            Subsystem->RemoveMappingContext(HoldingMappingContext);
+    }
+
     SetActorHiddenInGame(true);
 }
 
