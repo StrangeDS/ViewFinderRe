@@ -10,7 +10,7 @@ UVFViewFrustumComponent::UVFViewFrustumComponent()
     SetCollisionProfileName(TEXT("ViewFrustum"));
 
     static ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialSelector(
-        TEXT("/ViewFinderRe/Materials/MI_ViewFrustum.MI_ViewFrustum"));
+        TEXT("/ViewFinderRe/Materials/Frustum/MI_Transparent.MI_Transparent"));
     Matirial = MaterialSelector.Object;
     SetMaterial(0, Matirial);
 }
