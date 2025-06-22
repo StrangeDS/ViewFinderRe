@@ -37,7 +37,14 @@ public:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
-	// 能否被拍入照片
+	/*
+	能否在照片中显示, 与bCanBeTakenInPhoto独立.
+	意味着可以: 显示但不进入后续流程, 不显示但进入后续流程.
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	bool bCanShowInPhoto = true;
+
+	// 能否被拍入照片(进入后续的复制等流程)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	bool bCanBeTakenInPhoto = true;
 

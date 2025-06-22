@@ -15,7 +15,7 @@ class UVFDynamicMeshComponent;
 class UVFPhotoCaptureComponent;
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
-class VIEWFINDERCORE_API AVFPhotoCatcher : public AActor,  public IVFHelperInterface
+class VIEWFINDERCORE_API AVFPhotoCatcher : public AActor, public IVFHelperInterface
 {
 	GENERATED_BODY()
 
@@ -51,10 +51,14 @@ public:
 	UFUNCTION(BlueprintPure, Category = "ViewFinder")
 	FQuat GetFrustumQuat();
 
+	UFUNCTION(BlueprintPure, Category = "ViewFinder")
+	FORCEINLINE bool IsCuttingOrignal() { return bCuttingOrignal; };
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	float ViewAngle = 60.0f;
 
+	// 宽高比, 但设置了渲染目标后会以渲染目标为准.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	float AspectRatio = 16.0f / 9;
 
@@ -107,7 +111,7 @@ protected:
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
 	UMaterialInstanceDynamic *GetScreenMID();
-	virtual UMaterialInstanceDynamic* GetScreenMID_Implementation();
+	virtual UMaterialInstanceDynamic *GetScreenMID_Implementation();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<UMaterialInstanceDynamic> ScreenMID;

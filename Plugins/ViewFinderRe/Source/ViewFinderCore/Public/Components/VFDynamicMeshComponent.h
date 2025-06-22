@@ -64,7 +64,8 @@ public: // SourceComponent
 	void ReplaceMeshForComponentInEditor();
 #endif
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder",
+			  meta = (NoEditInline))
 	TObjectPtr<UPrimitiveComponent> SourceComponent;
 
 public: // Enabled
@@ -80,4 +81,7 @@ protected:
 
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
 	bool bEnableGravityRecorder = false;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
+	bool bCastShadowRecorder = false;
 };

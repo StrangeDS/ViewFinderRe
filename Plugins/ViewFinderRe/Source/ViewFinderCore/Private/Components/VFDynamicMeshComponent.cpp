@@ -67,6 +67,7 @@ void UVFDynamicMeshComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
         UpdateSimlpeCollision();
         bSimulatePhysicsRecorder = SourceVFDMComp->bSimulatePhysicsRecorder;
         bEnableGravityRecorder = SourceVFDMComp->bEnableGravityRecorder;
+        bCastShadowRecorder = SourceVFDMComp->bCastShadowRecorder;
     }
     else if (Source->BodyInstance.bSimulatePhysics)
     {
@@ -75,6 +76,7 @@ void UVFDynamicMeshComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
         // 从静态网格体上复制物理状态
         bSimulatePhysicsRecorder = Source->BodyInstance.bSimulatePhysics;
         bEnableGravityRecorder = Source->IsGravityEnabled();
+        bCastShadowRecorder = Source->CastShadow;
     }
     else
     {
@@ -99,6 +101,7 @@ void UVFDynamicMeshComponent::ReplaceMeshForComponent(UPrimitiveComponent *Sourc
 
     SetSimulatePhysics(bSimulatePhysicsRecorder);
     SetEnableGravity(bEnableGravityRecorder);
+    SetCastShadow(bCastShadowRecorder);
 }
 
 void UVFDynamicMeshComponent::IntersectMeshWithDMComp(UDynamicMeshComponent *Tool)

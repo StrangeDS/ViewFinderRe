@@ -63,6 +63,7 @@ void AVFPhotoCatcher::OnConstruction(const FTransform &Transform)
 	PhotoCapture->FOVAngle = ViewAngle;
 	PhotoCapture->CustomNearClippingPlane = StartDis;
 	PhotoCapture->MaxViewDistanceOverride = EndDis;
+	PhotoCapture->TargetHeight = PhotoCapture->TargetWidth / AspectRatio;
 }
 
 void AVFPhotoCatcher::BeginPlay()
@@ -109,26 +110,34 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 	// 处理Helper相关设置
 	{
 		TArray<AActor *> ActorsNotTakenInPhoto = ActorsToIgnore;
-		TArray<UPrimitiveComponent *> StandInComps;
+		TMap<AActor *, UPrimitiveComponent *> StandInCompsMap;
 		for (auto It = OverlapComps.CreateIterator(); It; It++)
 		{
 			auto Comp = *It;
 			auto *HelperComp = HelperMap.Find(Comp); // 可能为nullptr
+
+			// 剔除不显示的Actor
+			if (HelperComp && !HelperMap[Comp]->bCanShowInPhoto)
+			{
+				ActorsNotTakenInPhoto.AddUnique(Comp->GetOwner());
+			}
+
+			// 剔除不进入后续的Actor
 			if (bOnlyOverlapWithHelps && !HelperComp)
 			{
 				It.RemoveCurrent();
 			}
 			else if (HelperComp && !HelperMap[Comp]->bCanBeTakenInPhoto)
 			{
-				ActorsNotTakenInPhoto.AddUnique(Comp->GetOwner());
 				It.RemoveCurrent();
 			}
-			else if (HelperComp && HelperMap[Comp]->bReplacedWithStandIn) // StandIn处理
+			else if (HelperComp && HelperMap[Comp]->bReplacedWithStandIn)
 			{
+				// StandIn处理: 剔除自己的组件, 使用替身的组件.
+				It.RemoveCurrent();
 				auto Actor = Comp->GetOwner();
-				if (!ActorsNotTakenInPhoto.Contains(Actor))
+				if (!StandInCompsMap.Contains(Actor))
 				{
-					ActorsNotTakenInPhoto.Add(Actor);
 					if (HelperMap[Comp]->bIgnoreChildActors)
 					{
 						TArray<AActor *> ChildActors;
@@ -138,19 +147,15 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 
 					auto StandIn = UVFFunctions::ReplaceWithStandIn(Actor, HelperMap[Comp]->StandInClass);
 					auto StandInComp = IVFStandInInterface::Execute_GetPrimitiveComp(StandIn);
-					StandInComps.Add(StandInComp);
+					StandInCompsMap.Add(Actor, StandInComp);
 				}
 			}
 		}
-		
-		for (auto It = OverlapComps.CreateIterator(); It; It++)
-		{
-			auto Actor = (*It)->GetOwner();
-			if (ActorsNotTakenInPhoto.Contains(Actor))
-				It.RemoveCurrent();
-		}
 
-		OverlapComps.Append(StandInComps);
+		for (auto &[Actor, Comp] : StandInCompsMap)
+		{
+			OverlapComps.AddUnique(Comp);
+		}
 		PhotoCapture->HiddenActors = ActorsNotTakenInPhoto;
 	}
 

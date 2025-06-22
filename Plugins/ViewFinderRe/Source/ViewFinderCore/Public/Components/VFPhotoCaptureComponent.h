@@ -9,11 +9,12 @@ class VIEWFINDERCORE_API UVFPhotoCaptureComponent : public USceneCaptureComponen
 {
 	GENERATED_BODY()
 
+public:
 	UVFPhotoCaptureComponent();
 
-public:
 	virtual void BeginPlay() override;
 
+public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void Init();
 
@@ -35,9 +36,9 @@ public:
 	UTexture2D *DrawATexture2D();
 
 public:
-	UPROPERTY(EditAnywhere, Category = "ViewFinder")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	int TargetWidth = 1920;
 
-	UPROPERTY(EditAnywhere, Category = "ViewFinder")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	int TargetHeight = 1080;
 };
