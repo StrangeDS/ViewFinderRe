@@ -9,10 +9,10 @@ class UStaticMeshComponent;
 
 class AVFPhoto2D;
 class AVFPhoto3D;
-class UVFHelperComponent;
 class UVFViewFrustumComponent;
 class UVFDynamicMeshComponent;
 class UVFPhotoCaptureComponent;
+class UVFBackgroundCaptureComponent;
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERCORE_API AVFPhotoCatcher : public AActor, public IVFHelperInterface
@@ -101,6 +101,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<UVFPhotoCaptureComponent> PhotoCapture;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	TObjectPtr<UVFBackgroundCaptureComponent> BackgroundCapture;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<UVFViewFrustumComponent> ViewFrustum;

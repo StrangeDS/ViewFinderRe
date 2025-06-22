@@ -1,0 +1,56 @@
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/Actor.h"
+#include "VFHelperInterface.h"
+#include "VFPlaneActor.generated.h"
+
+class UMaterialInstanceDynamic;
+
+/*
+背景映射在AVFPlaneActor的Plane上
+请注意, 由于视锥分段, 导致布尔得到的面布线很烂, 生成的碰撞是没有的.
+*/
+UCLASS(Blueprintable, ClassGroup = (ViewFinder))
+class VIEWFINDERCORE_API AVFPlaneActor : public AActor, public IVFHelperInterface
+{
+	GENERATED_BODY()
+
+public:
+	AVFPlaneActor();
+
+	virtual void BeginPlay() override;
+	
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	void SetPlane(FVector Location, FVector Direction, float Width, float Height);
+
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	void SetPlaneMaterial(UTexture2D *Texture);
+
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	void HandleEndTakingPhoto(UObject *Sender);
+
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	void HandleEndPlacingPhoto(UObject *Sender);
+
+#if WITH_EDITOR
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")
+	void FaceToPawn();
+#endif
+
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	TObjectPtr<USceneComponent> TransformRoot;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	TObjectPtr<UStaticMeshComponent> Plane;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	TObjectPtr<UVFHelperComponent> Helper;
+
+public: // IVFHelperInterface
+	virtual UVFHelperComponent *GetHelper_Implementation() override;
+};

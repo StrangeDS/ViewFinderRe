@@ -15,6 +15,7 @@
 #include "VFStandInInterface.h"
 #include "VFPawnStandIn.h"
 #include "VFHelperComponent.h"
+#include "VFBackgroundCaptureComponent.h"
 
 static void GetMapHelpers(
 	const TMap<UPrimitiveComponent *, UVFHelperComponent *> &Map,
@@ -43,6 +44,9 @@ AVFPhotoCatcher::AVFPhotoCatcher()
 	PhotoCapture = CreateDefaultSubobject<UVFPhotoCaptureComponent>(TEXT("PhotoCapture"));
 	PhotoCapture->SetupAttachment(RootComponent);
 
+	BackgroundCapture = CreateDefaultSubobject<UVFBackgroundCaptureComponent>(TEXT("BackgroundCapture"));
+	BackgroundCapture->SetupAttachment(PhotoCapture);
+
 	ViewFrustum = CreateDefaultSubobject<UVFViewFrustumComponent>(TEXT("ViewFrustum"));
 	ViewFrustum->SetupAttachment(RootComponent);
 	ViewFrustum->SetHiddenInGame(true);
@@ -64,6 +68,11 @@ void AVFPhotoCatcher::OnConstruction(const FTransform &Transform)
 	PhotoCapture->CustomNearClippingPlane = StartDis;
 	PhotoCapture->MaxViewDistanceOverride = EndDis;
 	PhotoCapture->TargetHeight = PhotoCapture->TargetWidth / AspectRatio;
+
+	BackgroundCapture->FOVAngle = ViewAngle;
+	BackgroundCapture->CustomNearClippingPlane = StartDis;
+	BackgroundCapture->MaxViewDistanceOverride = EndDis;
+	BackgroundCapture->TargetHeight = BackgroundCapture->TargetWidth / AspectRatio;
 }
 
 void AVFPhotoCatcher::BeginPlay()
@@ -102,6 +111,10 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 
 	// 重叠检测
 	TArray<UPrimitiveComponent *> OverlapComps = GetOverlapComps();
+
+	// 天空盒处理
+	auto Plane = BackgroundCapture->DrawABackground();
+	OverlapComps.Add(Plane);
 
 	// Helper筛选
 	TMap<UPrimitiveComponent *, UVFHelperComponent *> HelperMap;
