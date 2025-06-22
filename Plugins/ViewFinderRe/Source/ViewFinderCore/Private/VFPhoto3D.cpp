@@ -75,9 +75,9 @@ void AVFPhoto3D::PlaceDown()
 		{
 			auto Comp = *It;
 			auto Helper = HelperMap.Find(Comp); // 可能为nullptr
-			if (bOnlyOverlapWithHelps && !IsValid(*Helper))
+			if (bOnlyOverlapWithHelps && !Helper)
 				It.RemoveCurrent();
-			else if (IsValid(*Helper) && !HelperMap[Comp]->bCanBePlacedByPhoto)
+			else if (Helper && !HelperMap[Comp]->bCanBePlacedByPhoto)
 				It.RemoveCurrent();
 		}
 

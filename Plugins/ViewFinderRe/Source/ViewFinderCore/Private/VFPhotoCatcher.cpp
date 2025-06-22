@@ -130,21 +130,21 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 			auto *HelperComp = HelperMap.Find(Comp); // 可能为nullptr
 
 			// 剔除不显示的Actor
-			if (IsValid(*HelperComp) && !HelperMap[Comp]->bCanShowInPhoto)
+			if (HelperComp && !HelperMap[Comp]->bCanShowInPhoto)
 			{
 				ActorsNotTakenInPhoto.AddUnique(Comp->GetOwner());
 			}
 
 			// 剔除不进入后续的Actor
-			if (bOnlyOverlapWithHelps && !IsValid(*HelperComp))
+			if (bOnlyOverlapWithHelps && !HelperComp)
 			{
 				It.RemoveCurrent();
 			}
-			else if (IsValid(*HelperComp) && !HelperMap[Comp]->bCanBeTakenInPhoto)
+			else if (HelperComp && !HelperMap[Comp]->bCanBeTakenInPhoto)
 			{
 				It.RemoveCurrent();
 			}
-			else if (IsValid(*HelperComp) && HelperMap[Comp]->bReplacedWithStandIn)
+			else if (HelperComp && HelperMap[Comp]->bReplacedWithStandIn)
 			{
 				// StandIn处理: 剔除自己的组件, 使用替身的组件.
 				It.RemoveCurrent();
