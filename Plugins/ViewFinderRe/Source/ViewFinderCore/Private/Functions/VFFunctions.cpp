@@ -80,17 +80,17 @@ AActor *UVFFunctions::CloneActorRuntime(
 		// 还原组件
 		auto Parent = Parents[DMComp];
 		Original->AddInstanceComponent(DMComp);
-		DMComp->RegisterComponent();
 		DMComp->AttachToComponent(Parent, FAttachmentTransformRules::SnapToTargetIncludingScale);
+		DMComp->RegisterComponent();
 
 		UVFDynamicMeshComponent *CopiedComp = NewVFDMComp(Copy, DMComp->GetClass());
 		CopiedComps.Add(CopiedComp);
 		// 同步层级
 		Copy->AddInstanceComponent(CopiedComp);
-		CopiedComp->RegisterComponent();
 		CopiedComp->AttachToComponent(
 			GetComponentByName(Copy, Parent->GetFName()),
 			FAttachmentTransformRules::SnapToTargetIncludingScale);
+		CopiedComp->RegisterComponent();
 		CopiedComp->Init(DMComp);
 		CopiedComp->CopyMeshFromComponent(DMComp);
 	}
@@ -155,8 +155,8 @@ TArray<UVFDynamicMeshComponent *> UVFFunctions::CheckVFDMComps(
 					UVFDynamicMeshComponent *VFDMComp = NewVFDMComp(Actor, VFDMCompClass);
 
 					Actor->AddInstanceComponent(VFDMComp);
-					VFDMComp->RegisterComponent();
 					VFDMComp->AttachToComponent(PrimComp, FAttachmentTransformRules::SnapToTargetIncludingScale);
+					VFDMComp->RegisterComponent();
 					VFDMComp->Init(PrimComp);
 					VFDMComp->ReplaceMeshForComponent(PrimComp);
 
