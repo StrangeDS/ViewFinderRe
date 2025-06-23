@@ -243,17 +243,17 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
         FVector RelativeScale3D = Photo2DRoot->GetActorRelativeScale3D();
         for (auto &Photo2D : Photo2DsInSame)
         {
-            Photo2D->StaticMesh->SetMaterial(MaterialIndex, MIConstant);
+            Photo2D->GetStaticMeshInEditor()->SetMaterial(MaterialIndex, MIConstant);
 
             if (Photo2D->bIsRecursive)
             {
                 Photo2D->SetActorRelativeScale3D(RelativeScale3D);
-                auto Comps = Photo2D->StaticMesh->GetAttachChildren();
+                auto Comps = Photo2D->GetStaticMeshInEditor()->GetAttachChildren();
                 for (auto &Comp : Comps)
                 {
                     if (auto VFDMComp = Cast<UVFDynamicMeshComponent>(Comp))
                     {
-                        VFDMComp->SourceComponent = Photo2D->StaticMesh;
+                        VFDMComp->SourceComponent = Photo2D->GetStaticMeshInEditor();
                         VFDMComp->SetMaterial(MaterialIndex, MIConstant);
                         break;
                     }
@@ -413,17 +413,17 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
             if (Photo2D->bIsRecursive)
             {
                 Photo2D->SetActorRelativeScale3D(RelativeScale3D);
-                for (auto &Comp : Photo2D->StaticMesh->GetAttachChildren())
+                for (auto &Comp : Photo2D->GetStaticMeshInEditor()->GetAttachChildren())
                 {
                     if (auto VFDMComp = Cast<UVFDynamicMeshComponent>(Comp))
                     {
-                        VFDMComp->SourceComponent = Photo2D->StaticMesh;
+                        VFDMComp->SourceComponent = Photo2D->GetStaticMeshInEditor();
                         VFDMComp->SetMaterial(MaterialIndex, MICAsset);
                         break;
                     }
                 }
             }
-            Photo2D->StaticMesh->SetMaterial(MaterialIndex, MICAsset);
+            Photo2D->GetStaticMeshInEditor()->SetMaterial(MaterialIndex, MICAsset);
             Photo2D->MaterialInstance = nullptr;
             Photo2D->MarkPackageDirty();
         }
@@ -447,7 +447,7 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
         }
         for (auto &Photo2D : Photo2DsOrigial)
         {
-            Photo2D->StaticMesh->SetMaterial(MaterialIndex, MICAsset);
+            Photo2D->GetStaticMeshInEditor()->SetMaterial(MaterialIndex, MICAsset);
         }
         PhotoCapture->CaptureScene();
         PhotoCapture->TextureTarget->UpdateTexture2D(TextureAsset, TextureAsset->Source.GetFormat());

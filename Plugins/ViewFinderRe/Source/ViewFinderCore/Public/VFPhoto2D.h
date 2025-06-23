@@ -113,7 +113,7 @@ public: // IVFHelperInterface
 	virtual UVFHelperComponent *GetHelper_Implementation() override;
 	
 #if WITH_EDITOR
-private:
-	friend class AVFPhotoCatcherPref;
+public:
+	UStaticMeshComponent* GetStaticMeshInEditor() { return StaticMesh; };
 #endif
 };
