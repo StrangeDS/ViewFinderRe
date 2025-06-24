@@ -20,7 +20,7 @@ public:
 	AVFPlaneActor();
 
 	virtual void BeginPlay() override;
-	
+
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
@@ -53,6 +53,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
 			  meta = (NoEditInline))
 	TObjectPtr<UVFHelperComponent> Helper;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	bool bDestroyAfterTakingPhoto = true;
 
 public: // IVFHelperInterface
 	virtual UVFHelperComponent *GetHelper_Implementation() override;

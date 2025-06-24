@@ -27,7 +27,6 @@ AVFPlaneActor::AVFPlaneActor()
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialSelector(
 		TEXT("/ViewFinderRe/Materials/Background/MI_Background.MI_Background"));
 	Plane->SetMaterial(0, MaterialSelector.Object);
-	Plane->SetCollisionProfileName(TEXT("NoCollision"));
 
 	Helper = CreateDefaultSubobject<UVFHelperComponent>("Helper");
 	Helper->bCanShowInPhoto = false;
@@ -71,11 +70,15 @@ void AVFPlaneActor::SetPlaneMaterial(UTexture2D *Texture)
 
 void AVFPlaneActor::HandleEndTakingPhoto(UObject *Sender)
 {
-	Destroy();
+	if (bDestroyAfterTakingPhoto)
+	{
+		Destroy();
+	}
 }
 
 void AVFPlaneActor::HandleEndPlacingPhoto(UObject *Sender)
 {
+	bDestroyAfterTakingPhoto = false;
 	Helper->bCanShowInPhoto = true;
 }
 
