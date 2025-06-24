@@ -48,3 +48,31 @@ void UVFViewFrustumComponent::RecordViewFrustum(UVFViewFrustumComponent *Other)
         false);
     UVFGeometryFunctions::SetDynamicMeshCollisionFromMesh(MeshObject, this, CollisionOptions);
 }
+
+#if WITH_EDITOR
+#include "VFCommon.h"
+
+void UVFViewFrustumComponent::DrawConvexCollision()
+{
+    auto KAggregateGeom = GetSimpleCollisionShapes();
+    auto ConvexElems = KAggregateGeom.ConvexElems;
+    FTransform Transform = GetComponentTransform();
+
+    VF_LOG(Log, TEXT("ConvexElems.Num(): %i"), ConvexElems.Num());
+    for (auto Elem : ConvexElems)
+    {
+        auto VertexData = Elem.VertexData;
+        VF_LOG(Log, TEXT("VertexData.Num(): %i"), VertexData.Num());
+        for (int i = 0; i < VertexData.Num(); ++i)
+        {
+            VertexData[i] = Transform.TransformPosition(VertexData[i]);
+        }
+        DrawDebugMesh(
+            GetWorld(),
+            VertexData,
+            Elem.IndexData,
+            FColor(0, 100, 0, 100),
+            false, 5.0f, SDPG_Foreground);
+    }
+}
+#endif

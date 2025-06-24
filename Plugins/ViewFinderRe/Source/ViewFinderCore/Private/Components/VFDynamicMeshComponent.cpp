@@ -160,6 +160,80 @@ void UVFDynamicMeshComponent::UpdateSimlpeCollision()
         Options);
 }
 
+#if WITH_EDITOR
+#include "VFCommon.h"
+
+void UVFDynamicMeshComponent::DrawSimpleShapesCollision()
+{
+    FKAggregateGeom KAggregateGeom = GetSimpleCollisionShapes();
+    auto SphereElems = KAggregateGeom.SphereElems;
+    auto BoxElems = KAggregateGeom.BoxElems;
+    auto SphylElems = KAggregateGeom.SphylElems;
+    VF_LOG(Log, TEXT("SimpleShapes.Num(): %i"),
+           SphereElems.Num() + BoxElems.Num() + SphylElems.Num());
+
+    FTransform Transform = GetComponentTransform();
+    UWorld *World = GetWorld();
+    FColor Color(150, 100, 0, 50);
+    float Time = 5.0f;
+    for (FKSphereElem Elem : SphereElems)
+    {
+        DrawDebugSphere(World,
+                        Transform.TransformPosition(Elem.Center),
+                        Elem.Radius,
+                        4,
+                        Color,
+                        false,
+                        Time);
+    }
+    for (FKBoxElem Elem : BoxElems)
+    {
+        DrawDebugBox(World,
+                     Transform.TransformPosition(Elem.Center),
+                     FVector(Elem.X, Elem.Y, Elem.Z),
+                     Transform.TransformRotation(Elem.Rotation.Quaternion()),
+                     Color,
+                     false,
+                     Time);
+    }
+    for (FKSphylElem Elem : SphylElems)
+    {
+        DrawDebugCapsule(World,
+                         Transform.TransformPosition(Elem.Center),
+                         Elem.Length,
+                         Elem.Radius,
+                         Transform.TransformRotation(Elem.Rotation.Quaternion()),
+                         Color,
+                         false,
+                         Time);
+    }
+}
+
+void UVFDynamicMeshComponent::DrawConvexCollision()
+{
+    FKAggregateGeom KAggregateGeom = GetSimpleCollisionShapes();
+    auto ConvexElems = KAggregateGeom.ConvexElems;
+    FTransform Transform = GetComponentTransform();
+
+    VF_LOG(Log, TEXT("ConvexElems.Num(): %i"), ConvexElems.Num());
+    for (auto Elem : ConvexElems)
+    {
+        auto VertexData = Elem.VertexData;
+        VF_LOG(Log, TEXT("VertexData.Num(): %i"), VertexData.Num());
+        for (int i = 0; i < VertexData.Num(); ++i)
+        {
+            VertexData[i] = Transform.TransformPosition(VertexData[i]);
+        }
+        DrawDebugMesh(
+            GetWorld(),
+            VertexData,
+            Elem.IndexData,
+            FColor(150, 100, 0, 50),
+            false, 5.0f, SDPG_Foreground);
+    }
+}
+#endif
+
 void UVFDynamicMeshComponent::UpdateMaterials()
 {
     for (int i = 0; i < SourceComponent->GetNumMaterials(); i++)

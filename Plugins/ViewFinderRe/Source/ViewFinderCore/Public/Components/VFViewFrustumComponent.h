@@ -50,7 +50,12 @@ protected:
 		0.1f,
 		EVF_GeometryScriptSweptHullAxis::Z,
 		true,
-		1};
+		0};
+
+#if WITH_EDITOR
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")
+	void DrawConvexCollision();
+#endif
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	TObjectPtr<UMaterialInterface> Matirial;

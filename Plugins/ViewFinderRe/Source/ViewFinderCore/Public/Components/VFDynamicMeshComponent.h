@@ -41,6 +41,14 @@ public: // Mesh
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void UpdateSimlpeCollision();
 
+#if WITH_EDITOR
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")
+	void DrawSimpleShapesCollision();
+
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")
+	void DrawConvexCollision();
+#endif
+
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void UpdateMaterials();
 
