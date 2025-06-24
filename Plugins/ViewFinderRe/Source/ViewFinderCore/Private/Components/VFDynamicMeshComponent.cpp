@@ -62,27 +62,21 @@ void UVFDynamicMeshComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
     SetCollisionProfileName(Source->GetCollisionProfileName());
     if (auto SourceVFDMComp = GetSourceVFDMComp())
     {
-        // 从VFDMComp上复制不需要立即应用, 由SetEnabled启用
-        SetComplexAsSimpleCollisionEnabled(SourceVFDMComp->bEnableComplexCollision, true);
-        UpdateSimlpeCollision();
+        SetComplexAsSimpleCollisionEnabled(SourceVFDMComp->bEnableComplexCollision, false);
         bSimulatePhysicsRecorder = SourceVFDMComp->bSimulatePhysicsRecorder;
         bEnableGravityRecorder = SourceVFDMComp->bEnableGravityRecorder;
         bCastShadowRecorder = SourceVFDMComp->bCastShadowRecorder;
     }
-    else if (Source->BodyInstance.bSimulatePhysics)
+    else
     {
-        SetComplexAsSimpleCollisionEnabled(false, true);
-        UpdateSimlpeCollision();
-        // 从静态网格体上复制物理状态
+        bool UseSimpleCollision = Source->BodyInstance.bSimulatePhysics;
+        UseSimpleCollision |= Source->BodyInstance.GetBodySetup()->GetCollisionTraceFlag() == ECollisionTraceFlag::CTF_UseSimpleAsComplex;
+        SetComplexAsSimpleCollisionEnabled(!UseSimpleCollision, false);
         bSimulatePhysicsRecorder = Source->BodyInstance.bSimulatePhysics;
         bEnableGravityRecorder = Source->IsGravityEnabled();
         bCastShadowRecorder = Source->CastShadow;
     }
-    else
-    {
-        // 使用复杂碰撞
-        SetComplexAsSimpleCollisionEnabled(true, true);
-    }
+    UpdateSimlpeCollision();
     SetCollisionEnabled(Source->GetCollisionEnabled());
 
     UpdateMaterials();
@@ -296,6 +290,7 @@ void UVFDynamicMeshComponent::ReplaceMeshForComponentInEditor()
         VF_LOG(Error, TEXT("%s GetAttachParent() is not a UPrimitiveComponent."), __FUNCTIONW__);
 
     Modify();
+    SourceComponent = Source;
     ReplaceMeshForComponent(Source);
     SourceComponent = nullptr;
     VF_LOG(Log, TEXT("%s has Replaced parent Component."), *GetName());

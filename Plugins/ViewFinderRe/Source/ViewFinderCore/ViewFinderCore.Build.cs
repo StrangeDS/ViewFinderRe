@@ -50,7 +50,8 @@ public class ViewFinderCore : ModuleRules
 				"MeshConversionEngineTypes",
 				"ModelingComponents",
 				"GeometryCore",
-				"GeometryFramework"
+				"GeometryFramework",
+				"PhysicsCore",
 			}
 			);
 
