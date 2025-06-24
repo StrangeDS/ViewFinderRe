@@ -62,7 +62,7 @@ void UVFDynamicMeshComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
     SetCollisionProfileName(Source->GetCollisionProfileName());
     if (auto SourceVFDMComp = GetSourceVFDMComp())
     {
-        SetComplexAsSimpleCollisionEnabled(SourceVFDMComp->bEnableComplexCollision, false);
+        SetComplexAsSimpleCollisionEnabled(SourceVFDMComp->bEnableComplexCollision, true);
         bSimulatePhysicsRecorder = SourceVFDMComp->bSimulatePhysicsRecorder;
         bEnableGravityRecorder = SourceVFDMComp->bEnableGravityRecorder;
         bCastShadowRecorder = SourceVFDMComp->bCastShadowRecorder;
@@ -71,7 +71,7 @@ void UVFDynamicMeshComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
     {
         bool UseSimpleCollision = Source->BodyInstance.bSimulatePhysics;
         UseSimpleCollision |= Source->BodyInstance.GetBodySetup()->GetCollisionTraceFlag() == ECollisionTraceFlag::CTF_UseSimpleAsComplex;
-        SetComplexAsSimpleCollisionEnabled(!UseSimpleCollision, false);
+        SetComplexAsSimpleCollisionEnabled(!UseSimpleCollision, true);
         bSimulatePhysicsRecorder = Source->BodyInstance.bSimulatePhysics;
         bEnableGravityRecorder = Source->IsGravityEnabled();
         bCastShadowRecorder = Source->CastShadow;

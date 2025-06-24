@@ -2,6 +2,7 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "Engine/StaticMeshActor.h"
+#include "Components/PrimitiveComponent.h"
 
 #include "VFCommon.h"
 #include "VFFunctions.h"

@@ -8,22 +8,24 @@
 UVFBackgroundCaptureComponent::UVFBackgroundCaptureComponent()
     : Super()
 {
-	PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList;
+    PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_UseShowOnlyList;
     PlaneActorClass = AVFPlaneActor::StaticClass();
 }
 
 UPrimitiveComponent *UVFBackgroundCaptureComponent::DrawABackgroundWithSize(
     float Distance, float Width, float Height)
 {
+    check(PlaneActorClass);
+
     auto PlaneActor = GetWorld()->SpawnActor<AVFPlaneActor>(PlaneActorClass);
     FVector BasePosition = GetComponentLocation();
     FVector RelativePosition = Distance * GetComponentRotation().RotateVector(FVector::ForwardVector);
     FVector Direction = RelativePosition.GetSafeNormal();
 
-	if (auto BackgroundSystem = GetWorld()->GetSubsystem<UVFBackgroundWorldSubsystem>())
-	{
-		ShowOnlyActors = BackgroundSystem->GetBackgrounds();
-	}
+    if (auto BackgroundSystem = GetWorld()->GetSubsystem<UVFBackgroundWorldSubsystem>())
+    {
+        ShowOnlyActors = BackgroundSystem->GetBackgrounds();
+    }
     CaptureScene();
     PlaneActor->SetPlane(RelativePosition + BasePosition, Direction, Width, Height);
     PlaneActor->SetPlaneMaterial(DrawATexture2D());
