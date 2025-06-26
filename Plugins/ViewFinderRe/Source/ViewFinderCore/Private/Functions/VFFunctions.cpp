@@ -59,6 +59,7 @@ AActor *UVFFunctions::CloneActorRuntime(
 	for (auto &DMComp : DMComps)
 	{
 		Parents.Add(DMComp, DMComp->GetAttachParent());
+		DMComp->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 		DMComp->UnregisterComponent();
 		Original->RemoveInstanceComponent(DMComp);
 	}
@@ -136,8 +137,7 @@ TArray<UVFDynamicMeshComponent *> UVFFunctions::CheckVFDMComps(
 		if (IsValid(hasVFDMComp))
 		{
 			// 存在意味着处理过, 只会是VFDMComp
-			auto VFDMComp = Cast<UVFDynamicMeshComponent>(Component);
-			if (IsValid(VFDMComp))
+			if (auto VFDMComp = Cast<UVFDynamicMeshComponent>(Component))
 				Result.Add(VFDMComp);
 		}
 		else
@@ -151,7 +151,6 @@ TArray<UVFDynamicMeshComponent *> UVFFunctions::CheckVFDMComps(
 				if (Components.Contains(PrimComp))
 				{
 					UWorld *World = Actor->GetWorld();
-					auto PoolSystem = World->GetSubsystem<UVFDMCompPoolWorldSubsystem>();
 					UVFDynamicMeshComponent *VFDMComp = NewVFDMComp(Actor, VFDMCompClass);
 
 					Actor->AddInstanceComponent(VFDMComp);

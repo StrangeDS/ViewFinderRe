@@ -156,17 +156,21 @@ void UVFDMSteppableComponent::TickBackward_Implementation(float Time)
             auto PoolSubsystem = GetWorld()->GetSubsystem<UVFDMCompPoolWorldSubsystem>();
             if (GetSourceVFDMComp())
             {
-                TInlineComponentArray<UVFDMSteppableComponent *> VFDMSComps(Actor);
-                Actor->GetComponents<UVFDMSteppableComponent>(VFDMSComps);
-                NeedToDestroyActor = VFDMSComps.Num() == 1;
+                TInlineComponentArray<UVFDMSteppableComponent *> VFDMComps(Actor);
+                Actor->GetComponents<UVFDMSteppableComponent>(VFDMComps);
+                NeedToDestroyActor = VFDMComps.Num() == 1;
             }
 
+            DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
             UnregisterComponent();
             Actor->RemoveInstanceComponent(this);
             Clear();
             if (PoolSubsystem)
             {
-                PoolSubsystem->ReturnComp(this);
+                if (!PoolSubsystem->ReturnComp(this))
+                {
+                    VF_LOG(Error, TEXT("%s: fails to ReturnComp."), __FUNCTIONW__);
+                }
             }
             else
             {

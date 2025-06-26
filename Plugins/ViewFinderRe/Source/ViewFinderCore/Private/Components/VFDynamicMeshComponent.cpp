@@ -13,17 +13,6 @@ UVFDynamicMeshComponent::UVFDynamicMeshComponent(const FObjectInitializer &Objec
 void UVFDynamicMeshComponent::OnRegister()
 {
     Super::OnRegister();
-
-    /*
-    在拍照流程的复制过程中, 组件会被拆卸(复制Actor), 然后重新组装.
-    若为根组件会出现错误. 详见UVFFunctions::CloneActorRuntime()
-    */
-    if (GetAttachParent() == nullptr)
-    {
-        VF_LOG(Warning,
-               TEXT("%s is RootComponent in %s."),
-               *GetName(), *GetOwner()->GetName());
-    }
 }
 
 void UVFDynamicMeshComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -37,6 +26,17 @@ void UVFDynamicMeshComponent::Init(UPrimitiveComponent *Source)
 {
     check(Source);
     SourceComponent = Source;
+
+    /*
+    在拍照流程的复制过程中, 组件会被拆卸(复制Actor), 然后重新组装.
+    若为根组件会出现错误. 详见UVFFunctions::CloneActorRuntime()
+    */
+    if (GetAttachParent() == nullptr)
+    {
+        VF_LOG(Warning,
+               TEXT("%s is RootComponent in %s."),
+               *GetName(), *GetOwner()->GetName());
+    }
 }
 
 void UVFDynamicMeshComponent::Clear()
@@ -277,7 +277,7 @@ void UVFDynamicMeshComponent::RestoreSourceComponent()
     SourceComponent->SetCollisionProfileName(GetCollisionProfileName());
     SourceComponent->SetCollisionEnabled(GetCollisionEnabled());
     SourceComponent->SetSimulatePhysics(bSimulatePhysicsRecorder);
-    SourceComponent->BodyInstance.bSimulatePhysics = bEnableGravityRecorder;
+    SourceComponent->BodyInstance.bEnableGravity = bEnableGravityRecorder;
 }
 
 #if WITH_EDITOR

@@ -119,19 +119,23 @@ void UVFStepsRecorderWorldSubsystem::SubmitStep(UObject *Sender, FVFStepInfo Inf
 
 void UVFStepsRecorderWorldSubsystem::RecordTransform(USceneComponent *Component)
 {
-    if (ensure(IsValid(TransformRecorder)))
+    if (!IsValid(TransformRecorder))
     {
-        if (Component->Mobility == EComponentMobility::Movable)
-            TransformRecorder->AddToRecord(Component);
+        VF_LOG(Warning, TEXT("%s: invalid TransformRecorder."), __FUNCTIONW__);
+        return;
     }
+    if (Component->Mobility == EComponentMobility::Movable)
+        TransformRecorder->AddToRecord(Component);
 }
 
 void UVFStepsRecorderWorldSubsystem::UnrecordTransform(USceneComponent *Component)
 {
-    if (ensure(IsValid(TransformRecorder)))
+    if (!IsValid(TransformRecorder))
     {
-        TransformRecorder->RemoveFromRecord(Component);
+        VF_LOG(Warning, TEXT("%s: invalid TransformRecorder."), __FUNCTIONW__);
+        return;
     }
+    TransformRecorder->RemoveFromRecord(Component);
 }
 
 void UVFStepsRecorderWorldSubsystem::RegisterTickable(const TScriptInterface<IVFStepsRecordInterface> &Target)
