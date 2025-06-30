@@ -7,7 +7,7 @@
 /**
 背景的世界子系统, 现仅用于UVFBackgroundCaptureComponent提供ShowOnlyList
  */
-UCLASS()
+UCLASS(ClassGroup = (ViewFinder))
 class VIEWFINDERCORE_API UVFBackgroundWorldSubsystem : public UWorldSubsystem
 {
 	GENERATED_BODY()

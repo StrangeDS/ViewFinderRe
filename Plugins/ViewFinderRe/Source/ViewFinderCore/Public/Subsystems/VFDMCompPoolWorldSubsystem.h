@@ -15,7 +15,7 @@ struct FVFDMCompPool
 	TArray<TObjectPtr<UVFDynamicMeshComponent>> Comps;
 };
 
-UCLASS(Blueprintable, ClassGroup = (ViewFinder))
+UCLASS(ClassGroup = (ViewFinder))
 class VIEWFINDERCORE_API UVFDMCompPoolWorldSubsystem : public UWorldSubsystem
 {
 	GENERATED_BODY()

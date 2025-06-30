@@ -16,7 +16,7 @@ enum class EVFStepsRecorderSubsystemCheckMode : uint8
 
 class IVFStepsRecordInterface;
 
-UCLASS(Blueprintable, ClassGroup = (ViewFinder))
+UCLASS(ClassGroup = (ViewFinder))
 class VIEWFINDERCORE_API UVFStepsRecorderWorldSubsystem : public UTickableWorldSubsystem
 {
 	GENERATED_BODY()
