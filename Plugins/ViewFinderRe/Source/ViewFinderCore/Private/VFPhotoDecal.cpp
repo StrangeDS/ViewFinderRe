@@ -1,6 +1,8 @@
 #include "VFPhotoDecal.h"
 
+#include "Engine/Texture2D.h"
 #include "Components/DecalComponent.h"
+#include "UObject/ConstructorHelpers.h"
 #include "Materials/MaterialInstanceDynamic.h"
 
 #include "VFCommon.h"

@@ -1,5 +1,7 @@
 #include "VFPhotoDecalSteppable.h"
 
+#include "TimerManager.h"
+
 #include "VFStepsRecorderWorldSubsystem.h"
 
 void AVFPhotoDecalSteppable::BeginPlay()

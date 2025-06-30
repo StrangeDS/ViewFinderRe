@@ -6,6 +6,8 @@
 #endif
 
 #include "Engine/Texture2D.h"
+#include "Engine/StaticMesh.h"
+#include "Components/StaticMeshComponent.h"
 
 #include "VFPhotoCatcher.h"
 #include "Subsystems/VFBackgroundWorldSubsystem.h"
