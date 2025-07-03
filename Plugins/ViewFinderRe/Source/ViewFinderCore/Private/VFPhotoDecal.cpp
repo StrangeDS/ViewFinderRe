@@ -18,7 +18,6 @@ AVFPhotoDecal::AVFPhotoDecal()
 
     CaptureOfDecal = CreateDefaultSubobject<UVFPhotoCaptureComponent>(TEXT("CaptureOfDecal"));
     CaptureOfDecal->SetupAttachment(CaptureRoot);
-    CaptureOfDecal->CaptureSource = ESceneCaptureSource::SCS_SceneColorHDR;
 
     CaptureOfDepth = CreateDefaultSubobject<UVFPhotoCaptureComponent>(TEXT("CaptureOfDepth"));
     CaptureOfDepth->SetupAttachment(CaptureRoot);
@@ -138,7 +137,7 @@ void AVFPhotoDecal::SetManagedActorsEnabled(bool Enabled)
     }
     for (auto &Actor : ManagedActors)
     {
-        if (IsValid(Actor))
+        if (!IsValid(Actor))
         {
             VF_LOG(Error, TEXT("%s: Invalid Actor in ManagedActors."), __FUNCTIONW__);
             continue;

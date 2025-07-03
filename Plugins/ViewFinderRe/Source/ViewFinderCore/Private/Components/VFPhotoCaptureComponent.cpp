@@ -13,6 +13,7 @@ UVFPhotoCaptureComponent::UVFPhotoCaptureComponent()
 	bCaptureOnMovement = false;
 	bAlwaysPersistRenderingState = false;
 	PrimitiveRenderMode = ESceneCapturePrimitiveRenderMode::PRM_RenderScenePrimitives;
+	CaptureSource = ESceneCaptureSource::SCS_FinalColorHDR;
 }
 
 void UVFPhotoCaptureComponent::BeginPlay()
@@ -92,7 +93,7 @@ UTexture2D *UVFPhotoCaptureComponent::DrawATexture2D()
 		RTResource->ReadFloat16Pixels(PixelData);
 
 		Texture = UTexture2D::CreateTransient(Size.X, Size.Y, PF_FloatRGBA);
-		Texture->CompressionSettings = TC_HDR;
+		Texture->CompressionSettings = TC_HDR; // 贴花要求
 		FTexture2DMipMap &Mip = Texture->GetPlatformData()->Mips[0];
 		void *Data = Mip.BulkData.Lock(LOCK_READ_WRITE);
 		FMemory::Memcpy(Data, PixelData.GetData(), PixelData.Num() * sizeof(FFloat16Color));
