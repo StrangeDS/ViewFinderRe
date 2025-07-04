@@ -32,6 +32,17 @@ void UVFPostProcessComponent::BeginPlay()
 }
 #endif
 
+void UVFPostProcessComponent::ClearSceneCapturePostProcess()
+{
+	TArray<USceneCaptureComponent2D *> Captures;
+	GetOwner()->GetComponents<USceneCaptureComponent2D>(Captures);
+
+	for (auto Capture : Captures)
+	{
+		Capture->PostProcessSettings.WeightedBlendables.Array.Reset();
+	}
+}
+
 bool UVFPostProcessComponent::IsAnyRule()
 {
 	return Rule != EVFStencilRule::None;

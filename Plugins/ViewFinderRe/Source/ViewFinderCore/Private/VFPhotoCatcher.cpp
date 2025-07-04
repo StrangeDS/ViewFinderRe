@@ -77,15 +77,11 @@ void AVFPhotoCatcher::OnConstruction(const FTransform &Transform)
 	BackgroundCapture->MaxViewDistanceOverride = EndDis;
 	BackgroundCapture->TargetHeight = BackgroundCapture->TargetWidth / AspectRatio;
 
+	PostProcess->ClearSceneCapturePostProcess();
 	if (PostProcess->IsAnyRule())
 	{
 		PostProcess->AddOrUpdateSceneCapturePostProcess(PhotoCapture);
 		PostProcess->AddOrUpdateSceneCapturePostProcess(BackgroundCapture);
-	}
-	else
-	{
-		PostProcess->RemoveSceneCapturePostProcess(PhotoCapture);
-		PostProcess->RemoveSceneCapturePostProcess(BackgroundCapture);
 	}
 }
 

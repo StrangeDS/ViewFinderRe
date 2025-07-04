@@ -28,6 +28,9 @@ public:
 	virtual void BeginPlay() override;
 #endif
 
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")
+	void ClearSceneCapturePostProcess();
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	bool IsAnyRule();

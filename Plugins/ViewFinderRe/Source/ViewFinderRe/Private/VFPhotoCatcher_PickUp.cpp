@@ -161,9 +161,12 @@ void AVFPhotoCatcher_PickUp::Activate_Implementation()
         EnableInput(PlayerController);
     }
 
-    if (auto Camera = PlayerController->GetPawn()->GetComponentByClass<UCameraComponent>())
+    if (PostProcess->IsAnyRule())
     {
-        PostProcess->AddOrUpdateCameraPostProcess(Camera);
+        if (auto Camera = PlayerController->GetPawn()->GetComponentByClass<UCameraComponent>())
+        {
+            PostProcess->AddOrUpdateCameraPostProcess(Camera);
+        }
     }
 }
 
