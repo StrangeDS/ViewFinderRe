@@ -9,7 +9,6 @@
 #include "VFPhotoCaptureComponent.h"
 #include "VFFunctions.h"
 #include "VFCharacter.h"
-#include "VFPostProcessComponent.h"
 
 bool AVFPhotoCatcher_PickUp::Interact_Implementation(APlayerController *Controller)
 {
@@ -161,21 +160,12 @@ void AVFPhotoCatcher_PickUp::Activate_Implementation()
         EnableInput(PlayerController);
     }
 
-    if (PostProcess->IsAnyRule())
-    {
-        if (auto Camera = PlayerController->GetPawn()->GetComponentByClass<UCameraComponent>())
-        {
-            PostProcess->AddOrUpdateCameraPostProcess(Camera);
-        }
-    }
+    AddPostProcessToPlayerCamera();
 }
 
 void AVFPhotoCatcher_PickUp::Deactivate_Implementation()
 {
-    if (auto Camera = PlayerController->GetPawn()->GetComponentByClass<UCameraComponent>())
-    {
-        PostProcess->RemoveCameraPostProcess(Camera);
-    }
+    RemovePostProcessFromPlayerCamera();
 
     if (IsValid(HoldingMappingContext))
     {

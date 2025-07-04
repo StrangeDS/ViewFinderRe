@@ -27,11 +27,11 @@ public:
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
 	void PickUp(USceneComponent *ToAttach);
-	void PickUp_Implementation(USceneComponent *ToAttach);
+	virtual void PickUp_Implementation(USceneComponent *ToAttach);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
 	void DropDown();
-	void DropDown_Implementation();
+	virtual void DropDown_Implementation();
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")

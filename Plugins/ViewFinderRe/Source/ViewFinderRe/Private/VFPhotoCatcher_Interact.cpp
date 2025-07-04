@@ -3,8 +3,10 @@
 #include "Blueprint/UserWidget.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
+#include "Camera/CameraComponent.h"
 
 #include "VFCommon.h"
+#include "VFPostProcessComponent.h"
 
 bool AVFPhotoCatcher_Interact::StartAiming_Implementation(APlayerController *Controller)
 {
@@ -73,4 +75,29 @@ void AVFPhotoCatcher_Interact::LeaveFromPreview_Implementation()
 
 	PlayerController->SetViewTargetWithBlend(Pawn, TimeOfLeave);
 	Pawn->EnableInput(PlayerController);
+}
+
+void AVFPhotoCatcher_Interact::AddPostProcessToPlayerCamera()
+{
+	if (!ensureMsgf(PlayerController, TEXT("%s invalid PlayerController.")))
+		return;
+
+	if (PostProcess->IsAnyRule())
+	{
+		if (auto Camera = PlayerController->GetPawn()->GetComponentByClass<UCameraComponent>())
+		{
+			PostProcess->AddOrUpdateCameraPostProcess(Camera);
+		}
+	}
+}
+
+void AVFPhotoCatcher_Interact::RemovePostProcessFromPlayerCamera()
+{
+	if (!ensureMsgf(PlayerController, TEXT("%s invalid PlayerController.")))
+		return;
+
+	if (auto Camera = PlayerController->GetPawn()->GetComponentByClass<UCameraComponent>())
+	{
+		PostProcess->RemoveCameraPostProcess(Camera);
+	}
 }

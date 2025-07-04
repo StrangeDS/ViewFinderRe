@@ -67,4 +67,11 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder",
 			  meta = (NoEditInline))
 	TObjectPtr<APlayerController> PlayerController;
+
+public: // PostProcess
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	void AddPostProcessToPlayerCamera();
+
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	void RemovePostProcessFromPlayerCamera();
 };
