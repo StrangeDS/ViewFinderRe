@@ -13,6 +13,7 @@ class UVFViewFrustumComponent;
 class UVFDynamicMeshComponent;
 class UVFPhotoCaptureComponent;
 class UVFBackgroundCaptureComponent;
+class UVFPostProcessComponent;
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERCORE_API AVFPhotoCatcher : public AActor, public IVFHelperInterface
@@ -115,6 +116,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
 			  meta = (NoEditInline))
 	TObjectPtr<UVFHelperComponent> Helper;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
+	TObjectPtr<UVFPostProcessComponent> PostProcess;
 
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")

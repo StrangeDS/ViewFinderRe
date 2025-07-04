@@ -81,6 +81,9 @@ void UVFDynamicMeshComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
 
     UpdateMaterials();
 
+	bRenderCustomDepth = Source->bRenderCustomDepth;
+	CustomDepthStencilValue = Source->CustomDepthStencilValue;
+
     // TODO: 传递事件. 暂使用Actor接口
 }
 

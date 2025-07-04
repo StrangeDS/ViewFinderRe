@@ -16,6 +16,7 @@
 #include "VFPawnStandIn.h"
 #include "VFHelperComponent.h"
 #include "VFBackgroundCaptureComponent.h"
+#include "VFPostProcessComponent.h"
 
 static void GetMapHelpers(
 	const TMap<UPrimitiveComponent *, UVFHelperComponent *> &Map,
@@ -53,6 +54,8 @@ AVFPhotoCatcher::AVFPhotoCatcher()
 
 	Helper = CreateDefaultSubobject<UVFHelperComponent>("Helper");
 
+	PostProcess = CreateDefaultSubobject<UVFPostProcessComponent>("PostProcess");
+
 	VFDMCompClass = UVFDynamicMeshComponent::StaticClass();
 	VFPhoto2DClass = AVFPhoto2D::StaticClass();
 	VFPhoto3DClass = AVFPhoto3D::StaticClass();
@@ -73,6 +76,17 @@ void AVFPhotoCatcher::OnConstruction(const FTransform &Transform)
 	BackgroundCapture->CustomNearClippingPlane = StartDis;
 	BackgroundCapture->MaxViewDistanceOverride = EndDis;
 	BackgroundCapture->TargetHeight = BackgroundCapture->TargetWidth / AspectRatio;
+
+	if (PostProcess->IsAnyRule())
+	{
+		PostProcess->AddOrUpdateSceneCapturePostProcess(PhotoCapture);
+		PostProcess->AddOrUpdateSceneCapturePostProcess(BackgroundCapture);
+	}
+	else
+	{
+		PostProcess->RemoveSceneCapturePostProcess(PhotoCapture);
+		PostProcess->RemoveSceneCapturePostProcess(BackgroundCapture);
+	}
 }
 
 void AVFPhotoCatcher::BeginPlay()
@@ -227,6 +241,14 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 		{
 			if (!ActorsCopied.Contains(Actor->GetAttachParentActor()))
 				Actor->AttachToActor(Photo3D, FAttachmentTransformRules::KeepWorldTransform);
+		}
+
+		if (PostProcess->IsAnyRule())
+		{
+			for (auto &Comp : CopiedComps)
+			{
+				PostProcess->SetStencilValueNext(Comp);
+			}
 		}
 	}
 
