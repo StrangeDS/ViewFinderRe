@@ -34,6 +34,8 @@ void AVFPhotoContainerSteppable::PlaceCurrentPhoto()
     {
         if (IsValid(CurrentPhoto2D))
         {
+            StepsRecorder->SubmitStep(this,
+                                      FVFStepInfo{TEXT("PlaceCurrentPhoto"), true});
             auto Photo2D = CurrentPhoto2D;
             Super::PlaceCurrentPhoto();
 
