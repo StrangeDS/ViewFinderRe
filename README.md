@@ -23,9 +23,9 @@
   - **视锥支持设置**: FOV, 宽高比, 近平面距离, 远平面距离.
   - 当前(或独立)场景预制照片, 可预制**递归照片**,.
 
-- 物体图案转换  
+- 物体透视图案转换  
 ![拍照gif](Plugins/ViewFinderRe/Resources/Icon128.png)
-  - 使用贴花组件改造, 自动支持正确的**近/远处缩放**.
+  - 使用贴花组件改造, 自动支持正确的**近/远处缩放**, **仅第一个表面存在颜色**.
   - ReplaceWithDecal()和RestoreWithActors(), (支持蓝图)可在运行时使用物体/贴花.
   - 预留动态委托触发.
   - 支持: 修改触发逻辑, 只替换部分物体, 当前(或独立)场景预制。
@@ -43,6 +43,13 @@
       - 适合: 简单的, 偶尔触发的, 瞬时性的.
       - 例子: AVFPhoto2DSteppable的FoldUp和PlaceDown操作.
     - 另外, 插件中自带的回溯, 全部是**增量**的. 实现思路是在TickForward()中进行差异判断, 只在数据变动后提交, 或者只提交变动数据.
+
+- 拍照滤镜  
+![拍照gif](Plugins/ViewFinderRe/Resources/Icon128.png)
+  - 使用**后处理**和**自定义深度模板**实现.
+  - 相机在持有/收纳的时候为角色的摄像机添加/删除后处理材质, 后处理材质中对Stencil进行差异化处理.
+  - 拍摄到的网格会交由UVFPostProcessComponent::SetStencilValueNext()处理, 里面会根据既定的规则对Stencil进行修改, 以达到不同的效果. 例如: 多次拍照的色暖加深, 循环色偏等.
+  - 单独做了个ViewFinder西瓜滤镜和星际拓荒外星站文物的融合体.
 
 ## 上手Demo
 ### 流程介绍
@@ -72,12 +79,27 @@ Photo2D索引Photo3D, 所以最简单的做法就是把场景放置在Photo3D中
       4. 这样的办法, 在不同的距离下颜色也不协调, 但对于ViewFinder来说，它就应该是那个距离的光照.
 - [X] 场景捕捉与虚拟阴影贴图不兼容. 在使用VSM时, 捕捉到的阴影会出现块状缺失.  
       项目已关闭VSM. [官方对此问题的描述](https://dev.epicgames.com/documentation/en-us/unreal-engine/virtual-shadow-maps-in-unreal-engine#scene-capture)
-- [ ] 编辑器中查看组件属性, 会出现报错, 原因未知, 无影响, 忽略."LogOutputDevice: Error: Ensure condition failed: PropertyNodeMap.ParentProperty == CurObjectNode [File:D:\build\++UE5\Sync\Engine\Source\Editor\PropertyEditor\Private\DetailLayoutHelpers.cpp] [Line: 137]"
+- [x] 编辑器中查看组件属性, 会出现报错, 原因未知, 无影响, 忽略."LogOutputDevice: Error: Ensure condition failed: PropertyNodeMap.ParentProperty == CurObjectNode [File:D:\build\++UE5\Sync\Engine\Source\Editor\PropertyEditor\Private\DetailLayoutHelpers.cpp] [Line: 137]"
 - [ ] 视锥偶尔碰撞检测不到物体, 换个角度/位置, 甚至重新来一次就行, 原因不确定. 天空盒缺失也是这个原因, 它没有被碰撞到, 没有被复制到照片, 放置出来便是空的. 猜测可能是球体被挖空后生成的碰撞有问题.  
       通过视锥分段(commit: [6423631](https://github.com/StrangeDS/ViewFinderRe/commit/6423631) [7794c81](https://github.com/StrangeDS/ViewFinderRe/commit/7794c81)), 已排除**三角面被过分拉长, 导致重叠检测失效**的可能.
 
       更新:   
       1. 天空盒的错误目前认为是在几次截取后, 剩余的部分凸包近似已经无法办到了, 导致生成的简单碰撞失效.
+      2. 可能推翻前面的推测, 因为突然发现动态网格默认使用复杂碰撞, 所以可能是复杂碰撞的原因.
+      3. AI归纳为:
+         1. 物体A：使用简单碰撞(如立方体, 球体等)
+         2. 物体B：使用复杂碰撞(逐三角形网格)
+         3. 空间关系:
+            1. A完全穿透B的内部空间
+            2. A与B的任何边(棱)都不接触
+            3. A仅与B的三角面片内部区域相交
+      4. 又一个可能性是视锥的法线存在问题
+
+### ToDoList:
+- [x] 贴花的不穿投影响: 实现是使用一个场景捕捉当前的场景深度, 给入贴花中, 贴花比较深度纹理和像素深度, 前者 >= 后者时意味着像素在相机拍摄到的深度上, 即不穿透的面. 目前使用额外的场景捕捉单独捕获深度, SCS_SceneColorSceneDepth似乎有版本问题, 我这无法使用.
+- [x] 后处理相关
+- [ ] Demo场景
+- [ ] README更新
 ### 原游戏流程记录
 0.1 板子坏, 时间回溯；照片出现传送门.  
 0.2 电池, 电路板开启传送门；照片出现电池.物理抓手.  
