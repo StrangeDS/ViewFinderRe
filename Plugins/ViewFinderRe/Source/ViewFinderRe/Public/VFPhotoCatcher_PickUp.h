@@ -9,6 +9,32 @@ class UInputMappingContext;
 
 class AVFPhotoContainer;
 
+UENUM()
+enum class EVFPhotoCatcherPickUpOption : uint8
+{
+	PickedUp,
+	DroppedDown,
+	MAX,
+};
+
+USTRUCT(BlueprintType)
+struct FVFPhotoCatcherPickUpStepInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	EVFPhotoCatcherPickUpOption Option;
+
+	// 根据类型显示对应字段
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (EditCondition = "Option == EVFPhotoCatcherPickUpOption::PickedUp"))
+	FTransform Transform;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (EditCondition = "Option == EVFPhotoCatcherPickUpOption::DroppedDown"))
+	TObjectPtr<USceneComponent> CompAttached;
+};
+
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERRE_API AVFPhotoCatcher_PickUp : public AVFPhotoCatcher_Interact,
 												public IVFActivatableInterface
@@ -74,4 +100,10 @@ public: // IVFActivatableInterface
 	virtual bool CanActivate_Implementation() override;
 
 	virtual bool IsActive_Implementation() override;
+
+public:
+	virtual bool StepBack_Implementation(FVFStepInfo &StepInfo) override;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	TArray<FVFPhotoCatcherPickUpStepInfo> StepInfos;
 };

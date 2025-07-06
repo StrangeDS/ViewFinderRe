@@ -84,16 +84,34 @@ void AVFPhotoCatcher_PickUp::PickUp_Implementation(USceneComponent *ToAttach)
 {
     if (bPickedUp)
         return;
+    auto Transform = GetActorTransform();
 
     AttachToComponent(ToAttach, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
     RootComponent->SetRelativeTransform(IdleTrans);
     bPickedUp = true;
+
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
+    {
+        FVFPhotoCatcherPickUpStepInfo Info(
+            EVFPhotoCatcherPickUpOption::PickedUp,
+            Transform,
+            nullptr);
+        StepInfos.Emplace(Info);
+        StepsRecorder->SubmitStep(
+            this,
+            FVFStepInfo{
+                EnumToString<EVFPhotoCatcherPickUpOption>(
+                    EVFPhotoCatcherPickUpOption::PickedUp),
+            });
+    }
 }
 
 void AVFPhotoCatcher_PickUp::DropDown_Implementation()
 {
     if (!bPickedUp)
         return;
+
+    auto CompAttatched = RootComponent->GetAttachParent();
 
     ResetActorsToIgnore();
     ActorsToIgnore.AddUnique(GetAttachParentActor());
@@ -110,6 +128,21 @@ void AVFPhotoCatcher_PickUp::DropDown_Implementation()
     bPickedUp = false;
     SetActorHiddenInGame(false);
     EnableInteract(true);
+
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
+    {
+        FVFPhotoCatcherPickUpStepInfo Info(
+            EVFPhotoCatcherPickUpOption::DroppedDown,
+            GetActorTransform(),
+            CompAttatched);
+        StepInfos.Emplace(Info);
+        StepsRecorder->SubmitStep(
+            this,
+            FVFStepInfo{
+                EnumToString<EVFPhotoCatcherPickUpOption>(
+                    EVFPhotoCatcherPickUpOption::DroppedDown),
+            });
+    }
 }
 
 void AVFPhotoCatcher_PickUp::CloseToPreview_Move()
@@ -186,4 +219,36 @@ bool AVFPhotoCatcher_PickUp::CanActivate_Implementation()
 bool AVFPhotoCatcher_PickUp::IsActive_Implementation()
 {
     return !IsHidden();
+}
+
+bool AVFPhotoCatcher_PickUp::StepBack_Implementation(FVFStepInfo &StepInfo)
+{
+    auto Option = StringToEnum<EVFPhotoCatcherPickUpOption>(StepInfo.Info);
+    if (Option >= EVFPhotoCatcherPickUpOption::MAX)
+    {
+        // AVFPhotoCatcherSteppable::TakeAPhoto_Implementation()中的提交, 无需处理
+        return true;
+    }
+
+    auto Info = StepInfos.Pop(false);
+    switch (Option)
+    {
+    case EVFPhotoCatcherPickUpOption::PickedUp:
+    {
+        DropDown();
+        SetActorTransform(Info.Transform);
+        return true;
+    }
+    case EVFPhotoCatcherPickUpOption::DroppedDown:
+    {
+        if (IsValid(Info.CompAttached))
+        {
+            PickUp(Info.CompAttached);
+            return true;
+        }
+        return false;
+    }
+    default:
+        return false;
+    }
 }

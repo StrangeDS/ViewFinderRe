@@ -66,5 +66,8 @@ inline FString IVFStepsRecordInterface::EnumToString(T &&Step)
 template <typename T>
 inline T IVFStepsRecordInterface::StringToEnum(FString &String)
 {
-	return (T)FCString::Atoi(*String);
+	if (String.IsNumeric())
+		return (T)FCString::Atoi(*String);
+	else
+		return T(-1);
 }
