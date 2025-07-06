@@ -18,7 +18,7 @@ AVFPawnStandIn::AVFPawnStandIn() : Super()
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>("StaticMesh");
 	StaticMesh->SetupAttachment(RootComponent);
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> MeshSelector(
-		TEXT("/ViewFinderRe/StaticMeshes/ST_PawnStandIn.ST_PawnStandIn"));
+		TEXT("/ViewFinderRe/StaticMeshes/SM_PawnStandIn.SM_PawnStandIn"));
 	StaticMeshObject = MeshSelector.Object;
 	StaticMesh->SetStaticMesh(StaticMeshObject);
 	StaticMesh->SetCollisionProfileName(TEXT("NoCollision"));
