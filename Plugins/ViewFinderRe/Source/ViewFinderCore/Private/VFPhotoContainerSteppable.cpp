@@ -10,6 +10,8 @@ void AVFPhotoContainerSteppable::BeginPlay()
     if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
         StepsRecorder->RegisterTickable(this);
+        StepsRecorder->OnEndRewinding.AddUniqueDynamic(this,
+                                                       &AVFPhotoContainerSteppable::HandleEndRewinding);
     }
 
     Steps.Reserve(UVFStepsRecorderWorldSubsystem::SizeRecommended);
@@ -144,6 +146,12 @@ bool AVFPhotoContainerSteppable::StepBack_Implementation(FVFStepInfo &StepInfo)
     }
 
     return true;
+}
+
+void AVFPhotoContainerSteppable::HandleEndRewinding(float Time)
+{
+    if (bFocusOn)
+        GiveUpPreparing();
 }
 
 void AVFPhotoContainerSteppable::TickBackward_Implementation(float Time)

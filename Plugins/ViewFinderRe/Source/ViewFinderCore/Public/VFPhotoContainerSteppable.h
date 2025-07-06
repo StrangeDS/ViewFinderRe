@@ -55,6 +55,11 @@ public:
 
 	virtual void SetEnabled(const bool &Enabled);
 
+public:
+	// 结束回溯时的一些处理
+	UFUNCTION()
+	void HandleEndRewinding(float Time);
+
 public: // Implements IVFStepsRecordInterface:
 	virtual void TickBackward_Implementation(float Time) override;
 
