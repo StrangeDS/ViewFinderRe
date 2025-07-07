@@ -1,8 +1,12 @@
 #include "VFPhotoCatcher.h"
 
+#include "Engine/World.h"
+#include "Engine/StaticMesh.h"
+#include "UObject/ConstructorHelpers.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 #include "VFCommon.h"
 #include "VFDynamicMeshComponent.h"
@@ -126,7 +130,10 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 	auto Plane = BackgroundCapture->DrawABackground();
 	OverlapComps.Add(Plane);
 
-	// Helper筛选
+	/*
+	Helper筛选
+	注意! 查看: UVFFunctions.h Line 89的宏
+	*/
 	TMap<UPrimitiveComponent *, UVFHelperComponent *> HelperMap;
 	UVFFunctions::GetCompsToHelpersMapping<UPrimitiveComponent>(OverlapComps, HelperMap);
 
@@ -137,7 +144,7 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 		for (auto It = OverlapComps.CreateIterator(); It; It++)
 		{
 			auto Comp = *It;
-			auto *HelperComp = HelperMap.Find(Comp); // 可能为nullptr
+			auto *HelperComp = HelperMap.Find(Comp); // 可能为nullptr.
 
 			// 剔除不显示的Actor
 			if (HelperComp && !HelperMap[Comp]->bCanShowInPhoto)

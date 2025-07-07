@@ -23,7 +23,7 @@ struct FVFPhotoCatcherPickUpStepInfo
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	EVFPhotoCatcherPickUpOption Option;
+	EVFPhotoCatcherPickUpOption Option = EVFPhotoCatcherPickUpOption::MAX;
 
 	// 根据类型显示对应字段
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",

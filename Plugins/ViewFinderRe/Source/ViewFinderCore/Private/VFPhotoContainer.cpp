@@ -1,6 +1,7 @@
 #include "VFPhotoContainer.h"
 
 #include "TimerManager.h"
+#include "GameFramework/Pawn.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "VFPhoto2D.h"
