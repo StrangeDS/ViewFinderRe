@@ -10,11 +10,6 @@ UVFDynamicMeshComponent::UVFDynamicMeshComponent(const FObjectInitializer &Objec
     SetMobility(EComponentMobility::Movable);
 }
 
-void UVFDynamicMeshComponent::OnRegister()
-{
-    Super::OnRegister();
-}
-
 void UVFDynamicMeshComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     Clear();

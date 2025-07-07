@@ -45,13 +45,13 @@ public:
 	EVF_GeometryScriptCollisionGenerationMethod Method = EVF_GeometryScriptCollisionGenerationMethod::ConvexHulls;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
-	bool bAutoDetectSpheres = true;
+	bool bAutoDetectSpheres = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
-	bool bAutoDetectBoxes = true;
+	bool bAutoDetectBoxes = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
-	bool bAutoDetectCapsules = true;
+	bool bAutoDetectCapsules = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
 	float MinThickness = 1.0;

@@ -58,6 +58,7 @@ AActor *UVFFunctions::CloneActorRuntime(
 	Original->GetComponents<UVFDynamicMeshComponent>(DMComps);
 	for (auto &DMComp : DMComps)
 	{
+		DMComp->SetEnabled(false);
 		Parents.Add(DMComp, DMComp->GetAttachParent());
 		DMComp->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 		DMComp->UnregisterComponent();
@@ -72,7 +73,7 @@ AActor *UVFFunctions::CloneActorRuntime(
 		Actor->GetRootComponent()->SetMobility(EComponentMobility::Movable);
 	};
 	AActor *Copy = World->SpawnActor<AActor>(Original->GetClass(), Parameters);
-	// 手动设置transform是必要的
+	// 手动设置transform是必要的.
 	// 否则会将Original相对于其父Actor(Photo3D)的相对Transform视为绝对Transform.
 	Copy->SetActorTransform(Original->GetActorTransform());
 
@@ -83,6 +84,7 @@ AActor *UVFFunctions::CloneActorRuntime(
 		Original->AddInstanceComponent(DMComp);
 		DMComp->AttachToComponent(Parent, FAttachmentTransformRules::SnapToTargetIncludingScale);
 		DMComp->RegisterComponent();
+		DMComp->SetEnabled(true);
 
 		UVFDynamicMeshComponent *CopiedComp = NewVFDMComp(Copy, DMComp->GetClass());
 		CopiedComps.Add(CopiedComp);
