@@ -101,3 +101,10 @@ UVFHelperComponent *AVFPlaneActor::GetHelper_Implementation()
 {
 	return Helper;
 }
+
+#if WITH_EDITOR
+UMaterialInstanceDynamic *AVFPlaneActor::GetMaterialInstanceInEditor()
+{
+	return Cast<UMaterialInstanceDynamic>(Plane->GetMaterial(0));
+}
+#endif

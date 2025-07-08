@@ -5,7 +5,9 @@
 #include "VFHelperInterface.h"
 #include "VFPlaneActor.generated.h"
 
+#if WITH_EDITOR
 class UMaterialInstanceDynamic;
+#endif
 
 /*
 背景映射在AVFPlaneActor的Plane上
@@ -54,9 +56,14 @@ public:
 			  meta = (NoEditInline))
 	TObjectPtr<UVFHelperComponent> Helper;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "ViewFinder")
 	bool bDestroyAfterTakingPhoto = true;
 
 public: // IVFHelperInterface
 	virtual UVFHelperComponent *GetHelper_Implementation() override;
+
+#if WITH_EDITOR
+public:
+	UMaterialInstanceDynamic *GetMaterialInstanceInEditor();
+#endif
 };
