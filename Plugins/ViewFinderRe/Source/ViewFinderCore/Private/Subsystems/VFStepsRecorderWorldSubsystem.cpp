@@ -217,7 +217,7 @@ UVFStepsRecorderWorldSubsystem *UVFStepsRecorderWorldSubsystem::GetStepsRecorder
                                World->WorldType == EWorldType::PIE);
     if (!IsRuntime)
     {
-        VF_LOG(Error, TEXT("%s should only be called in runtime."), __FUNCTIONW__);
+        VF_LOG(Warning, TEXT("%s should only be called in runtime."), __FUNCTIONW__);
         return nullptr;
     }
 

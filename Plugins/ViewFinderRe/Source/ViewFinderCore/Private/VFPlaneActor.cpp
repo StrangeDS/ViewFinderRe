@@ -82,6 +82,7 @@ void AVFPlaneActor::HandleEndPlacingPhoto(UObject *Sender)
 {
 	bDestroyAfterTakingPhoto = false;
 	Helper->bCanShowInPhoto = true;
+	Helper->bCanBeTakenInPhoto = false;
 }
 
 #if WITH_EDITOR

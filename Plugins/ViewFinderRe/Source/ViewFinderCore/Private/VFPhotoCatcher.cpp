@@ -119,12 +119,10 @@ TArray<UPrimitiveComponent *> AVFPhotoCatcher::GetOverlapComps_Implementation()
 	return OverlapComps;
 }
 
-AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
+TArray<UPrimitiveComponent *> AVFPhotoCatcher::FilterOverlapComps_Implementation(
+	const TArray<UPrimitiveComponent *> &Comps)
 {
-	TRACE_CPUPROFILER_EVENT_SCOPE(TEXT("AVFPhotoCatcher::TakeAPhoto_Implementation()"));
-
-	// 重叠检测
-	TArray<UPrimitiveComponent *> OverlapComps = GetOverlapComps();
+	TArray<UPrimitiveComponent *> OverlapComps = Comps;
 
 	// 天空盒处理
 	auto Plane = BackgroundCapture->DrawABackground();
@@ -189,10 +187,24 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 		PhotoCapture->HiddenActors = ActorsNotTakenInPhoto;
 	}
 
-	// (替身相关)需要重新生成.
+	return OverlapComps;
+}
+
+AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
+{
+	TRACE_CPUPROFILER_EVENT_SCOPE(TEXT("AVFPhotoCatcher::TakeAPhoto_Implementation()"));
+
+	// 重叠检测
+	TArray<UPrimitiveComponent *> OverlapComps = GetOverlapComps();
+	
+	// 筛选组件, 拍照前准备
+	OverlapComps = FilterOverlapComps(OverlapComps);
+
+
+	// 生成HelperMap
+	TMap<UPrimitiveComponent *, UVFHelperComponent *> HelperMap;
 	TSet<UVFHelperComponent *> HelpersRecorder;
 	{
-		HelperMap.Reset();
 		UVFFunctions::GetCompsToHelpersMapping<UPrimitiveComponent>(OverlapComps, HelperMap);
 		GetMapHelpers(HelperMap, HelpersRecorder);
 	}
