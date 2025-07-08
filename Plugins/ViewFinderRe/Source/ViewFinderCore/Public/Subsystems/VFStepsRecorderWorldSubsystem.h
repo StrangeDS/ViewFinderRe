@@ -62,7 +62,7 @@ public:
 	void RegisterTickable(const TScriptInterface<IVFStepsRecordInterface> &Target);
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void RegisterTransformRecordere(AVFTransfromRecorderActor *Recorder);
+	void RegisterTransformRecorder(AVFTransfromRecorderActor *Recorder);
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void UnregisterTickable(const TScriptInterface<IVFStepsRecordInterface> &Target);

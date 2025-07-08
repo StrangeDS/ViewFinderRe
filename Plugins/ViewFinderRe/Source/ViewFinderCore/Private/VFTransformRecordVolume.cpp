@@ -6,12 +6,13 @@
 
 #include "VFHelperComponent.h"
 #include "VFStepsRecordInterface.h"
+#include "VFStepsRecorderWorldSubsystem.h"
 
 AVFTransformRecordVolume::AVFTransformRecordVolume(const FObjectInitializer &ObjectInitializer)
     : Super(ObjectInitializer)
 {
     PrimaryActorTick.bCanEverTick = false;
-	Volume = CreateDefaultSubobject<UBoxComponent>("Volume");
+    Volume = CreateDefaultSubobject<UBoxComponent>("Volume");
     SetRootComponent(Volume);
     Volume->SetHiddenInGame(true);
 
@@ -22,9 +23,21 @@ AVFTransformRecordVolume::AVFTransformRecordVolume(const FObjectInitializer &Obj
     Helper->bCanBePlacedByPhoto = false;
 }
 
+void AVFTransformRecordVolume::BeginPlay()
+{
+    Super::BeginPlay();
+
+    Helper->OnCopyEndPlacingPhoto.AddDynamic(
+        this,
+        &AVFTransformRecordVolume::HandleCopyEndPlacingPhoto);
+}
+
 TArray<UPrimitiveComponent *> AVFTransformRecordVolume::GetComponents()
 {
     TArray<UPrimitiveComponent *> OutComponents;
+    if (!bEnabled)
+        return OutComponents;
+
     bool Result = UKismetSystemLibrary::ComponentOverlapComponents(
         Volume,
         Volume->GetComponentTransform(),
@@ -43,4 +56,29 @@ TArray<UPrimitiveComponent *> AVFTransformRecordVolume::GetComponents()
     }
 
     return OutComponents;
+}
+
+UVFHelperComponent *AVFTransformRecordVolume::GetHelper_Implementation()
+{
+    return Helper;
+}
+
+void AVFTransformRecordVolume::HandleCopyEndPlacingPhoto(UObject *Sender)
+{
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
+    {
+        TArray<UPrimitiveComponent *> OutComponents;
+        bool Result = UKismetSystemLibrary::ComponentOverlapComponents(
+            Volume,
+            Volume->GetComponentTransform(),
+            ObjectTypes,
+            CompClass,
+            {},
+            OutComponents);
+
+        for (auto Comp : OutComponents)
+        {
+            StepsRecorder->RecordTransform(Comp);
+        }
+    }
 }

@@ -144,7 +144,7 @@ void UVFStepsRecorderWorldSubsystem::RegisterTickable(const TScriptInterface<IVF
         TargetsNeedToAdd.AddUnique(Target);
 }
 
-void UVFStepsRecorderWorldSubsystem::RegisterTransformRecordere(AVFTransfromRecorderActor *Recorder)
+void UVFStepsRecorderWorldSubsystem::RegisterTransformRecorder(AVFTransfromRecorderActor *Recorder)
 {
     check(Recorder);
     TransformRecorder = Recorder;

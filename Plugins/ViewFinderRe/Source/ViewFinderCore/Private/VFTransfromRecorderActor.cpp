@@ -34,7 +34,7 @@ void AVFTransfromRecorderActor::BeginPlay()
 		return;
 	}
 
-	StepsRecorder->RegisterTransformRecordere(this);
+	StepsRecorder->RegisterTransformRecorder(this);
 
 	Steps.Reserve(UVFStepsRecorderWorldSubsystem::SizeRecommended);
 	ReCollectComponents();
