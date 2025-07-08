@@ -3,7 +3,9 @@
 #include "Materials/MaterialInstanceConstant.h"
 
 #include "VFCommon.h"
+#include "VFPlaneActor.h"
 #include "VFPhotoCaptureComponent.h"
+#include "VFBackgroundCaptureComponent.h"
 
 AVFPhotoCatcherPref::AVFPhotoCatcherPref() : Super()
 {
@@ -128,33 +130,62 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
         return;
     }
 
+    bool bPhotoCaptureTempRT = PhotoCapture->TextureTarget == nullptr;
+    bool bBgPhotoCaptureTempRT = BackgroundCapture->TextureTarget == nullptr;
+    if (bPhotoCaptureTempRT)
+    {
+        PhotoCapture->Init();
+    }
+    if (bBgPhotoCaptureTempRT)
+    {
+        BackgroundCapture->Init();
+    }
+
     // 临时数据
     TArray<UPrimitiveComponent *> CompsOverlapped = GetOverlapComps();
     TArray<AActor *> ActorsToMove;
     UTexture2D *Texture2D = nullptr;
+    UTexture2D *BgTexture2D = nullptr;
     UMaterialInstanceConstant *MIConstant = nullptr;
-    bool bUseTempRenderTarget = PhotoCapture->TextureTarget == nullptr;
+    UMaterialInstanceConstant *BgMIConstant = nullptr;
+    AVFPlaneActor *PlaneActorTemp = nullptr;
 
     // 清理临时数据
     auto ClearTemporary = [this,
                            &CompsOverlapped,
                            Texture2D,
+                           BgTexture2D,
                            MIConstant,
-                           &bUseTempRenderTarget]()
+                           BgMIConstant,
+                           &bPhotoCaptureTempRT,
+                           &bBgPhotoCaptureTempRT,
+                           &PlaneActorTemp]()
     {
         // 移除原场景用于替换的VFDMComps
-        TArray<UVFDynamicMeshComponent *> VFDMComps;
+        // TArray<UVFDynamicMeshComponent *> VFDMComps;
+        TArray<USceneComponent *> Children;
         for (auto &Comp : CompsOverlapped)
         {
-            auto Original = Comp->GetOwner();
-            VFDMComps.Reset();
-            Original->GetComponents<UVFDynamicMeshComponent>(VFDMComps);
-            for (auto &VFDMComp : VFDMComps)
+            // 重叠检测到的动态网格说明本身就存在
+            if (Cast<UVFDynamicMeshComponent>(Comp))
             {
-                if (!CompsOverlapped.Contains(VFDMComp))
+                continue;
+            }
+
+            /*
+            遍历下面的组件, 找到是UVFDynamicMeshComponent,
+            且SourceComponent对应的, 进行删除.
+            */
+            Comp->GetChildrenComponents(false, Children);
+            for (auto &Child : Children)
+            {
+                if (auto VFDMComp = Cast<UVFDynamicMeshComponent>(Child))
                 {
-                    VFDMComp->RestoreSourceComponent();
-                    VFDMComp->DestroyComponent();
+                    if (VFDMComp->GetSourceComponent() == Comp)
+                    {
+                        VFDMComp->RestoreSourceComponent();
+                        VFDMComp->DestroyComponent();
+                    }
                 }
             }
         }
@@ -165,15 +196,37 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
             Texture2D->ClearFlags(RF_Public | RF_Standalone);
             Texture2D->MarkAsGarbage();
         }
+        if (BgTexture2D)
+        {
+            BgTexture2D->ClearFlags(RF_Public | RF_Standalone);
+            BgTexture2D->MarkAsGarbage();
+        }
 
         if (MIConstant)
         {
             MIConstant->ClearFlags(RF_Public | RF_Standalone);
             MIConstant->MarkAsGarbage();
         }
+        if (BgMIConstant)
+        {
+            BgMIConstant->ClearFlags(RF_Public | RF_Standalone);
+            BgMIConstant->MarkAsGarbage();
+        }
 
-        if (bUseTempRenderTarget)
+        if (bPhotoCaptureTempRT)
+        {
             PhotoCapture->TextureTarget = nullptr;
+        }
+        if (bBgPhotoCaptureTempRT)
+        {
+            BackgroundCapture->TextureTarget = nullptr;
+        }
+
+        if (PlaneActorTemp)
+        {
+            PlaneActorTemp->Destroy();
+            PlaneActorTemp = nullptr;
+        }
     };
 
     // 失败资源回收
@@ -194,13 +247,33 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
         ClearTemporary();
     };
 
-    // 支持编辑器中指定渲染目标
-    if (bUseTempRenderTarget)
-        PhotoCapture->Init();
-
     // 拍照生成
     auto Photo2DRoot = TakeAPhoto();
     auto Photo3DRoot = Photo2DRoot->GetPhoto3D();
+
+    // 查询PlaneActorTemp, 方便后续销毁
+    {
+        AVFPlaneActor *PlaneActor = nullptr;
+        TArray<AActor *> Actors;
+        Photo3DRoot->GetAttachedActors(Actors, true, false);
+        for (auto &Actor : Actors)
+        {
+            if (auto Plane = Cast<AVFPlaneActor>(Actor))
+            {
+                PlaneActor = Plane;
+                break;
+            }
+        }
+
+        auto SourceComp = PlaneActor->GetComponentByClass<UVFDynamicMeshComponent>()
+                              ->GetSourceComponent();
+        PlaneActorTemp = Cast<AVFPlaneActor>(SourceComp->GetOwner());
+        if (!PlaneActorTemp)
+        {
+            AfterFailure(TEXT("invalid PlaneActorTemp"));
+            return;
+        }
+    }
 
     // 纹理和常量材质实例生成
     {
@@ -224,6 +297,28 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
         MIConstant->ClearFlags(RF_Transient);
         MIConstant->SetFlags(RF_Public | RF_Standalone);
         MIConstant->SetTextureParameterValueEditorOnly(TextureName, Texture2D);
+    }
+    {
+        BackgroundCapture->CaptureScene();
+        BgTexture2D = BackgroundCapture->DrawATexture2D();
+        if (!BgTexture2D)
+        {
+            AfterFailure(TEXT("invalid BgTexture2D"));
+            return;
+        }
+        BgTexture2D->ClearFlags(RF_Transient);
+        BgTexture2D->SetFlags(RF_Public | RF_Standalone);
+    }
+    {
+        BgMIConstant = CreateMICFromMID(PlaneActorTemp->GetMaterialInstanceInEditor());
+        if (!BgMIConstant)
+        {
+            AfterFailure(TEXT("invalid BgMIConstant"));
+            return;
+        }
+        BgMIConstant->ClearFlags(RF_Transient);
+        BgMIConstant->SetFlags(RF_Public | RF_Standalone);
+        BgMIConstant->SetTextureParameterValueEditorOnly(TextureName, BgTexture2D);
     }
 
     // Photo2D的收集和处理
@@ -367,9 +462,11 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
         return;
     }
 
+    // 固定为资产
     UTexture2D *TextureAsset = nullptr;
+    UTexture2D *BgTextureAsset = nullptr;
     UMaterialInstanceConstant *MICAsset = nullptr;
-
+    UMaterialInstanceConstant *BgMICAsset = nullptr;
     {
         const TSoftObjectPtr<UWorld> &LevelAsset = LevelInstance->GetWorldAsset();
         FAssetToolsModule &AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools");
@@ -384,7 +481,17 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
             AssetName,
             AssetPath,
             Texture2D));
+        AssetName = FString::Printf(TEXT("%s_BgTexture2D"), *AssetPrefix);
+        BgTextureAsset = Cast<UTexture2D>(AssetTools.Get().DuplicateAsset(
+            AssetName,
+            AssetPath,
+            BgTexture2D));
         if (!TextureAsset)
+        {
+            AfterFailure(TEXT("Save textureAsset fails."));
+            return;
+        }
+        if (!BgTextureAsset)
         {
             AfterFailure(TEXT("Save textureAsset fails."));
             return;
@@ -395,17 +502,29 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
             AssetName,
             AssetPath,
             MIConstant));
+        AssetName = FString::Printf(TEXT("%s_BgMIC"), *AssetPrefix);
+        BgMICAsset = Cast<UMaterialInstanceConstant>(AssetTools.Get().DuplicateAsset(
+            AssetName,
+            AssetPath,
+            BgMIConstant));
         if (!MICAsset)
+        {
+            AfterFailure(TEXT("save MICAsset fails."));
+            return;
+        }
+        if (!BgMICAsset)
         {
             AfterFailure(TEXT("save MICAsset fails."));
             return;
         }
 
         MICAsset->SetTextureParameterValueEditorOnly(TextureName, TextureAsset);
+        BgMICAsset->SetTextureParameterValueEditorOnly(TextureName, BgTextureAsset);
     }
 
     // 替换成常量材质资产
     {
+        // Photo2D替换, 包括递归照片
         Photo2DsInSame.Add(Photo2DRootInLevel);
         FVector RelativeScale3D = Photo2DRootInLevel->GetActorRelativeScale3D();
         for (auto &Photo2D : Photo2DsInSame)
@@ -426,6 +545,30 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
             Photo2D->GetStaticMeshInEditor()->SetMaterial(MaterialIndex, MICAsset);
             Photo2D->MaterialInstance = nullptr;
             Photo2D->MarkPackageDirty();
+        }
+
+        /*
+        PlaneActor替换, 理论上这里只会出现一个PlaneActor.
+        没有自动处理, 需要手动设置PlaneActor的bCanBeTakenInPhoto未false.
+        */
+        {
+            auto Photo3D = Photo2DRootInLevel->GetPhoto3D();
+            AVFPlaneActor *PlaneActor = nullptr;
+            TArray<AActor *> Actors;
+            Photo3D->GetAttachedActors(Actors, true, false);
+            for (auto &Actor : Actors)
+            {
+                if (auto Plane = Cast<AVFPlaneActor>(Actor))
+                {
+                    PlaneActor = Plane;
+                    break;
+                }
+            }
+
+            PlaneActor->Plane->SetVisibleFlag(false);
+            auto DMComp = PlaneActor->GetComponentByClass<UVFDynamicMeshComponent>();
+            DMComp->SetMaterial(MaterialIndex, BgMICAsset);
+            PlaneActor->MarkPackageDirty();
         }
     }
 
@@ -456,7 +599,9 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
     ClearTemporary();
 
     Texture2DAsset = TextureAsset;
+    BgTexture2DAsset = BgTextureAsset;
     MIConstantAsset = MICAsset;
+    BgMIConstantAsset = BgMICAsset;
 
     VF_LOG(Log, TEXT("SaveAPhotoInEditor successed."));
 }
@@ -474,7 +619,22 @@ void AVFPhotoCatcherPref::UpdateMIC()
     if (!MIConstantAsset)
     {
         VF_LOG(Error,
-               TEXT("%s invalid MaterialInstanceConstant. Select or Prefabricate first."),
+               TEXT("%s invalid MIConstantAsset. Select or Prefabricate first."),
+               __FUNCTIONW__);
+        return;
+    }
+    if (!BgTexture2DAsset)
+    {
+        VF_LOG(Error,
+               TEXT("%s invalid BgTexture2DAsset. Select or Prefabricate first."),
+               __FUNCTIONW__);
+        return;
+    }
+
+    if (!BgMIConstantAsset)
+    {
+        VF_LOG(Error,
+               TEXT("%s invalid BgMIConstantAsset. Select or Prefabricate first."),
                __FUNCTIONW__);
         return;
     }
@@ -482,19 +642,40 @@ void AVFPhotoCatcherPref::UpdateMIC()
     FScopedTransaction Transaction(FText::FromString(TEXT("UpdateMIC")));
     Texture2DAsset->Modify();
     MIConstantAsset->Modify();
+    BgTexture2DAsset->Modify();
+    BgMIConstantAsset->Modify();
 
-    bool bUseTempRenderTarget = PhotoCapture->TextureTarget == nullptr;
-    if (bUseTempRenderTarget)
+    bool bPhotoCaptureTempRT = PhotoCapture->TextureTarget == nullptr;
+    if (bPhotoCaptureTempRT)
+    {
         PhotoCapture->Init();
+    }
+
+    bool bBgPhotoCaptureTempRT = BackgroundCapture->TextureTarget == nullptr;
+    if (bBgPhotoCaptureTempRT)
+    {
+        BackgroundCapture->Init();
+    }
 
     PhotoCapture->CaptureScene();
     PhotoCapture->TextureTarget->UpdateTexture2D(Texture2DAsset, Texture2DAsset->Source.GetFormat());
-    if (bUseTempRenderTarget)
+
+    PhotoCapture->CaptureScene();
+    BackgroundCapture->TextureTarget->UpdateTexture2D(BgTexture2DAsset, BgTexture2DAsset->Source.GetFormat());
+
+    if (bPhotoCaptureTempRT)
+    {
         PhotoCapture->TextureTarget = nullptr;
+    }
+    if (bBgPhotoCaptureTempRT)
+    {
+        BackgroundCapture->TextureTarget = nullptr;
+    }
 
     Texture2DAsset->PostEditChange();
     Texture2DAsset->MarkPackageDirty();
     MIConstantAsset->MarkPackageDirty();
+    BgMIConstantAsset->MarkPackageDirty();
 }
 
 AVFPhoto2D *AVFPhotoCatcherPref::TakeAPhoto_Implementation()

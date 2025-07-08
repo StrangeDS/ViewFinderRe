@@ -76,6 +76,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	TObjectPtr<UTexture2D> Texture2DAsset;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	TObjectPtr<UMaterialInstanceConstant> BgMIConstantAsset;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	TObjectPtr<UTexture2D> BgTexture2DAsset;
 #endif
 #endif
 };
