@@ -59,7 +59,7 @@ AActor *UVFFunctions::CloneActorRuntime(
 	for (auto &DMComp : DMComps)
 	{
 		DMComp->SetEnabled(false);
-		Parents.Add(DMComp, DMComp->GetAttachParent());
+		Parents.Add(DMComp, DMComp->GetAttachParent()); // 模拟物理的物体获得的是无效的.
 		DMComp->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 		DMComp->UnregisterComponent();
 		Original->RemoveInstanceComponent(DMComp);
@@ -82,17 +82,27 @@ AActor *UVFFunctions::CloneActorRuntime(
 		// 还原组件
 		auto Parent = Parents[DMComp];
 		Original->AddInstanceComponent(DMComp);
-		DMComp->AttachToComponent(Parent, FAttachmentTransformRules::SnapToTargetIncludingScale);
+		if (IsValid(Parent))
+		{
+			DMComp->AttachToComponent(
+				Parent,
+				FAttachmentTransformRules::KeepWorldTransform);
+		}
 		DMComp->RegisterComponent();
 		DMComp->SetEnabled(true);
 
 		UVFDynamicMeshComponent *CopiedComp = NewVFDMComp(Copy, DMComp->GetClass());
 		CopiedComps.Add(CopiedComp);
+
 		// 同步层级
 		Copy->AddInstanceComponent(CopiedComp);
-		CopiedComp->AttachToComponent(
-			GetComponentByName(Copy, Parent->GetFName()),
-			FAttachmentTransformRules::SnapToTargetIncludingScale);
+		CopiedComp->SetComponentToWorld(DMComp->GetComponentToWorld()); // 对于模拟物理的物体, 需要手动同步位置.
+		if (IsValid(Parent))
+		{
+			CopiedComp->AttachToComponent(
+				GetComponentByName(Copy, Parent->GetFName()),
+				FAttachmentTransformRules::KeepWorldTransform);
+		}
 		CopiedComp->RegisterComponent();
 		CopiedComp->Init(DMComp);
 		CopiedComp->CopyMeshFromComponent(DMComp);
