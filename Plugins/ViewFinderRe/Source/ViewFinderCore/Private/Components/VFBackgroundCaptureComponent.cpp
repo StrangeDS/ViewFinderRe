@@ -22,12 +22,18 @@ UPrimitiveComponent *UVFBackgroundCaptureComponent::DrawABackgroundWithSize(
     FVector RelativePosition = Distance * GetComponentRotation().RotateVector(FVector::ForwardVector);
     FVector Direction = RelativePosition.GetSafeNormal();
 
-#if !WITH_EDITOR
-    if (auto BackgroundSystem = GetWorld()->GetSubsystem<UVFBackgroundWorldSubsystem>())
+#if WITH_EDITOR
+    if (GetWorld() && GetWorld()->WorldType != EWorldType::Editor)
     {
-        ShowOnlyActors = BackgroundSystem->GetBackgrounds();
+#endif
+        if (auto BackgroundSystem = GetWorld()->GetSubsystem<UVFBackgroundWorldSubsystem>())
+        {
+            ShowOnlyActors = BackgroundSystem->GetBackgrounds();
+        }
+#if WITH_EDITOR
     }
 #endif
+
     CaptureScene();
     PlaneActor->SetPlane(RelativePosition + BasePosition, Direction, Width, Height);
     PlaneActor->SetPlaneMaterial(DrawATexture2D());

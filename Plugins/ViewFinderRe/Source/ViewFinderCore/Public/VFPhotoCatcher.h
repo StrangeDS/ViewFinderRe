@@ -137,4 +137,9 @@ public:
 
 public: // IVFHelperInterface
 	virtual UVFHelperComponent *GetHelper_Implementation() override;
+
+public:
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
+	void HandleOriginalBeforeCheckVFDMComps(UObject *Sender);
+	void HandleOriginalBeforeCheckVFDMComps_Implementation(UObject *Sender);
 };

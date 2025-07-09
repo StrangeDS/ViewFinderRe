@@ -98,6 +98,10 @@ void AVFPhotoCatcher::BeginPlay()
 	check(VFPhoto3DClass.Get());
 
 	SetViewFrustumVisible(false);
+
+	Helper->OnOriginalBeforeCheckVFDMComps.AddUniqueDynamic(
+		this,
+		&AVFPhotoCatcher::HandleOriginalBeforeCheckVFDMComps);
 }
 
 void AVFPhotoCatcher::Tick(float DeltaTime)
@@ -196,10 +200,9 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 
 	// 重叠检测
 	TArray<UPrimitiveComponent *> OverlapComps = GetOverlapComps();
-	
+
 	// 筛选组件, 拍照前准备
 	OverlapComps = FilterOverlapComps(OverlapComps);
-
 
 	// 生成HelperMap
 	TMap<UPrimitiveComponent *, UVFHelperComponent *> HelperMap;
@@ -368,4 +371,10 @@ UMaterialInstanceDynamic *AVFPhotoCatcher::GetScreenMID_Implementation()
 UVFHelperComponent *AVFPhotoCatcher::GetHelper_Implementation()
 {
 	return Helper;
+}
+
+void AVFPhotoCatcher::HandleOriginalBeforeCheckVFDMComps_Implementation(
+	UObject *Sender)
+{
+	GetScreenMID();
 }
