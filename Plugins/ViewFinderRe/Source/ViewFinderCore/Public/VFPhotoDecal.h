@@ -13,6 +13,18 @@ class UMaterialInstanceDynamic;
 class UVFViewFrustumComponent;
 class UVFPhotoCaptureComponent;
 
+USTRUCT(BlueprintType)
+struct FVFPhotoDecalRecordProps
+{
+	GENERATED_BODY()
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	bool bSimulatePhysics;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	bool bGravity;
+};
+
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERCORE_API AVFPhotoDecal : public AActor
 {
@@ -94,10 +106,13 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	bool bReplacing = false;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	TMap<UPrimitiveComponent *, FVFPhotoDecalRecordProps> PropsMap;
+
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
 	UMaterialInstanceDynamic *GetMaterialInstance();
-	virtual UMaterialInstanceDynamic* GetMaterialInstance_Implementation();
+	virtual UMaterialInstanceDynamic *GetMaterialInstance_Implementation();
 
 	UPROPERTY()
 	TObjectPtr<UMaterialInterface> Matirial;

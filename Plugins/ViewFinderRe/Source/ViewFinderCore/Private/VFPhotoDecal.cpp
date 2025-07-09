@@ -107,7 +107,7 @@ void AVFPhotoDecal::ReplaceWithDecal_Implementation()
     bReplacing = true;
     DrawDecal();
     SetDecalEnabled(bReplacing);
-    DrawSceneDepth();
+    DrawSceneDepth(true);
 
     OnReplace.Broadcast();
 }
@@ -135,6 +135,12 @@ void AVFPhotoDecal::SetManagedActorsEnabled(bool Enabled)
     {
         VF_LOG(Warning, TEXT("%s: No Actors has been managed."), __FUNCTIONW__);
     }
+
+    if (!Enabled)
+    {
+        PropsMap.Reset();
+    }
+
     for (auto &Actor : ManagedActors)
     {
         if (!IsValid(Actor))
@@ -144,6 +150,33 @@ void AVFPhotoDecal::SetManagedActorsEnabled(bool Enabled)
         }
         Actor->SetActorHiddenInGame(!Enabled);
         Actor->SetActorEnableCollision(Enabled);
+
+        if (!Enabled)
+        {
+            TArray<UPrimitiveComponent *> Comps;
+            Actor->GetComponents<UPrimitiveComponent>(Comps, false);
+            for (auto Comp : Comps)
+            {
+                FVFPhotoDecalRecordProps Props{
+                    Comp->BodyInstance.bSimulatePhysics,
+                    Comp->IsGravityEnabled()};
+                PropsMap.Add(Comp, Props);
+                Comp->SetSimulatePhysics(false);
+                Comp->BodyInstance.bEnableGravity = false;
+            }
+        }
+    }
+
+    if (Enabled)
+    {
+        for (auto &[Comp, Props] : PropsMap)
+        {
+            if (ensureMsgf(IsValid(Comp), TEXT("%s Invalid Comp."), __FUNCTIONW__))
+            {
+                Comp->SetSimulatePhysics(Props.bSimulatePhysics);
+                Comp->BodyInstance.bEnableGravity = Props.bGravity;
+            }
+        }
     }
 }
 
