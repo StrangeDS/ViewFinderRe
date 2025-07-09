@@ -75,7 +75,7 @@ void AVFPhoto3D::PlaceDown()
 		{
 			auto Comp = *It;
 			auto Helper = HelperMap.Find(Comp); // 可能为nullptr
-			if (bOnlyOverlapWithHelps && !Helper)
+			if (bOnlyOverlapWithHelper && !Helper)
 				It.RemoveCurrent();
 			else if (Helper && !HelperMap[Comp]->bCanBePlacedByPhoto)
 				It.RemoveCurrent();
@@ -167,7 +167,7 @@ void AVFPhoto3D::RecordProperty(
 	EVFPhoto3DState StateIn)
 {
 	ViewFrustumRecorder->RecordViewFrustum(ViewFrustum);
-	bOnlyOverlapWithHelps = OnlyWithHelps;
+	bOnlyOverlapWithHelper = OnlyWithHelps;
 	ObjectTypesToOverlap = ObjectTypes;
 	State = StateIn;
 }

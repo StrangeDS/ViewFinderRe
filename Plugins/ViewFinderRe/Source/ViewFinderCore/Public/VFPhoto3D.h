@@ -64,7 +64,7 @@ public: // 记录属性
 	TObjectPtr<UVFViewFrustumComponent> ViewFrustumRecorder;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	bool bOnlyOverlapWithHelps = false;
+	bool bOnlyOverlapWithHelper = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypesToOverlap;

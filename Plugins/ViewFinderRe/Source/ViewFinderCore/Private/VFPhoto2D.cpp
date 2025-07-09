@@ -140,7 +140,7 @@ void AVFPhoto2D::CopyPhoto3D(UObject *Sender)
 
 	auto Photo3DNew = UVFFunctions::CloneActorRuntimeRecursive<AVFPhoto3D>(Photo3D);
 	Photo3DNew->RecordProperty(Photo3D->ViewFrustumRecorder,
-							   Photo3D->bOnlyOverlapWithHelps,
+							   Photo3D->bOnlyOverlapWithHelper,
 							   Photo3D->ObjectTypesToOverlap);
 	Photo3D = Photo3DNew;
 }
@@ -180,7 +180,7 @@ void AVFPhoto2D::CopyRecursivePhoto3D(UObject *Sender)
 
 	auto Photo3DNew = UVFFunctions::CloneActorRuntimeRecursive<AVFPhoto3D>(Photo3DOuter);
 	Photo3DNew->RecordProperty(Photo3DOuter->ViewFrustumRecorder,
-							   Photo3DOuter->bOnlyOverlapWithHelps,
+							   Photo3DOuter->bOnlyOverlapWithHelper,
 							   Photo3DOuter->ObjectTypesToOverlap);
 	SetPhoto3D(Photo3DNew);
 	FoldUp();

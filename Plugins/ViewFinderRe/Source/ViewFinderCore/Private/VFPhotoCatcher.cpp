@@ -155,7 +155,7 @@ TArray<UPrimitiveComponent *> AVFPhotoCatcher::FilterOverlapComps_Implementation
 			}
 
 			// 剔除不进入后续的Actor
-			if (bOnlyOverlapWithHelps && !HelperComp)
+			if (bOnlyOverlapWithHelper && !HelperComp)
 			{
 				It.RemoveCurrent();
 			}
@@ -307,7 +307,7 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 			HelperComp->NotifyDelegate(Photo3D, FVFHelperDelegateType::CopyBeforeFoldedInPhoto);
 		}
 		Photo2D->SetPhoto3D(Photo3D);
-		Photo3D->RecordProperty(ViewFrustum, bOnlyOverlapWithHelps, ObjectTypesToOverlap);
+		Photo3D->RecordProperty(ViewFrustum, bOnlyOverlapWithHelper, ObjectTypesToOverlap);
 		Photo2D->FoldUp();
 	}
 
