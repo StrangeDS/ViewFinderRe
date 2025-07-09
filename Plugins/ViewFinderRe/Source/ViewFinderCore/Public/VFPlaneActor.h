@@ -14,7 +14,8 @@ class UMaterialInstanceDynamic;
 请注意, 由于视锥分段, 导致布尔得到的面布线很烂, 生成的碰撞是没有的.
 */
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
-class VIEWFINDERCORE_API AVFPlaneActor : public AActor, public IVFHelperInterface
+class VIEWFINDERCORE_API AVFPlaneActor : public AActor,
+										 public IVFHelperInterface
 {
 	GENERATED_BODY()
 
