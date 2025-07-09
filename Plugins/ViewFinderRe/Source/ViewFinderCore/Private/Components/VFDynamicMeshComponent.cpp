@@ -32,6 +32,17 @@ void UVFDynamicMeshComponent::Init(UPrimitiveComponent *Source)
                TEXT("%s is RootComponent in %s."),
                *GetName(), *GetOwner()->GetName());
     }
+
+    /*
+    从池中获取到的组件, 属性并不一致, 需要手动同步
+    */
+    if (auto DMComp = Cast<UVFDynamicMeshComponent>(Source))
+    {
+        bEnabled = DMComp->bEnabled;
+        bSimulatePhysicsRecorder = DMComp->bSimulatePhysicsRecorder;
+        bEnableGravityRecorder = DMComp->bEnableGravityRecorder;
+        bCastShadowRecorder = DMComp->bCastShadowRecorder;
+    }
 }
 
 void UVFDynamicMeshComponent::Clear()
@@ -58,9 +69,6 @@ void UVFDynamicMeshComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
     if (auto SourceVFDMComp = GetSourceVFDMComp())
     {
         SetComplexAsSimpleCollisionEnabled(SourceVFDMComp->bEnableComplexCollision, true);
-        bSimulatePhysicsRecorder = SourceVFDMComp->bSimulatePhysicsRecorder;
-        bEnableGravityRecorder = SourceVFDMComp->bEnableGravityRecorder;
-        bCastShadowRecorder = SourceVFDMComp->bCastShadowRecorder;
     }
     else
     {
@@ -76,8 +84,8 @@ void UVFDynamicMeshComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
 
     UpdateMaterials();
 
-	bRenderCustomDepth = Source->bRenderCustomDepth;
-	CustomDepthStencilValue = Source->CustomDepthStencilValue;
+    bRenderCustomDepth = Source->bRenderCustomDepth;
+    CustomDepthStencilValue = Source->CustomDepthStencilValue;
 
     // TODO: 传递事件. 暂使用Actor接口
 }

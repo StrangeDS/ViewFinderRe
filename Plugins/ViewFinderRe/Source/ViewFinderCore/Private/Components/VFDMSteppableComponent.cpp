@@ -37,6 +37,16 @@ void UVFDMSteppableComponent::Init(UPrimitiveComponent *Source)
             nullptr,
             StepsRecorder->Time});
         StepsRecorder->RegisterTickable(this);
+
+        if (bSimulatePhysicsRecorder)
+        {
+            StepsRecorder->RecordTransform(this);
+
+            Steps.Add(FVFDMCompStep{
+                UVFDMCompStepOperation::RegisterToTransformRecorder,
+                nullptr,
+                StepsRecorder->Time});
+        }
     }
 }
 
@@ -74,16 +84,6 @@ void UVFDMSteppableComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
             UVFDMCompStepOperation::CopyMeshFromComponent,
             nullptr,
             StepsRecorder->Time});
-
-        if (bSimulatePhysicsRecorder)
-        {
-            StepsRecorder->RecordTransform(this);
-
-            Steps.Add(FVFDMCompStep{
-                UVFDMCompStepOperation::RegisterToTransformRecorder,
-                nullptr,
-                StepsRecorder->Time});
-        }
     }
 }
 
@@ -189,8 +189,10 @@ void UVFDMSteppableComponent::TickBackward_Implementation(float Time)
         }
         case UVFDMCompStepOperation::RegisterToTransformRecorder:
         {
-            auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this);
-            if (ensure(StepsRecorder))
+            auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(
+                this,
+                EVFStepsRecorderSubsystemCheckMode::IgnoreRewinding);
+            if (ensure(IsValid(StepsRecorder)))
             {
                 StepsRecorder->UnrecordTransform(this);
             }
