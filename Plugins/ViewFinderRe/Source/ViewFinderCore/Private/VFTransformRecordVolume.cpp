@@ -19,6 +19,7 @@ AVFTransformRecordVolume::AVFTransformRecordVolume(const FObjectInitializer &Obj
     CompClass = UStaticMeshComponent::StaticClass();
 
     Helper = CreateDefaultSubobject<UVFHelperComponent>("Helper");
+    Helper->bCanShowInPhoto = false;
     Helper->bCanBeTakenInPhoto = false;
     Helper->bCanBePlacedByPhoto = false;
 }

@@ -12,6 +12,18 @@ UVFBackgroundCaptureComponent::UVFBackgroundCaptureComponent()
     PlaneActorClass = AVFPlaneActor::StaticClass();
 }
 
+void UVFBackgroundCaptureComponent::BeginPlay()
+{
+    Super::BeginPlay();
+
+    auto Actor = GetOwner();
+    while (Actor)
+    {
+        HiddenActors.AddUnique(Actor);
+        Actor = Actor->GetParentActor();
+    }
+}
+
 UPrimitiveComponent *UVFBackgroundCaptureComponent::DrawABackgroundWithSize(
     float Distance, float Width, float Height)
 {

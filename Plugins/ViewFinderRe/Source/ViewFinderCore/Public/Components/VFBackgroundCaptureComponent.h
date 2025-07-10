@@ -15,6 +15,8 @@ class VIEWFINDERCORE_API UVFBackgroundCaptureComponent : public UVFPhotoCaptureC
 public:
 	UVFBackgroundCaptureComponent();
 
+	virtual void BeginPlay() override;
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	UPrimitiveComponent *DrawABackgroundWithSize(float Distance, float Width, float Height);
