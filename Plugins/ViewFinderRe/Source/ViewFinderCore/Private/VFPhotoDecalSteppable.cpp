@@ -9,9 +9,9 @@ void AVFPhotoDecalSteppable::BeginPlay()
     Super::BeginPlay();
 }
 
-void AVFPhotoDecalSteppable::ReplaceWithDecal_Implementation()
+void AVFPhotoDecalSteppable::ReplaceWithDecal_Implementation(bool ForceToUpdate)
 {
-    Super::ReplaceWithDecal_Implementation();
+    Super::ReplaceWithDecal_Implementation(ForceToUpdate);
 
     if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
@@ -53,8 +53,10 @@ bool AVFPhotoDecalSteppable::StepBack_Implementation(FVFStepInfo &StepInfo)
     {
         // 拍照需要在下一帧进行(还原的网格还没更新)
         GetWorldTimerManager().SetTimerForNextTick(
-            this,
-            &AVFPhotoDecalSteppable::ReplaceWithDecal);
+            [this]()
+            {
+                AVFPhotoDecalSteppable::ReplaceWithDecal(true);
+            });
         break;
     }
     default:

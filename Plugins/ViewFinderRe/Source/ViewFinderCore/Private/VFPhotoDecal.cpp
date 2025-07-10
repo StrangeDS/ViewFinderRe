@@ -99,18 +99,25 @@ void AVFPhotoDecal::DrawSceneDepth(bool ForceToUpdate)
     }
 }
 
-void AVFPhotoDecal::ReplaceWithDecal_Implementation()
+void AVFPhotoDecal::ReplaceWithDecal_Implementation(bool ForceToUpdate)
 {
     if (bReplacing)
         return;
 
     bReplacing = true;
-    DrawDecal();
+    DrawDecal(ForceToUpdate);
     SetDecalEnabled(bReplacing);
-    DrawSceneDepth(true);
+    DrawSceneDepth(ForceToUpdate);
 
     OnReplace.Broadcast();
 }
+
+#if WITH_EDITOR
+void AVFPhotoDecal::ReplaceWithDecalInEditor()
+{
+    ReplaceWithDecal(true);
+}
+#endif
 
 void AVFPhotoDecal::RestoreWithActors_Implementation()
 {
