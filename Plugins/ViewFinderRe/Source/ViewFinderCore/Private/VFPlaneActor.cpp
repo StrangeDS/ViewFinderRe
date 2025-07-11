@@ -11,6 +11,7 @@
 
 #include "VFPhotoCatcher.h"
 #include "Subsystems/VFBackgroundWorldSubsystem.h"
+#include "VFFunctions.h"
 
 AVFPlaneActor::AVFPlaneActor()
 {
@@ -31,15 +32,13 @@ AVFPlaneActor::AVFPlaneActor()
 	Plane->SetMaterial(0, MaterialSelector.Object);
 
 	Helper = CreateDefaultSubobject<UVFHelperComponent>("Helper");
-	Helper->bCanShowInPhoto = false;
+	Helper->bCanBeTakenInPhoto = false;
+	Helper->ShowInPhotoRule = FVFShowInPhotoRule::Neither; // 事实上并没有经过拍照流程
 }
 
 void AVFPlaneActor::BeginPlay()
 {
 	Super::BeginPlay();
-
-	Helper->OnOriginalEndTakingPhoto.AddUniqueDynamic(this, &AVFPlaneActor::HandleEndTakingPhoto);
-	Helper->OnCopyEndPlacingPhoto.AddUniqueDynamic(this, &AVFPlaneActor::HandleEndPlacingPhoto);
 
 	if (auto BackgroundSystem = GetWorld()->GetSubsystem<UVFBackgroundWorldSubsystem>())
 	{
@@ -68,21 +67,6 @@ void AVFPlaneActor::SetPlaneMaterial(UTexture2D *Texture)
 {
 	auto MaterialInstance = Plane->CreateAndSetMaterialInstanceDynamic(0);
 	MaterialInstance->SetTextureParameterValue(TEXT("Texture"), Texture);
-}
-
-void AVFPlaneActor::HandleEndTakingPhoto(UObject *Sender)
-{
-	if (bDestroyAfterTakingPhoto)
-	{
-		Destroy();
-	}
-}
-
-void AVFPlaneActor::HandleEndPlacingPhoto(UObject *Sender)
-{
-	bDestroyAfterTakingPhoto = false;
-	Helper->bCanShowInPhoto = true;
-	Helper->bCanBeTakenInPhoto = false;
 }
 
 #if WITH_EDITOR

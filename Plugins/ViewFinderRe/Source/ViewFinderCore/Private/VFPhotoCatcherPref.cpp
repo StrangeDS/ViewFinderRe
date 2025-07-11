@@ -547,10 +547,7 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
             Photo2D->MarkPackageDirty();
         }
 
-        /*
-        PlaneActor替换, 理论上这里只会出现一个PlaneActor.
-        没有自动处理, 需要手动设置PlaneActor的bCanBeTakenInPhoto未false.
-        */
+        // PlaneActor替换, 理论上这里只会出现一个PlaneActor.
         {
             auto Photo3D = Photo2DRootInLevel->GetPhoto3D();
             AVFPlaneActor *PlaneActor = nullptr;

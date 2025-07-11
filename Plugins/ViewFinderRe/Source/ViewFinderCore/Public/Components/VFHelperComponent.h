@@ -5,15 +5,26 @@
 #include "VFHelperComponent.generated.h"
 
 UENUM(BlueprintType)
+enum class FVFShowInPhotoRule : uint8
+{
+	Neither,
+	OriginalOnly,
+	CopyOnly,
+	Both,
+	MAX
+};
+
+UENUM(BlueprintType)
 enum class FVFHelperDelegateType : uint8
 {
-	OriginalBeforeTakingPhoto,
 	OriginalBeforeCheckVFDMComps,
 	OriginalBeforeBeingCopied,
 	OriginalBeforeBegingCut,
+	OriginalBeforeTakingPhoto,
 	OriginalEndTakingPhoto,
 	OriginalEndPlacingPhoto,
 	CopyBeforeBeingCut,
+	CopyBeforeTakingPhoto,
 	CopyBeforeFoldedInPhoto,
 	CopyEndTakingPhoto,
 	CopyBeforeBeingEnabled,
@@ -38,11 +49,11 @@ public:
 
 public:
 	/*
-	能否在照片中显示, 与bCanBeTakenInPhoto独立.
-	意味着可以: 显示但不进入后续流程, 不显示但进入后续流程.
+	默认被拍照的是生成的副本, 没有进入拍照流程的自然没有副本.
+	但又相对独立, 可以设置原本和副本的被捕获情况.
 	*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
-	bool bCanShowInPhoto = true;
+	FVFShowInPhotoRule ShowInPhotoRule = FVFShowInPhotoRule::CopyOnly;
 
 	// 能否被拍入照片(进入后续的复制等流程)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
@@ -69,9 +80,6 @@ public:
 	bool NotifyDelegate(UObject *Sender, const FVFHelperDelegateType &Type);
 
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
-	FVFHelperDelegate OnOriginalBeforeTakingPhoto;
-
-	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
 	FVFHelperDelegate OnOriginalBeforeCheckVFDMComps;
 
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
@@ -81,6 +89,9 @@ public:
 	FVFHelperDelegate OnOriginalBeforeBegingCut;
 
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
+	FVFHelperDelegate OnOriginalBeforeTakingPhoto;
+
+	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
 	FVFHelperDelegate OnOriginalEndTakingPhoto;
 
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
@@ -88,6 +99,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
 	FVFHelperDelegate OnCopyBeforeBeingCut;
+
+	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
+	FVFHelperDelegate OnCopyBeforeTakingPhoto;
 
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
 	FVFHelperDelegate OnCopyBeforeFoldedInPhoto;

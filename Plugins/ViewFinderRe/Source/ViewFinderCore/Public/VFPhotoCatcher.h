@@ -49,8 +49,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void SetViewFrustumVisible(const bool &Visibility);
 
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+#if WITH_EDITOR
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")
 	void ResetActorsToIgnore();
+#endif
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void EnableScreen(const bool &Enabled = true);

@@ -24,13 +24,14 @@ void UVFHelperComponent::BeginPlay()
 
 void UVFHelperComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	OnOriginalBeforeTakingPhoto.Clear();
 	OnOriginalBeforeCheckVFDMComps.Clear();
 	OnOriginalBeforeBeingCopied.Clear();
 	OnOriginalBeforeBegingCut.Clear();
+	OnOriginalBeforeTakingPhoto.Clear();
 	OnOriginalEndTakingPhoto.Clear();
 	OnOriginalEndPlacingPhoto.Clear();
 	OnCopyBeforeBeingCut.Clear();
+	OnCopyBeforeTakingPhoto.Clear();
 	OnCopyBeforeFoldedInPhoto.Clear();
 	OnCopyEndTakingPhoto.Clear();
 	OnCopyBeforeBeingEnabled.Clear();
@@ -43,9 +44,6 @@ bool UVFHelperComponent::NotifyDelegate(UObject *Sender, const FVFHelperDelegate
 {
 	switch (Type)
 	{
-	case FVFHelperDelegateType::OriginalBeforeTakingPhoto:
-		OnOriginalBeforeTakingPhoto.Broadcast(Sender);
-		break;
 	case FVFHelperDelegateType::OriginalBeforeCheckVFDMComps:
 		OnOriginalBeforeCheckVFDMComps.Broadcast(Sender);
 		break;
@@ -55,6 +53,9 @@ bool UVFHelperComponent::NotifyDelegate(UObject *Sender, const FVFHelperDelegate
 	case FVFHelperDelegateType::OriginalBeforeBegingCut:
 		OnOriginalBeforeBegingCut.Broadcast(Sender);
 		break;
+	case FVFHelperDelegateType::OriginalBeforeTakingPhoto:
+		OnOriginalBeforeTakingPhoto.Broadcast(Sender);
+		break;
 	case FVFHelperDelegateType::OriginalEndTakingPhoto:
 		OnOriginalEndTakingPhoto.Broadcast(Sender);
 		break;
@@ -63,6 +64,9 @@ bool UVFHelperComponent::NotifyDelegate(UObject *Sender, const FVFHelperDelegate
 		break;
 	case FVFHelperDelegateType::CopyBeforeBeingCut:
 		OnCopyBeforeBeingCut.Broadcast(Sender);
+		break;
+	case FVFHelperDelegateType::CopyBeforeTakingPhoto:
+		OnCopyBeforeTakingPhoto.Broadcast(Sender);
 		break;
 	case FVFHelperDelegateType::CopyBeforeFoldedInPhoto:
 		OnCopyBeforeFoldedInPhoto.Broadcast(Sender);

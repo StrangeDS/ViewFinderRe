@@ -63,13 +63,14 @@ AVFPhotoCatcher::AVFPhotoCatcher()
 	VFDMCompClass = UVFDynamicMeshComponent::StaticClass();
 	VFPhoto2DClass = AVFPhoto2D::StaticClass();
 	VFPhoto3DClass = AVFPhoto3D::StaticClass();
+
+	ActorsToIgnore.AddUnique(this);
 }
 
 void AVFPhotoCatcher::OnConstruction(const FTransform &Transform)
 {
 	Super::OnConstruction(Transform);
 
-	ResetActorsToIgnore();
 	ViewFrustum->RegenerateViewFrustum(ViewAngle, AspectRatio, StartDis, EndDis);
 	PhotoCapture->FOVAngle = ViewAngle;
 	PhotoCapture->CustomNearClippingPlane = StartDis;
@@ -97,6 +98,7 @@ void AVFPhotoCatcher::BeginPlay()
 	check(VFPhoto2DClass.Get());
 	check(VFPhoto3DClass.Get());
 
+	PhotoCapture->HiddenActors = ActorsToIgnore;
 	SetViewFrustumVisible(false);
 
 	Helper->OnOriginalBeforeCheckVFDMComps.AddUniqueDynamic(
@@ -128,10 +130,6 @@ TArray<UPrimitiveComponent *> AVFPhotoCatcher::FilterOverlapComps_Implementation
 {
 	TArray<UPrimitiveComponent *> OverlapComps = Comps;
 
-	// 天空盒处理
-	auto Plane = BackgroundCapture->DrawABackground();
-	OverlapComps.Add(Plane);
-
 	/*
 	Helper筛选
 	注意! 查看: UVFFunctions.h Line 89的宏
@@ -141,29 +139,32 @@ TArray<UPrimitiveComponent *> AVFPhotoCatcher::FilterOverlapComps_Implementation
 
 	// 处理Helper相关设置
 	{
-		TArray<AActor *> ActorsNotTakenInPhoto = ActorsToIgnore;
+		TArray<AActor *> ActorsToHide;
 		TMap<AActor *, UPrimitiveComponent *> StandInCompsMap;
 		for (auto It = OverlapComps.CreateIterator(); It; It++)
 		{
 			auto Comp = *It;
-			auto *HelperComp = HelperMap.Find(Comp); // 可能为nullptr.
+			bool HasHelper = HelperMap.Contains(Comp);
 
 			// 剔除不显示的Actor
-			if (HelperComp && !HelperMap[Comp]->bCanShowInPhoto)
+			bool HideOriginal = !HasHelper ||
+								(HelperMap[Comp]->ShowInPhotoRule != FVFShowInPhotoRule::OriginalOnly &&
+								 HelperMap[Comp]->ShowInPhotoRule != FVFShowInPhotoRule::Both);
+			if (HideOriginal)
 			{
-				ActorsNotTakenInPhoto.AddUnique(Comp->GetOwner());
+				ActorsToHide.AddUnique(Comp->GetOwner());
 			}
 
 			// 剔除不进入后续的Actor
-			if (bOnlyOverlapWithHelper && !HelperComp)
+			if (bOnlyOverlapWithHelper && !HasHelper)
 			{
 				It.RemoveCurrent();
 			}
-			else if (HelperComp && !HelperMap[Comp]->bCanBeTakenInPhoto)
+			else if (HasHelper && !HelperMap[Comp]->bCanBeTakenInPhoto)
 			{
 				It.RemoveCurrent();
 			}
-			else if (HelperComp && HelperMap[Comp]->bReplacedWithStandIn)
+			else if (HasHelper && HelperMap[Comp]->bReplacedWithStandIn)
 			{
 				// StandIn处理: 剔除自己的组件, 使用替身的组件.
 				It.RemoveCurrent();
@@ -174,7 +175,7 @@ TArray<UPrimitiveComponent *> AVFPhotoCatcher::FilterOverlapComps_Implementation
 					{
 						TArray<AActor *> ChildActors;
 						Actor->GetAttachedActors(ChildActors, true, true); // 递归是否应该支持配置?
-						ActorsNotTakenInPhoto.Append(ChildActors);
+						ActorsToHide.Append(ChildActors);
 					}
 
 					auto StandIn = UVFFunctions::ReplaceWithStandIn(Actor, HelperMap[Comp]->StandInClass);
@@ -188,7 +189,7 @@ TArray<UPrimitiveComponent *> AVFPhotoCatcher::FilterOverlapComps_Implementation
 		{
 			OverlapComps.AddUnique(Comp);
 		}
-		PhotoCapture->HiddenActors = ActorsNotTakenInPhoto;
+		PhotoCapture->HiddenActors.Append(ActorsToHide);
 	}
 
 	return OverlapComps;
@@ -197,6 +198,12 @@ TArray<UPrimitiveComponent *> AVFPhotoCatcher::FilterOverlapComps_Implementation
 AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 {
 	TRACE_CPUPROFILER_EVENT_SCOPE(TEXT("AVFPhotoCatcher::TakeAPhoto_Implementation()"));
+
+	// 预生成Photo2D, 方便调试
+	AVFPhoto2D *Photo2D = GetWorld()->SpawnActor<AVFPhoto2D>(
+		VFPhoto2DClass.Get(),
+		ViewFrustum->GetComponentLocation(),
+		ViewFrustum->GetComponentRotation());
 
 	// 重叠检测
 	TArray<UPrimitiveComponent *> OverlapComps = GetOverlapComps();
@@ -212,19 +219,6 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 		GetMapHelpers(HelperMap, HelpersRecorder);
 	}
 
-	// 拍照
-	AVFPhoto2D *Photo2D = GetWorld()->SpawnActor<AVFPhoto2D>(
-		VFPhoto2DClass.Get(),
-		ViewFrustum->GetComponentLocation(),
-		ViewFrustum->GetComponentRotation());
-	{
-		for (auto &HelperComp : HelpersRecorder)
-		{
-			HelperComp->NotifyDelegate(this, FVFHelperDelegateType::OriginalBeforeTakingPhoto);
-		}
-		Photo2D->SetPhoto(PhotoCapture);
-	}
-
 	// 基元组件下创建对应VFDynamicMeshComponent
 	TArray<UVFDynamicMeshComponent *> VFDMComps;
 	{
@@ -233,6 +227,7 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 			HelperComp->NotifyDelegate(this, FVFHelperDelegateType::OriginalBeforeCheckVFDMComps);
 		}
 		VFDMComps = UVFFunctions::CheckVFDMComps(OverlapComps, VFDMCompClass);
+		OverlapComps.Reset();
 	}
 
 	// 需要排序吗?
@@ -242,6 +237,14 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 	// {
 	// 	VF_LOG(Warning, TEXT("%s"), *Comp->GetOwner()->GetName());
 	// }
+
+	// 重新生成HelperMap
+	HelperMap.Reset();
+	HelpersRecorder.Reset();
+	{
+		UVFFunctions::GetCompsToHelpersMapping<UVFDynamicMeshComponent>(VFDMComps, HelperMap);
+		GetMapHelpers(HelperMap, HelpersRecorder);
+	}
 
 	// 复制对应Actor
 	TArray<UVFDynamicMeshComponent *> CopiedComps;
@@ -259,14 +262,6 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 		{
 			if (!ActorsCopied.Contains(Actor->GetAttachParentActor()))
 				Actor->AttachToActor(Photo3D, FAttachmentTransformRules::KeepWorldTransform);
-		}
-
-		if (PostProcess->IsAnyRule())
-		{
-			for (auto &Comp : CopiedComps)
-			{
-				PostProcess->SetStencilValueNext(Comp);
-			}
 		}
 	}
 
@@ -300,6 +295,53 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 		}
 	}
 
+	// 拍照流程: 设置Stencil, 只对复制出来的Actor进行拍照
+	for (auto &HelperComp : HelpersRecorder)
+	{
+		HelperComp->NotifyDelegate(this, FVFHelperDelegateType::OriginalBeforeTakingPhoto);
+	}
+	for (auto &HelperComp : CopiedHelpersRecorder)
+	{
+		HelperComp->NotifyDelegate(this, FVFHelperDelegateType::CopyBeforeTakingPhoto);
+	}
+	if (PostProcess->IsAnyRule())
+	{
+		for (auto &Comp : CopiedComps)
+		{
+			PostProcess->SetStencilValueNext(Comp);
+		}
+	}
+	{
+		TArray<AActor *> ActorsToHide;
+		for (int i = 0; i < VFDMComps.Num(); ++i)
+		{
+			// 注意: 对于生成的副本, 它应该使用原本的FVFShowInPhotoRule设置.
+			auto Comp = VFDMComps[i];
+			auto CopiedComp = CopiedComps[i];
+			check(Comp == CopiedComp->GetSourceComponent());
+			bool HasHelper = HelperMap.Contains(Comp);
+			bool HideOriginal = !HasHelper ||
+								(HelperMap[Comp]->ShowInPhotoRule != FVFShowInPhotoRule::OriginalOnly &&
+								 HelperMap[Comp]->ShowInPhotoRule != FVFShowInPhotoRule::Both);
+			bool HideCopy = HasHelper &&
+							HelperMap[Comp]->ShowInPhotoRule != FVFShowInPhotoRule::CopyOnly &&
+							HelperMap[Comp]->ShowInPhotoRule != FVFShowInPhotoRule::Both;
+			if (HideOriginal)
+				ActorsToHide.AddUnique(Comp->GetOwner());
+			if (HideCopy)
+				ActorsToHide.AddUnique(CopiedComp->GetOwner());
+		}
+		ActorsToHide.AddUnique(Photo3D);
+		PhotoCapture->HiddenActors.Append(ActorsToHide);
+	}
+	Photo2D->SetPhoto(PhotoCapture);
+	PhotoCapture->HiddenActors = ActorsToIgnore;
+
+	// 背景绘制. 注意如果在拍摄照片前, 同一帧绘制会导致照片捕捉为未渲染状态.
+	auto Plane = BackgroundCapture->DrawABackground();
+	PostProcess->SetStencilValueNext(Plane);
+	Plane->GetOwner()->AttachToActor(Photo3D, FAttachmentTransformRules::KeepWorldTransform);
+
 	// Photo2D和Photo3D的后续处理
 	{
 		for (auto &HelperComp : CopiedHelpersRecorder)
@@ -330,11 +372,13 @@ void AVFPhotoCatcher::SetViewFrustumVisible(const bool &Visibility)
 	ViewFrustum->SetHiddenInGame(!Visibility);
 }
 
+#if WITH_EDITOR
 void AVFPhotoCatcher::ResetActorsToIgnore()
 {
 	ActorsToIgnore.Reset();
 	ActorsToIgnore.AddUnique(this);
 }
+#endif
 
 void AVFPhotoCatcher::EnableScreen(const bool &Enabled)
 {

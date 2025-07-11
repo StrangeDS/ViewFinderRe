@@ -54,7 +54,7 @@ AVFCharacter::AVFCharacter()
 	Camera->bUsePawnControlRotation = true;
 
 	Helper = CreateDefaultSubobject<UVFHelperComponent>("Helper");
-	Helper->bCanShowInPhoto = false;
+	Helper->ShowInPhotoRule = FVFShowInPhotoRule::Neither;
 	Helper->bCanBePlacedByPhoto = false;
 	Helper->bReplacedWithStandIn = true;
 	Helper->StandInClass = AVFPawnStandIn::StaticClass();

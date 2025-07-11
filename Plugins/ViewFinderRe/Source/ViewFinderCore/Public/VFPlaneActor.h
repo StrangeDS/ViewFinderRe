@@ -33,12 +33,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void SetPlaneMaterial(UTexture2D *Texture);
 
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void HandleEndTakingPhoto(UObject *Sender);
-
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void HandleEndPlacingPhoto(UObject *Sender);
-
 #if WITH_EDITOR
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")
 	void FaceToPawn();
@@ -56,9 +50,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
 			  meta = (NoEditInline))
 	TObjectPtr<UVFHelperComponent> Helper;
-
-	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category = "ViewFinder")
-	bool bDestroyAfterTakingPhoto = true;
 
 public: // IVFHelperInterface
 	virtual UVFHelperComponent *GetHelper_Implementation() override;
