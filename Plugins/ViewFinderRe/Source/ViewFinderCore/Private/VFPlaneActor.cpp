@@ -33,7 +33,7 @@ AVFPlaneActor::AVFPlaneActor()
 
 	Helper = CreateDefaultSubobject<UVFHelperComponent>("Helper");
 	Helper->bCanBeTakenInPhoto = false;
-	Helper->ShowInPhotoRule = FVFShowInPhotoRule::Neither; // 事实上并没有经过拍照流程
+	Helper->ShowInPhotoRule = FVFShowInPhotoRule::OriginalOnly;
 }
 
 void AVFPlaneActor::BeginPlay()
