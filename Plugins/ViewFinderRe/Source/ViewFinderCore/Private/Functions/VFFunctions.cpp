@@ -198,6 +198,11 @@ FTransform UVFFunctions::TransformLerpNoScale(const FTransform &Original, const 
 	return FTransform(Rot, Loc, Original.GetScale3D());
 }
 
+bool UVFFunctions::IsEditorCreated(UObject *Object)
+{
+	return Object->HasAnyFlags(RF_WasLoaded | RF_LoadCompleted);
+}
+
 TArray<AActor *> UVFFunctions::CopyActorsFromVFDMComps(
 	UWorld *World,
 	const TArray<UVFDynamicMeshComponent *> &Components,

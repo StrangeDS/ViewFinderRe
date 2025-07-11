@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "VFHelperInterface.h"
 #include "VFPhotoDecal.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FVFPhotoDecalDelegate);
@@ -26,7 +27,8 @@ struct FVFPhotoDecalRecordProps
 };
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
-class VIEWFINDERCORE_API AVFPhotoDecal : public AActor
+class VIEWFINDERCORE_API AVFPhotoDecal : public AActor,
+										 public IVFHelperInterface
 {
 	GENERATED_BODY()
 
@@ -88,6 +90,10 @@ public:
 			  meta = (NoEditInline))
 	TObjectPtr<UDecalComponent> Decal;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+			  meta = (NoEditInline))
+	TObjectPtr<UVFHelperComponent> Helper;
+
 public:
 	// ViewAngle应当尽可能的小, 贴花才更清晰
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
@@ -137,4 +143,7 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
 	FVFPhotoDecalDelegate OnRestore;
+
+public: // IVFHelperInterface
+	virtual UVFHelperComponent *GetHelper_Implementation() override;
 };

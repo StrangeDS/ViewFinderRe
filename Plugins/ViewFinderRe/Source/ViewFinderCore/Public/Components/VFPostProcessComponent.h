@@ -61,6 +61,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	EVFStencilRule Rule = EVFStencilRule::None;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinderRe")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<UMaterialInterface> PostProcess;
 };

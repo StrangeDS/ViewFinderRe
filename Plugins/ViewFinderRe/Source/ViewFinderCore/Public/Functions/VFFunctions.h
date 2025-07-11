@@ -64,6 +64,8 @@ public:
 
 	static FTransform TransformLerp(const FTransform &Original, const FTransform &Target, float delta);
 	static FTransform TransformLerpNoScale(const FTransform &Original, const FTransform &Target, float delta);
+
+	static bool IsEditorCreated(UObject *Object);
 };
 
 template <typename T>

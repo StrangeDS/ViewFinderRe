@@ -5,11 +5,7 @@
 #include "VFCommon.h"
 #include "VFDMCompPoolWorldSubsystem.h"
 #include "VFStepsRecorderWorldSubsystem.h"
-
-bool IsEditorCreated(UObject *Object)
-{
-    return Object->HasAnyFlags(RF_WasLoaded | RF_LoadCompleted);
-}
+#include "VFFunctions.h"
 
 UVFDMSteppableComponent::UVFDMSteppableComponent(const FObjectInitializer &ObjectInitializer)
     : UVFDynamicMeshComponent(ObjectInitializer)
@@ -21,7 +17,7 @@ void UVFDMSteppableComponent::BeginPlay()
     Super::BeginPlay();
 
     LocalPool = NewObject<UDynamicMeshPool>(this);
-    if (IsEditorCreated(this))
+    if (UVFFunctions::IsEditorCreated(this))
         Init(Cast<UPrimitiveComponent>(GetAttachParent()));
 }
 

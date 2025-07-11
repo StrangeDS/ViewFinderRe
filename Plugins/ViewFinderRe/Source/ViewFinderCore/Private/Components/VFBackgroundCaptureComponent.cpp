@@ -12,18 +12,6 @@ UVFBackgroundCaptureComponent::UVFBackgroundCaptureComponent()
     PlaneActorClass = AVFPlaneActor::StaticClass();
 }
 
-void UVFBackgroundCaptureComponent::BeginPlay()
-{
-    Super::BeginPlay();
-
-    auto Actor = GetOwner();
-    while (Actor)
-    {
-        HiddenActors.AddUnique(Actor);
-        Actor = Actor->GetParentActor();
-    }
-}
-
 UPrimitiveComponent *UVFBackgroundCaptureComponent::DrawABackgroundWithSize(
     float Distance, float Width, float Height)
 {
@@ -46,7 +34,10 @@ UPrimitiveComponent *UVFBackgroundCaptureComponent::DrawABackgroundWithSize(
     }
 #endif
 
+    // 需要开启后才会有后处理效果.
+    bAlwaysPersistRenderingState = true;
     CaptureScene();
+    bAlwaysPersistRenderingState = false;
     PlaneActor->SetPlane(RelativePosition + BasePosition, Direction, Width, Height);
     PlaneActor->SetPlaneMaterial(DrawATexture2D());
 

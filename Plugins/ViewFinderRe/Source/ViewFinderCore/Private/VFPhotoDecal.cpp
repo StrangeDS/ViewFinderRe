@@ -34,6 +34,11 @@ AVFPhotoDecal::AVFPhotoDecal()
     Matirial = MaterialSelector.Object;
     Decal->SetDecalMaterial(Matirial);
     Decal->SetHiddenInGame(true);
+
+    Helper = CreateDefaultSubobject<UVFHelperComponent>("Helper");
+    Helper->ShowInPhotoRule = FVFShowInPhotoRule::OriginalOnly;
+    Helper->bCanBeTakenInPhoto = false;
+    Helper->bCanBePlacedByPhoto = false;
 }
 
 void AVFPhotoDecal::OnConstruction(const FTransform &Transform)
@@ -207,4 +212,9 @@ UMaterialInstanceDynamic *AVFPhotoDecal::GetMaterialInstance_Implementation()
     if (!IsValid(MaterialInstance))
         MaterialInstance = Decal->CreateDynamicMaterialInstance();
     return MaterialInstance;
+}
+
+UVFHelperComponent *AVFPhotoDecal::GetHelper_Implementation()
+{
+    return Helper;
 }

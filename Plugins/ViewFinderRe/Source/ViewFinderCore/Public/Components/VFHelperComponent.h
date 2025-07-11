@@ -48,19 +48,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	bool bCanBeTakenInPhoto = true;
 
-	// 能否被放置的照片覆盖(差集)
+	// 能否被放置的照片覆盖(进入后续的差集流程)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	bool bCanBePlacedByPhoto = true;
 
-	// 是否使用替身
+	// 是否在被拍照时使用替身
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	bool bReplacedWithStandIn = false;
 
-	// 使用替身时, 子Actors也被无视
+	// 使用替身时, 子Actors是否也无视
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	bool bIgnoreChildActors = true;
 
-	// 替身类, 需实现
+	// 需具体实现的替身类
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder", meta = (EditCondition = "bReplacedWithStandIn"))
 	TSubclassOf<AActor> StandInClass;
 
