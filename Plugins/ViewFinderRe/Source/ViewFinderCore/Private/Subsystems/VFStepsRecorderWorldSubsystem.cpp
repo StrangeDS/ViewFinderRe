@@ -109,11 +109,9 @@ void UVFStepsRecorderWorldSubsystem::TickBackward(float DeltaTime)
 
 void UVFStepsRecorderWorldSubsystem::SubmitStep(UObject *Sender, FVFStepInfo Info)
 {
-    // if (bIsRewinding)   // 是否有必要? 可以在很多地方避免此判断, 但会削减游戏更多的可能性
-    //     return;
-
     Info.Sender = Sender;
-    Info.Time = Time;
+    if (Info.Time < 0.f)
+        Info.Time = Time;
     Infos.Add(Info);
 }
 

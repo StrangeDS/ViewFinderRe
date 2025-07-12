@@ -73,7 +73,8 @@ void UVFDynamicMeshComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
     else
     {
         bool UseSimpleCollision = Source->BodyInstance.bSimulatePhysics;
-        UseSimpleCollision |= Source->BodyInstance.GetBodySetup()->GetCollisionTraceFlag() == ECollisionTraceFlag::CTF_UseSimpleAsComplex;
+        UseSimpleCollision |= !Source->BodyInstance.GetBodySetup() ||
+                              Source->BodyInstance.GetBodySetup()->GetCollisionTraceFlag() == ECollisionTraceFlag::CTF_UseSimpleAsComplex;
         SetComplexAsSimpleCollisionEnabled(!UseSimpleCollision, true);
         bSimulatePhysicsRecorder = Source->BodyInstance.bSimulatePhysics;
         bEnableGravityRecorder = Source->IsGravityEnabled();

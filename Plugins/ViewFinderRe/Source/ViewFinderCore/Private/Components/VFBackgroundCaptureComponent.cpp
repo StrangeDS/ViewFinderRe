@@ -17,11 +17,6 @@ UPrimitiveComponent *UVFBackgroundCaptureComponent::DrawABackgroundWithSize(
 {
     check(PlaneActorClass);
 
-    auto PlaneActor = GetWorld()->SpawnActor<AVFPlaneActor>(PlaneActorClass);
-    FVector BasePosition = GetComponentLocation();
-    FVector RelativePosition = Distance * GetComponentRotation().RotateVector(FVector::ForwardVector);
-    FVector Direction = RelativePosition.GetSafeNormal();
-
 #if WITH_EDITOR
     if (GetWorld() && GetWorld()->WorldType != EWorldType::Editor)
     {
@@ -38,8 +33,23 @@ UPrimitiveComponent *UVFBackgroundCaptureComponent::DrawABackgroundWithSize(
     bAlwaysPersistRenderingState = true;
     CaptureScene();
     bAlwaysPersistRenderingState = false;
+
+    auto PlaneActor = GetWorld()->SpawnActor<AVFPlaneActor>(PlaneActorClass);
+    FVector BasePosition = GetComponentLocation();
+    FVector RelativePosition = Distance * GetComponentRotation().RotateVector(FVector::ForwardVector);
+    FVector Direction = RelativePosition.GetSafeNormal();
+
     PlaneActor->SetPlane(RelativePosition + BasePosition, Direction, Width, Height);
     PlaneActor->SetPlaneMaterial(DrawATexture2D());
+
+#if WITH_EDITOR
+    if (GetWorld() && GetWorld()->WorldType != EWorldType::Editor)
+    {
+#endif
+        ShowOnlyActors.Reset();
+#if WITH_EDITOR
+    }
+#endif
 
     return PlaneActor->Plane;
 }

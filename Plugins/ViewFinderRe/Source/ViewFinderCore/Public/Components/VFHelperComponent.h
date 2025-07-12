@@ -72,8 +72,14 @@ public:
 	bool bIgnoreChildActors = true;
 
 	// 需具体实现的替身类
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder", meta = (EditCondition = "bReplacedWithStandIn"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder",
+			  meta = (EditCondition = "bReplacedWithStandIn"))
 	TSubclassOf<AActor> StandInClass;
+
+	// 使用替身的Actor, 便于访问使用
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder",
+			  meta = (EditCondition = "bReplacedWithStandIn", NoEditInline))
+	TObjectPtr<AActor> ActorStandInFor;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")

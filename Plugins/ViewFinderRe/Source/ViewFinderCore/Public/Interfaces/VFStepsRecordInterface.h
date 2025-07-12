@@ -16,8 +16,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	bool bIsKeyFrame = false;
 
+	/*
+	默认-1, <0会由UVFStepsRecorderWorldSubsystem填入,
+	允许自行填入, 保留更多的可能性.
+	*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
-	float Time = 0.f;
+	float Time = -1.0f;
 
 	// 由UVFStepsRecorderWorldSubsystem填入
 	UPROPERTY(BlueprintReadWrite, Category = "ViewFinder")
@@ -47,7 +51,7 @@ public:
 
 	// 向UVFStepsRecorderWorldSubsystem::SubmitChanges()的, 在此退回,
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
-	bool StepBack(FVFStepInfo &StepInfo);
+	bool StepBack(UPARAM(ref) FVFStepInfo &StepInfo);
 	virtual bool StepBack_Implementation(FVFStepInfo &StepInfo) { return false; };
 
 	template <typename T>

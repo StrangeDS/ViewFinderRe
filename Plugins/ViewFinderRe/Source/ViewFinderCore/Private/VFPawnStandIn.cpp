@@ -36,7 +36,7 @@ void AVFPawnStandIn::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Helper->OnOriginalBeforeCheckVFDMComps.AddUniqueDynamic(this, &AVFPawnStandIn::Hide);
+	Helper->OnOriginalEndTakingPhoto.AddUniqueDynamic(this, &AVFPawnStandIn::Hide);
 	Helper->OnCopyEndPlacingPhoto.AddUniqueDynamic(this, &AVFPawnStandIn::TeleportTargetPawn);
 }
 
@@ -48,14 +48,12 @@ void AVFPawnStandIn::SetTargetPawn(APawn *Pawn)
 
 void AVFPawnStandIn::TeleportTargetPawn(UObject *Sender)
 {
-	if (!IsValid(TargetPawn))
+	if (!ensure(IsValid(TargetPawn)))
 	{
 		TargetPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 	}
 
-	auto Photo3D = Cast<AVFPhoto3D>(Sender);
-	auto Quat = Photo3D->GetActorQuat() * ViewQuat;
-	auto Rotator = Quat.Rotator();
+	auto Rotator = RootComponent->GetComponentRotation();
 	Rotator.Roll = 0.f; // 不进行置零的话, 倒也是个新玩法. 但又得考虑跳跃方向和重力方向, 其它物体的重力也得一同改变才符合直觉.
 	TargetPawn->SetActorLocation(GetActorLocation());
 	TargetPawn->FaceRotation(Rotator);
@@ -68,7 +66,6 @@ void AVFPawnStandIn::TeleportTargetPawn(UObject *Sender)
 void AVFPawnStandIn::Hide(UObject *Sender)
 {
 	auto PhotoCathcer = Cast<AVFPhotoCatcher>(Sender);
-	ViewQuat = PhotoCathcer->GetFrustumQuat().Inverse() * TargetPawn->GetViewRotation().Quaternion();
 	SetActorHiddenInGame(true);
 }
 

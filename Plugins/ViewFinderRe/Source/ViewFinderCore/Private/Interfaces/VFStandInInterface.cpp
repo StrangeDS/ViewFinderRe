@@ -4,12 +4,16 @@
 
 void IVFStandInInterface::SetOriginalActor_Implementation(AActor *Original)
 {
-    OriginalActor = Original;
+    auto Actor = Cast<AActor>(_getUObject());
+    auto Helper = Actor->GetComponentByClass<UVFHelperComponent>();
+    Helper->ActorStandInFor = Original;
 }
 
 AActor *IVFStandInInterface::GetOriginalActor_Implementation()
 {
-    return OriginalActor;
+    auto Actor = Cast<AActor>(_getUObject());
+    auto Helper = Actor->GetComponentByClass<UVFHelperComponent>();
+    return Helper->ActorStandInFor;
 }
 
 UPrimitiveComponent *IVFStandInInterface::GetPrimitiveComp_Implementation()

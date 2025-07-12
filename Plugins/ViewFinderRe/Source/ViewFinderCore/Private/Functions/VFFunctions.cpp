@@ -119,11 +119,10 @@ AActor *UVFFunctions::K2_CloneActorRuntimeRecursive(AActor *Original)
 AActor *UVFFunctions::ReplaceWithStandIn(AActor *OriginalActor, TSubclassOf<AActor> StandInActorClass)
 {
 	auto Transform = OriginalActor->GetActorTransform();
-	auto StandIn = OriginalActor->GetWorld()->SpawnActorDeferred<AActor>(
+	auto StandIn = OriginalActor->GetWorld()->SpawnActor<AActor>(
 		StandInActorClass,
 		Transform);
 	IVFStandInInterface::Execute_SetOriginalActor(StandIn, OriginalActor);
-	StandIn->FinishSpawning(Transform);
 	return StandIn;
 }
 
