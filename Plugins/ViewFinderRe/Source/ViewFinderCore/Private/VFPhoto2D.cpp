@@ -10,6 +10,7 @@
 #include "VFHelperComponent.h"
 #include "VFFunctions.h"
 #include "VFPhotoCaptureComponent.h"
+#include "VFPhotoCatcher.h"
 
 AVFPhoto2D::AVFPhoto2D() : Super()
 {
@@ -31,7 +32,7 @@ void AVFPhoto2D::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Helper->OnOriginalEndTakingPhoto.AddUniqueDynamic(this, &AVFPhoto2D::CopyPhoto3D);
+	Helper->OnCopyEndTakingPhoto.AddUniqueDynamic(this, &AVFPhoto2D::CopyPhoto3D);
 	if (bIsRecursive)
 	{
 		Helper->OnCopyBeforeBeingEnabled.AddUniqueDynamic(this, &AVFPhoto2D::CopyRecursivePhoto3D);
@@ -143,6 +144,46 @@ void AVFPhoto2D::CopyPhoto3D(UObject *Sender)
 							   Photo3D->bOnlyOverlapWithHelper,
 							   Photo3D->ObjectTypesToOverlap);
 	Photo3D = Photo3DNew;
+
+	auto Catcher = Cast<AVFPhotoCatcher>(Sender);
+	if (!IsValid(Catcher))
+	{
+		VF_LOG(Warning, TEXT("%s invalid Catcher."), __FUNCTIONW__);
+		return;
+	}
+	if (Catcher->HasAnyLens())
+	{
+		PostProcessPhoto2D(Catcher, this, true);
+	}
+}
+
+void AVFPhoto2D::PostProcessPhoto2D(AVFPhotoCatcher *Catcher, AVFPhoto2D *Photo2D,
+									bool Recursively)
+{
+	auto Photo3D = Photo2D->GetPhoto3D();
+	if (!IsValid(Photo3D))
+		return;
+
+	TArray<AActor *> Actors;
+	if (Recursively)
+	{
+		Photo3D->GetAttachedActors(Actors, true, true);
+		for (auto Actor : Actors)
+		{
+			if (auto Photo2DInner = Cast<AVFPhoto2D>(Actor))
+			{
+				PostProcessPhoto2D(Catcher, Photo2DInner);
+			}
+		}
+	}
+
+	TArray<UPrimitiveComponent *> Comps; // GetComponents内部会自动Reset
+	Photo3D->GetAttachedActors(Actors, true, true);
+	for (auto Actor : Actors)
+	{
+		Actor->GetComponents<UPrimitiveComponent>(Comps);
+		Catcher->PostProcessComps(Comps);
+	}
 }
 
 UMaterialInstanceDynamic *AVFPhoto2D::GetMaterialInstance_Implementation()

@@ -63,6 +63,12 @@ public:
 	UFUNCTION(BlueprintPure, Category = "ViewFinder")
 	FORCEINLINE bool IsCuttingOrignal() { return bCuttingOrignal; };
 
+	UFUNCTION(BlueprintPure, Category = "ViewFinder")
+	bool HasAnyLens();
+
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	void PostProcessComps(TArray<UPrimitiveComponent *> Comps);
+
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	float ViewAngle = 60.0f;

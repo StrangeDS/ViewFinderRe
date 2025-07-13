@@ -13,6 +13,7 @@ class UMaterialInstanceDynamic;
 class AVFPhoto3D;
 class UVFHelperComponent;
 class UVFPhotoCaptureComponent;
+class AVFPhotoCatcher;
 
 UENUM(BlueprintType)
 enum class EVFPhoto2DState : uint8
@@ -56,6 +57,11 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void CopyPhoto3D(UObject *Sender);
+
+	// 递归对Photo2D进行后处理
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	static void PostProcessPhoto2D(AVFPhotoCatcher *Catcher, AVFPhoto2D *Photo2D,
+								   bool Recursively = false);
 
 protected: // 组件
 	UPROPERTY()
@@ -111,9 +117,9 @@ public: // 迭代相关
 
 public: // IVFHelperInterface
 	virtual UVFHelperComponent *GetHelper_Implementation() override;
-	
+
 #if WITH_EDITOR
 public:
-	UStaticMeshComponent* GetStaticMeshInEditor() { return StaticMesh; };
+	UStaticMeshComponent *GetStaticMeshInEditor() { return StaticMesh; };
 #endif
 };

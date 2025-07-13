@@ -63,8 +63,6 @@ AVFPhotoCatcher::AVFPhotoCatcher()
 	VFDMCompClass = UVFDynamicMeshComponent::StaticClass();
 	VFPhoto2DClass = AVFPhoto2D::StaticClass();
 	VFPhoto3DClass = AVFPhoto3D::StaticClass();
-
-	ActorsToIgnore.AddUnique(this);
 }
 
 void AVFPhotoCatcher::OnConstruction(const FTransform &Transform)
@@ -98,6 +96,7 @@ void AVFPhotoCatcher::BeginPlay()
 	check(VFPhoto2DClass.Get());
 	check(VFPhoto3DClass.Get());
 
+	ActorsToIgnore.AddUnique(this);
 	PhotoCapture->HiddenActors = ActorsToIgnore;
 	SetViewFrustumVisible(false);
 
@@ -406,6 +405,19 @@ void AVFPhotoCatcher::EnableScreen(const bool &Enabled)
 FQuat AVFPhotoCatcher::GetFrustumQuat()
 {
 	return ViewFrustum->GetComponentQuat();
+}
+
+bool AVFPhotoCatcher::HasAnyLens()
+{
+	return PostProcess->IsAnyRule();
+}
+
+void AVFPhotoCatcher::PostProcessComps(TArray<UPrimitiveComponent *> Comps)
+{
+	for (auto Comp : Comps)
+	{
+		PostProcess->SetStencilValueNext(Comp);
+	}
 }
 
 UMaterialInstanceDynamic *AVFPhotoCatcher::GetScreenMID_Implementation()
