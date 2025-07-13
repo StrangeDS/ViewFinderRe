@@ -73,8 +73,6 @@ inline T *UVFFunctions::CloneActorRuntimeRecursive(AActor *Original)
 {
 	TArray<UVFDynamicMeshComponent *> _CopiedComps; // 无用, 仅占位
 	auto Res = UVFFunctions::CloneActorRuntime(Original, _CopiedComps);
-	TArray<UVFDynamicMeshComponent *> VFDMComps;
-	Original->GetComponents<UVFDynamicMeshComponent>(VFDMComps);
 
 	// 递归子Actors
 	TArray<AActor *> ChildActors;

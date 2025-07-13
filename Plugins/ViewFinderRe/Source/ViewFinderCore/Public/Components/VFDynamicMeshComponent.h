@@ -78,6 +78,9 @@ public: // Enabled
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void SetEnabled(bool Enabled);
 
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	bool IsEnabled();
+
 protected:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
 	bool bEnabled = true;

@@ -55,9 +55,11 @@ AActor *UVFFunctions::CloneActorRuntime(
 	// 卸载VFDynamicComps
 	TMap<UVFDynamicMeshComponent *, USceneComponent *> Parents;
 	TArray<UVFDynamicMeshComponent *> DMComps;
+	TMap<UVFDynamicMeshComponent *, bool> EnableMap;
 	Original->GetComponents<UVFDynamicMeshComponent>(DMComps);
 	for (auto &DMComp : DMComps)
 	{
+		EnableMap.Emplace(DMComp, DMComp->IsEnabled());
 		DMComp->SetEnabled(false);
 		Parents.Add(DMComp, DMComp->GetAttachParent()); // 模拟物理的物体获得的是无效的.
 		DMComp->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
@@ -89,7 +91,7 @@ AActor *UVFFunctions::CloneActorRuntime(
 				FAttachmentTransformRules::KeepWorldTransform);
 		}
 		DMComp->RegisterComponent();
-		DMComp->SetEnabled(true);
+		DMComp->SetEnabled(EnableMap[DMComp]);
 
 		UVFDynamicMeshComponent *CopiedComp = NewVFDMComp(Copy, DMComp->GetClass());
 		CopiedComps.Add(CopiedComp);
@@ -106,6 +108,7 @@ AActor *UVFFunctions::CloneActorRuntime(
 		CopiedComp->RegisterComponent();
 		CopiedComp->Init(DMComp);
 		CopiedComp->CopyMeshFromComponent(DMComp);
+		CopiedComp->SetEnabled(EnableMap[DMComp]);
 	}
 
 	return Copy;

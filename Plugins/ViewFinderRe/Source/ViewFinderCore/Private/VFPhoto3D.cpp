@@ -145,7 +145,6 @@ void AVFPhoto3D::SetViewFrustumVisible(const bool &Visiblity)
 
 void AVFPhoto3D::SetVFDMCompsEnabled(const bool &Enabled)
 {
-	int Count = 0;
 	TArray<AActor *> Actors;
 	GetAttachedActors(Actors, true, true);
 	for (const auto &Actor : Actors)
@@ -156,7 +155,6 @@ void AVFPhoto3D::SetVFDMCompsEnabled(const bool &Enabled)
 		{
 			Comp->SetEnabled(Enabled);
 		}
-		Count = Count + VFDMComps.Num();
 	}
 }
 

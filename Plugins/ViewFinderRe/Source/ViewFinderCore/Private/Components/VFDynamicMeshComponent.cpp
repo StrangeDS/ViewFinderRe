@@ -38,7 +38,6 @@ void UVFDynamicMeshComponent::Init(UPrimitiveComponent *Source)
     */
     if (auto DMComp = Cast<UVFDynamicMeshComponent>(Source))
     {
-        bEnabled = DMComp->bEnabled;
         bSimulatePhysicsRecorder = DMComp->bSimulatePhysicsRecorder;
         bEnableGravityRecorder = DMComp->bEnableGravityRecorder;
         bCastShadowRecorder = DMComp->bCastShadowRecorder;
@@ -261,6 +260,11 @@ void UVFDynamicMeshComponent::SetEnabled(bool Enabled)
         if (bSimulatePhysicsRecorder)
             AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
     }
+}
+
+bool UVFDynamicMeshComponent::IsEnabled()
+{
+    return bEnabled;
 }
 
 UPrimitiveComponent *UVFDynamicMeshComponent::GetSourceComponent()
