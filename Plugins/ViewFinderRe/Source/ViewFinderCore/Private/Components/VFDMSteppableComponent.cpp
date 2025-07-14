@@ -18,7 +18,14 @@ void UVFDMSteppableComponent::BeginPlay()
 
     LocalPool = NewObject<UDynamicMeshPool>(this);
     if (UVFFunctions::IsEditorCreated(this))
-        Init(Cast<UPrimitiveComponent>(GetAttachParent()));
+    {
+        // 延迟一帧, 避免回溯时, 与其它地方BeginPlay的顺序问题
+        GetWorld()->GetTimerManager().SetTimerForNextTick(
+            [this]()
+            {
+                Init(Cast<UPrimitiveComponent>(GetAttachParent()));
+            });
+    }
 }
 
 void UVFDMSteppableComponent::Init(UPrimitiveComponent *Source)

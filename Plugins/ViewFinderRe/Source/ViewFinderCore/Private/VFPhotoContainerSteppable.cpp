@@ -142,7 +142,14 @@ bool AVFPhotoContainerSteppable::StepBack_Implementation(FVFStepInfo &StepInfo)
         break;
     }
     default:
+    {
+        if (StepInfo.Info == TEXT("PlaceCurrentPhoto"))
+        {
+            // Nothing to do.
+            return true;
+        }
         return false;
+    }
     }
 
     return true;

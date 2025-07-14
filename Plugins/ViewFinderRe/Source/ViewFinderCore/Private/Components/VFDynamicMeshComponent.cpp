@@ -38,6 +38,7 @@ void UVFDynamicMeshComponent::Init(UPrimitiveComponent *Source)
     */
     if (auto DMComp = Cast<UVFDynamicMeshComponent>(Source))
     {
+        bEnabled = DMComp->bEnabled;
         bSimulatePhysicsRecorder = DMComp->bSimulatePhysicsRecorder;
         bEnableGravityRecorder = DMComp->bEnableGravityRecorder;
         bCastShadowRecorder = DMComp->bCastShadowRecorder;

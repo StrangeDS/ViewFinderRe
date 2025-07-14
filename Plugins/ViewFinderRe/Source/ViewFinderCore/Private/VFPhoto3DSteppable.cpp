@@ -51,6 +51,12 @@ bool AVFPhoto3DSteppable::StepBack_Implementation(FVFStepInfo &StepInfo)
     {
     case EVFPhoto3DState::None:
     {
+        TArray<AActor*> Actors;
+        GetAttachedActors(Actors, true, true);
+        for (auto Actor : Actors)
+        {
+            Actor->Destroy();
+        }
         Destroy();
         break;
     }
