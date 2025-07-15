@@ -30,6 +30,11 @@ void AVFPhoto3D::BeginPlay()
 	Super::BeginPlay();
 
 	check(VFDMCompClass.Get());
+
+	if (UVFFunctions::IsEditorCreated(this))
+	{
+		SetVFDMCompsEnabled(false);
+	}
 }
 
 void AVFPhoto3D::FoldUp()
@@ -39,13 +44,6 @@ void AVFPhoto3D::FoldUp()
 	State = EVFPhoto3DState::Folded;
 
 	SetVFDMCompsEnabled(false);
-	TArray<AActor *> Actors;
-	GetAttachedActors(Actors, true, true);
-	for (const auto &Actor : Actors)
-	{
-		Actor->SetActorEnableCollision(false);
-		Actor->SetActorHiddenInGame(true);
-	}
 }
 
 void AVFPhoto3D::PlaceDown()
@@ -119,12 +117,6 @@ void AVFPhoto3D::PlaceDown()
 		{
 			Helper->NotifyDelegate(this, FVFHelperDelegateType::CopyBeforeBeingEnabled);
 		}
-
-		for (auto &Actor : ActorsInPhoto3D)
-		{
-			Actor->SetActorEnableCollision(true);
-			Actor->SetActorHiddenInGame(false);
-		}
 		SetVFDMCompsEnabled(true);
 	}
 
@@ -143,7 +135,7 @@ void AVFPhoto3D::SetViewFrustumVisible(const bool &Visiblity)
 	ViewFrustumRecorder->SetHiddenInGame(!Visiblity);
 }
 
-void AVFPhoto3D::SetVFDMCompsEnabled(const bool &Enabled)
+void AVFPhoto3D::SetVFDMCompsEnabled(const bool &Enabled, const bool IncludingActor)
 {
 	TArray<AActor *> Actors;
 	GetAttachedActors(Actors, true, true);
@@ -154,6 +146,11 @@ void AVFPhoto3D::SetVFDMCompsEnabled(const bool &Enabled)
 		for (const auto &Comp : VFDMComps)
 		{
 			Comp->SetEnabled(Enabled);
+		}
+		if (IncludingActor)
+		{
+			Actor->SetActorEnableCollision(Enabled);
+			Actor->SetActorHiddenInGame(!Enabled);
 		}
 	}
 }

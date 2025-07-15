@@ -37,7 +37,7 @@ public:
 	void SetViewFrustumVisible(const bool &Visiblity);
 
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")
-	void SetVFDMCompsEnabled(const bool &Enabled);
+	void SetVFDMCompsEnabled(const bool &Enabled, const bool IncludingActor = true);
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder|ClassSetting")
