@@ -1,6 +1,7 @@
 #include "VFDMSteppableComponent.h"
 
 #include "Engine/World.h"
+#include "TimerManager.h"
 
 #include "VFCommon.h"
 #include "VFDMCompPoolWorldSubsystem.h"
