@@ -25,11 +25,17 @@ void AVFPhotoCatcher_VirtualRender::Tick(float DeltaTime)
 
 void AVFPhotoCatcher_VirtualRender::DropDown_Implementation()
 {
-    auto PC = PlayerController;
-
-    Super::DropDown_Implementation();
-
-    PlayerController = PC;
-    AddPostProcessToPlayerCamera();
-    PlayerController = nullptr;
+    if (bAddPPAfterDropDown)
+    {
+        auto PC = PlayerController;
+        Super::DropDown_Implementation();
+        PlayerController = PC;
+        AddPostProcessToPlayerCamera();
+        PlayerController = nullptr;
+    }
+    else
+    {
+        Super::DropDown_Implementation();
+    }
+    bAddPPAfterDropDown = !bAddPPAfterDropDown;
 }

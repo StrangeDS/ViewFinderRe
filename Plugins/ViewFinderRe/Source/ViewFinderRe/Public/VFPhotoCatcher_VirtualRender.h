@@ -36,4 +36,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<UMaterialParameterCollectionInstance> MPCI;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	bool bAddPPAfterDropDown = true;
 };
