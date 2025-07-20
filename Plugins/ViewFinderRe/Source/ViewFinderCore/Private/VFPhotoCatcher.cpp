@@ -380,6 +380,33 @@ void AVFPhotoCatcher::ResetActorsToIgnore()
 	ActorsToIgnore.Reset();
 	ActorsToIgnore.AddUnique(this);
 }
+
+void AVFPhotoCatcher::DrawABackgroundPlaneInEditor()
+{
+	UWorld *World = GetWorld();
+	if (World->WorldType != EWorldType::Editor)
+	{
+		VF_LOG(Error, TEXT("%s is only called in editor."), __FUNCTIONW__);
+		return;
+	}
+
+	FScopedTransaction Transaction(FText::FromString(TEXT("DrawABackgroundPlaneInEditor")));
+
+	bool bUseTexture2DTemp = !IsValid(BackgroundCapture->TextureTarget);
+	if (bUseTexture2DTemp)
+		BackgroundCapture->Init();
+
+	auto Plane = BackgroundCapture->DrawABackground();
+	Plane->Modify();
+
+	if (PostProcess->IsAnyRule())
+	{
+		PostProcess->SetStencilValueNext(Plane);
+	}
+
+	if (bUseTexture2DTemp)
+		BackgroundCapture->TextureTarget = nullptr;
+}
 #endif
 
 void AVFPhotoCatcher::EnableScreen(const bool &Enabled)

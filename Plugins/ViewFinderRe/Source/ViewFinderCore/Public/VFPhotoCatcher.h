@@ -52,6 +52,9 @@ public:
 #if WITH_EDITOR
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")
 	void ResetActorsToIgnore();
+
+	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")
+	void DrawABackgroundPlaneInEditor();
 #endif
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
