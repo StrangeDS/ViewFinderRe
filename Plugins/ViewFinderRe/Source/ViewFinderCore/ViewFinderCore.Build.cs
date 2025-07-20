@@ -17,6 +17,7 @@ public class ViewFinderCore : ModuleRules
 				Path.Combine(ModuleDirectory, "Public/Interfaces"),
 				Path.Combine(ModuleDirectory, "Public/Subsystems"),
 				Path.Combine(ModuleDirectory, "Public/Generators"),
+				Path.Combine(ModuleDirectory, "Public/Config"),
 			}
 			);
 
@@ -28,6 +29,7 @@ public class ViewFinderCore : ModuleRules
 				Path.Combine(ModuleDirectory, "Private/Functions"),
 				Path.Combine(ModuleDirectory, "Private/Interfaces"),
 				Path.Combine(ModuleDirectory, "Private/Subsystems"),
+				Path.Combine(ModuleDirectory, "Private/Config"),
 			}
 			);
 
@@ -52,6 +54,8 @@ public class ViewFinderCore : ModuleRules
 				"GeometryCore",
 				"GeometryFramework",
 				"PhysicsCore",
+				"DeveloperSettings",
+				"Projects",
 			}
 			);
 

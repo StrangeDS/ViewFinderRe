@@ -2,11 +2,16 @@
 
 #include "ViewFinderCore.h"
 
+#include "Interfaces/IPluginManager.h"
+
+#include "ViewFinderReSettings.h"
+
 #define LOCTEXT_NAMESPACE "FViewFinderCoreModule"
 
 void FViewFinderCoreModule::StartupModule()
 {
 #if WITH_EDITOR
+	ReadPluginInfos();
 	AddPropertySections();
 	CheckConfigs();
 #endif
@@ -49,6 +54,22 @@ void FViewFinderCoreModule::CheckConfigs()
 			ensureMsgf(false,
 					   TEXT("SceneCapture2d has problem with VSM enabled. "
 							"Disable VSM or use engine with 5.4(or a higher version)."));
+		}
+	}
+}
+
+void FViewFinderCoreModule::ReadPluginInfos()
+{
+	IPluginManager &PluginManager = IPluginManager::Get();
+	TSharedPtr<IPlugin> ViewFinderRe = PluginManager.FindPlugin(TEXT("ViewFinderRe"));
+	if (ViewFinderRe.IsValid())
+	{
+		FPluginDescriptor PluginDescriptor = ViewFinderRe->GetDescriptor();
+		if (auto Setting = UViewFinderReSettings::Get(); ensure(Setting))
+		{
+			Setting->Descriptor.Description = PluginDescriptor.Description;
+			Setting->Descriptor.DocsURL = PluginDescriptor.DocsURL;
+			Setting->Descriptor.Developer = PluginDescriptor.CreatedBy;
 		}
 	}
 }

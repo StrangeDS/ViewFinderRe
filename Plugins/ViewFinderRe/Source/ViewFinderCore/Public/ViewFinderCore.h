@@ -15,5 +15,6 @@ public:
 public:
 	void AddPropertySections();
 	void CheckConfigs();
+	void ReadPluginInfos();
 #endif
 };
