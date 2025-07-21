@@ -19,7 +19,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	bool Unregister(AActor *Background);
 
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	UFUNCTION(BlueprintPure, Category = "ViewFinder")
 	TArray<AActor *> GetBackgrounds();
 
 public:

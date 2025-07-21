@@ -40,7 +40,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void SetPhoto3D(AVFPhoto3D *Photo);
 
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	UFUNCTION(BlueprintPure, Category = "ViewFinder")
 	AVFPhoto3D *GetPhoto3D();
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")

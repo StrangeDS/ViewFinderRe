@@ -32,7 +32,7 @@ public:
 	void ClearSceneCapturePostProcess();
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	UFUNCTION(BlueprintPure, Category = "ViewFinder")
 	bool IsAnyRule();
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
@@ -47,11 +47,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void RemoveCameraPostProcess(UCameraComponent *Camera);
 
-	UFUNCTION(BlueprintNativeEvent, Category = "ViewFinder")
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
 	void SetStencilValueNext(UPrimitiveComponent *Comp);
 	virtual void SetStencilValueNext_Implementation(UPrimitiveComponent *Comp);
 
-	UFUNCTION(BlueprintNativeEvent, Category = "ViewFinder")
+	UFUNCTION(BlueprintPure, BlueprintNativeEvent, Category = "ViewFinder")
 	int GetStencilValueNext(int Stencil);
 	virtual int GetStencilValueNext_Implementation(int Stencil);
 

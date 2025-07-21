@@ -28,10 +28,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	UFUNCTION(BlueprintPure, Category = "ViewFinder")
 	FORCEINLINE float GetTime() { return Time; }
 
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	UFUNCTION(BlueprintPure, Category = "ViewFinder")
 	FORCEINLINE float GetDeltaTime() { return TickInterval; }
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
@@ -132,7 +132,7 @@ public:
 
 	// 实时获取, 适合低频率, 事件驱动
 public:
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder",
+	UFUNCTION(BlueprintPure, Category = "ViewFinder",
 			  meta = (WorldContext = "WorldContext"))
 	static UVFStepsRecorderWorldSubsystem *GetStepsRecorder(
 		const UObject *WorldContext,

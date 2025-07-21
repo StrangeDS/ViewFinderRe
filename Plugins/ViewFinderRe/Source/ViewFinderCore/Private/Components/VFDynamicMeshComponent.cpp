@@ -3,11 +3,27 @@
 #include "VFCommon.h"
 #include "VFDMCompPoolWorldSubsystem.h"
 #include "VFGeometryFunctions.h"
+#include "VFFunctions.h"
 
 UVFDynamicMeshComponent::UVFDynamicMeshComponent(const FObjectInitializer &ObjectInitializer)
     : UDynamicMeshComponent(ObjectInitializer)
 {
     SetMobility(EComponentMobility::Movable);
+}
+
+void UVFDynamicMeshComponent::BeginPlay()
+{
+    Super::BeginPlay();
+
+    if (UVFFunctions::IsEditorCreated(this))
+    {
+        // 延迟一帧, 避免回溯时, 与其它地方BeginPlay的顺序问题
+        GetWorld()->GetTimerManager().SetTimerForNextTick(
+            [this]()
+            {
+                Init(Cast<UPrimitiveComponent>(GetAttachParent()));
+            });
+    }
 }
 
 void UVFDynamicMeshComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -19,7 +35,7 @@ void UVFDynamicMeshComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void UVFDynamicMeshComponent::Init(UPrimitiveComponent *Source)
 {
-    check(Source);
+    check(bSimulatePhysicsRecorder || Source);
     SourceComponent = Source;
 
     /*

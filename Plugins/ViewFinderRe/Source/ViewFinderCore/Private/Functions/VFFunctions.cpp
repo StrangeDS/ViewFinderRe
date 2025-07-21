@@ -172,6 +172,7 @@ TArray<UVFDynamicMeshComponent *> UVFFunctions::CheckVFDMComps(
 					VFDMComp->RegisterComponent();
 					VFDMComp->Init(PrimComp);
 					VFDMComp->ReplaceMeshForComponent(PrimComp);
+					VFDMComp->SetEnabled(true);
 
 					Result.Add(VFDMComp);
 				}

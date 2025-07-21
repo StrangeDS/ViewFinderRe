@@ -45,6 +45,9 @@ UVFDynamicMeshComponent *UVFDMCompPoolWorldSubsystem::GetOrCreateComp(
     CompRes = NewObject<UVFDynamicMeshComponent>(Outer, CompClass, NAME_None);
     PoolsOfAll.FindOrAdd(CompClass).Comps.Add(CompRes);
 
+    ensureMsgf(!CompRes->IsEnabled(),
+               TEXT("%s must get comp not enabled."),
+               __FUNCTIONW__);
     return CompRes;
 }
 
@@ -53,6 +56,10 @@ bool UVFDMCompPoolWorldSubsystem::ReturnComp(UVFDynamicMeshComponent *Comp)
     auto CompClass = Comp->GetClass();
     if (!PoolsOfAll.Contains(CompClass) || !PoolsOfAll[CompClass].Comps.Contains(Comp))
         return false;
+
+    ensureMsgf(!Comp->IsEnabled(),
+               TEXT("%s must return comp not enabled."),
+               __FUNCTIONW__);
 
     Comp->Rename(nullptr, this);
     PoolsOfAvailable.FindOrAdd(CompClass).Comps.AddUnique(Comp);
