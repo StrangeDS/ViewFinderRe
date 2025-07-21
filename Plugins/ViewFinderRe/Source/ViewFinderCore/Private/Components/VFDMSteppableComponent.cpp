@@ -169,7 +169,8 @@ void UVFDMSteppableComponent::TickBackward_Implementation(float Time)
             UnregisterComponent();
             Actor->RemoveInstanceComponent(this);
             Clear();
-            if (PoolSubsystem)
+
+            if (!UVFFunctions::IsEditorCreated(this) && PoolSubsystem)
             {
                 if (!PoolSubsystem->ReturnComp(this))
                 {

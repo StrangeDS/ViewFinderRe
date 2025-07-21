@@ -132,6 +132,8 @@ public:
 
 	// 实时获取, 适合低频率, 事件驱动
 public:
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder",
+			  meta = (WorldContext = "WorldContext"))
 	static UVFStepsRecorderWorldSubsystem *GetStepsRecorder(
 		const UObject *WorldContext,
 		const EVFStepsRecorderSubsystemCheckMode &Mode = EVFStepsRecorderSubsystemCheckMode::RequireRewinding);
