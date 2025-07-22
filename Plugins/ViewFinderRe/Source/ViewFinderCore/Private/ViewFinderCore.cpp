@@ -67,9 +67,9 @@ void FViewFinderCoreModule::ReadPluginInfos()
 		FPluginDescriptor PluginDescriptor = ViewFinderRe->GetDescriptor();
 		if (auto Setting = UViewFinderReSettings::Get(); ensure(Setting))
 		{
-			Setting->Descriptor.Description = PluginDescriptor.Description;
-			Setting->Descriptor.DocsURL = PluginDescriptor.DocsURL;
-			Setting->Descriptor.Developer = PluginDescriptor.CreatedBy;
+			Setting->Description = PluginDescriptor.Description;
+			Setting->DocsURL = PluginDescriptor.DocsURL;
+			Setting->Developer = PluginDescriptor.CreatedBy;
 		}
 	}
 }

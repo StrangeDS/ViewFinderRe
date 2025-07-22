@@ -8,6 +8,7 @@
 #include "VFCommon.h"
 #include "VFPhotoCaptureComponent.h"
 #include "VFViewFrustumComponent.h"
+#include "ViewFinderReSettings.h"
 
 AVFPhotoDecal::AVFPhotoDecal()
 {
@@ -77,6 +78,7 @@ void AVFPhotoDecal::DrawDecal(bool ForceToUpdate)
         MaterialInstance->SetVectorParameterValue(TEXT("DecalSize"), Decal->DecalSize);
         MaterialInstance->SetScalarParameterValue(TEXT("FOVAngle"), ViewAngle);
         MaterialInstance->SetScalarParameterValue(TEXT("AspectRatio"), AspectRatio);
+        MaterialInstance->SetScalarParameterValue(TEXT("LightFix"), GetDefault<UViewFinderReSettings>()->PhotoDecalLightFix);
 
         CaptureOfDecal->CaptureScene();
         if (!IsValid(TextureOfDecal) || ForceToUpdate)

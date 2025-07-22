@@ -96,10 +96,7 @@ public:
 	bool bIsRewinding = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	float RewindFactor = 3.0f;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	float RewindCurFactor = RewindFactor;
+	float RewindCurFactor = 3.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	float Time = TIME_MIN;
@@ -113,15 +110,11 @@ public:
 
 	static inline const float TIME_MAX = 1e6;				// 计时器时间的最大值(最大时间)
 	static inline const float TIME_MIN = 1e-6;				// 计时器时间的最小值(开始时间)
-	static inline const int SecondsOfAnHour = 60 * 60 * 20; // 一小时帧数, 默认20帧(TickInterval)
-#if WITH_EDITOR
-	static inline const int SizeRecommended = SecondsOfAnHour / 6;
-#else
-	// 推荐数组大小. 更好的做法是写一个内存分配器: 直接给定10分, 1小时, 1天等阶梯式的内存大小.
-	static inline const int SizeRecommended = SecondsOfAnHour;
-#endif
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	static int GetSizeRecommended();
+
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void RewindToLastKey();
 

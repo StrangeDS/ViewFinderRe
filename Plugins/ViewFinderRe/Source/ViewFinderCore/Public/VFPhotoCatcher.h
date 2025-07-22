@@ -110,6 +110,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypesToOverlap;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	bool bGenerateAPlaneActor = true;
+
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
 			  meta = (NoEditInline))

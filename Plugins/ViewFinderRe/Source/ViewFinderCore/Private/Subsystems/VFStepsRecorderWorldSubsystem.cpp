@@ -5,6 +5,7 @@
 #include "VFCommon.h"
 #include "VFStepsRecordInterface.h"
 #include "VFTransfromRecorderActor.h"
+#include "ViewFinderReSettings.h"
 
 TStatId UVFStepsRecorderWorldSubsystem::GetStatId() const
 {
@@ -15,7 +16,9 @@ void UVFStepsRecorderWorldSubsystem::OnWorldBeginPlay(UWorld &InWorld)
 {
     Super::OnWorldBeginPlay(InWorld);
 
-    Infos.Reserve(SizeRecommended * 10);
+    auto Setting = GetDefault<UViewFinderReSettings>();
+    TickInterval = Setting->StepsRecorderTickInterval;
+    Infos.Reserve(10 * GetSizeRecommended());
 }
 
 void UVFStepsRecorderWorldSubsystem::Tick(float DeltaTime)
@@ -34,6 +37,7 @@ void UVFStepsRecorderWorldSubsystem::Tick(float DeltaTime)
         TargetsNeedToRemove.Reset();
     }
 
+    RewindCurFactor = GetDefault<UViewFinderReSettings>()->StepsRecorderRewindFactor;
     TimeSinceLastTick += bIsRewinding ? DeltaTime * RewindCurFactor : DeltaTime;
     while (TimeSinceLastTick > TickInterval)
     {
@@ -182,6 +186,11 @@ void UVFStepsRecorderWorldSubsystem::EndRewinding()
     bIsRewinding = false;
 }
 
+int UVFStepsRecorderWorldSubsystem::GetSizeRecommended()
+{
+    return GetDefault<UViewFinderReSettings>()->StepsRecorderSizeRecommended;
+}
+
 void UVFStepsRecorderWorldSubsystem::RewindToLastKey()
 {
     for (int i = Infos.Num() - 1; i >= 0; i--)
@@ -190,14 +199,16 @@ void UVFStepsRecorderWorldSubsystem::RewindToLastKey()
         {
             float TimeSpan = (Time - Infos[i].Time + TickInterval);
             TimeSpan = FMath::Max(TimeSpan, TickInterval);
-            float Speed = TimeSpan / TimeOfRewindToLastKey;
+            float Speed = TimeSpan / GetDefault<UViewFinderReSettings>()
+                                         ->StepsRecorderTimeOfRewindToLastKey;
             Speed = FMath::Max(Speed, 1.0f);
             RewindCurFactor = Speed;
             StartRewinding();
             GetWorld()->GetTimerManager().SetTimer(
                 RewindHandle, [this, TimeSpan]()
                 {
-                    RewindCurFactor = RewindFactor;
+                    RewindCurFactor = GetDefault<UViewFinderReSettings>()
+                    ->StepsRecorderRewindFactor;
                     EndRewinding(); },
                 FMath::Min(TimeSpan, TimeOfRewindToLastKey),
                 false);

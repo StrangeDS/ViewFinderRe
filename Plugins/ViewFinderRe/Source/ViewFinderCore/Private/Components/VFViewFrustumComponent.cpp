@@ -1,6 +1,7 @@
 #include "VFViewFrustumComponent.h"
 
 #include "UObject/ConstructorHelpers.h"
+#include "ViewFinderReSettings.h"
 
 UVFViewFrustumComponent::UVFViewFrustumComponent()
 {
@@ -29,7 +30,7 @@ void UVFViewFrustumComponent::GenerateViewFrustum_Implementation(float Angle, fl
     check(StartDis > 0.0f);
     check(EndDis > 0.0f && StartDis < EndDis);
 
-    UVFGeometryFunctions::AppendFrustum(MeshObject, PrimitiveOptions, Angle, AspectRatio, StartDis, EndDis);
+    UVFGeometryFunctions::AppendFrustum(MeshObject, PrimitiveOptions, Angle, AspectRatio, StartDis, EndDis, GetDefault<UViewFinderReSettings>()->FrustumSegmentSize);
     UVFGeometryFunctions::SetDynamicMeshCollisionFromMesh(MeshObject, this, CollisionOptions);
 }
 

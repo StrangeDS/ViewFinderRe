@@ -6,6 +6,7 @@
 #include "VFDMCompPoolWorldSubsystem.h"
 #include "VFStandInInterface.h"
 #include "VFHelperComponent.h"
+#include "ViewFinderReSettings.h"
 
 static USceneComponent *GetComponentByName(AActor *Actor, const FName &Name)
 {
@@ -30,9 +31,11 @@ static UVFDynamicMeshComponent *NewVFDMComp(
 	check(World);
 
 	UVFDynamicMeshComponent *Comp = nullptr;
-	if (auto CompsPool = World->GetSubsystem<UVFDMCompPoolWorldSubsystem>())
+	if (GetDefault<UViewFinderReSettings>()->bUseVFDMCompPool)
 	{
-		Comp = CompsPool->GetOrCreateComp(Outer, Class);
+		if (auto CompsPool = World->GetSubsystem<UVFDMCompPoolWorldSubsystem>();
+			ensureMsgf(CompsPool, TEXT("%s invalid CompsPool."), __FUNCTIONW__))
+			Comp = CompsPool->GetOrCreateComp(Outer, Class);
 	}
 	else
 	{

@@ -3,21 +3,19 @@
 #include "UnrealEngine.h"
 
 #include "VFDynamicMeshComponent.h"
-#include "VFDMSteppableComponent.h"
+#include "ViewFinderReSettings.h"
 
 UVFDMCompPoolWorldSubsystem::UVFDMCompPoolWorldSubsystem()
 {
-    PrepareNum = {
-        {UVFDynamicMeshComponent::StaticClass(), 100},
-        {UVFDMSteppableComponent::StaticClass(), 100},
-    };
 }
 
 void UVFDMCompPoolWorldSubsystem::Initialize(FSubsystemCollectionBase &Collection)
 {
     Super::Initialize(Collection);
 
-    PreparePools();
+    auto Setting = GetDefault<UViewFinderReSettings>();
+    if (Setting->bUseVFDMCompPool)
+        PreparePools(Setting->CompPoolPrepareNum);
 }
 
 void UVFDMCompPoolWorldSubsystem::Deinitialize()
@@ -66,7 +64,7 @@ bool UVFDMCompPoolWorldSubsystem::ReturnComp(UVFDynamicMeshComponent *Comp)
     return true;
 }
 
-void UVFDMCompPoolWorldSubsystem::PreparePools()
+void UVFDMCompPoolWorldSubsystem::PreparePools(const TMap<TSubclassOf<UVFDynamicMeshComponent>, int> &PrepareNum)
 {
     for (auto [CompClass, Num] : PrepareNum)
     {

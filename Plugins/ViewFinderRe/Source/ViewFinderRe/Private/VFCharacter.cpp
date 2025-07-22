@@ -77,7 +77,7 @@ void AVFCharacter::BeginPlay()
 		VF_LOG(Error, TEXT("%s invalid StepsRecorder."), __FUNCTIONW__);
 		return;
 	}
-	Steps.Reserve(UVFStepsRecorderWorldSubsystem::SizeRecommended);
+	Steps.Reserve(UVFStepsRecorderWorldSubsystem::GetSizeRecommended());
 	StepsRecorder->RegisterTickable(this);
 }
 

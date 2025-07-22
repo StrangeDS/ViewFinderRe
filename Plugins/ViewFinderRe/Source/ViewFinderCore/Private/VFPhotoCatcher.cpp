@@ -336,13 +336,16 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 	Photo2D->SetPhoto(PhotoCapture);
 	PhotoCapture->HiddenActors = ActorsToIgnore;
 
-	// 背景绘制. 注意如果在拍摄照片前, 同一帧绘制会导致照片捕捉为未渲染状态.
-	auto Plane = BackgroundCapture->DrawABackground();
-	if (PostProcess->IsAnyRule())
+	if (bGenerateAPlaneActor)
 	{
-		PostProcess->SetStencilValueNext(Plane);
+		// 背景绘制. 注意如果在拍摄照片前, 同一帧绘制会导致照片捕捉为未渲染状态.
+		auto Plane = BackgroundCapture->DrawABackground();
+		if (PostProcess->IsAnyRule())
+		{
+			PostProcess->SetStencilValueNext(Plane);
+		}
+		Plane->GetOwner()->AttachToActor(Photo3D, FAttachmentTransformRules::KeepWorldTransform);
 	}
-	Plane->GetOwner()->AttachToActor(Photo3D, FAttachmentTransformRules::KeepWorldTransform);
 
 	// Photo2D和Photo3D的后续处理
 	{

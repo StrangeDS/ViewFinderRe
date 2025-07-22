@@ -14,7 +14,7 @@ void AVFPhotoContainerSteppable::BeginPlay()
                                                        &AVFPhotoContainerSteppable::HandleEndRewinding);
     }
 
-    Steps.Reserve(UVFStepsRecorderWorldSubsystem::SizeRecommended);
+    Steps.Reserve(UVFStepsRecorderWorldSubsystem::GetSizeRecommended());
 }
 
 void AVFPhotoContainerSteppable::AddAPhoto(AVFPhoto2D *Photo)
