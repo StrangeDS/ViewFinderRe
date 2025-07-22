@@ -13,6 +13,9 @@ class VIEWFINDERRE_API AVFPhoto2D_Interact : public AVFPhoto2DSteppable, public 
 	GENERATED_BODY()
 
 public:
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
+
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TSubclassOf<UUserWidget> AimingHintUMGClass;
 

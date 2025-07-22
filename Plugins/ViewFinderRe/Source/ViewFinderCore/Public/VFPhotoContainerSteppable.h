@@ -16,7 +16,8 @@ enum class EVFPhotoContainerSteppableOperation : uint8
 	ChangeNext,
 	ChangeLast,
 	Enabled,
-	Disabled
+	Disabled,
+	MAX
 };
 
 USTRUCT(BlueprintType)

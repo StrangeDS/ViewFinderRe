@@ -2,6 +2,8 @@
 
 #include "Materials/MaterialParameterCollectionInstance.h"
 
+#include "VFStepsRecorderWorldSubsystem.h"
+
 AVFPhotoCatcher_VirtualRender::AVFPhotoCatcher_VirtualRender()
     : Super()
 {
@@ -25,17 +27,27 @@ void AVFPhotoCatcher_VirtualRender::Tick(float DeltaTime)
 
 void AVFPhotoCatcher_VirtualRender::DropDown_Implementation()
 {
-    if (bAddPPAfterDropDown)
+    if (auto StepsRecorder =
+            UVFStepsRecorderWorldSubsystem::GetStepsRecorder(
+                this, EVFStepsRecorderSubsystemCheckMode::IgnoreRewinding);
+        StepsRecorder->bIsRewinding)
     {
-        auto PC = PlayerController;
         Super::DropDown_Implementation();
-        PlayerController = PC;
-        AddPostProcessToPlayerCamera();
-        PlayerController = nullptr;
     }
     else
     {
-        Super::DropDown_Implementation();
+        if (bAddPPAfterDropDown)
+        {
+            auto PC = PlayerController;
+            Super::DropDown_Implementation();
+            PlayerController = PC;
+            AddPostProcessToPlayerCamera();
+            PlayerController = nullptr;
+        }
+        else
+        {
+            Super::DropDown_Implementation();
+        }
+        bAddPPAfterDropDown = !bAddPPAfterDropDown;
     }
-    bAddPPAfterDropDown = !bAddPPAfterDropDown;
 }

@@ -20,12 +20,12 @@ bool AVFPhotoCatcher_PickUp::Interact_Implementation(APlayerController *Controll
     // 需要根据角色重写
     if (auto VFCharacter = Cast<AVFCharacter>(Pawn))
     {
-        TScriptInterface<IVFActivatableInterface> Equipment(this);
-        VFCharacter->AddEquipment(Equipment);
-        VFCharacter->SwitchEquipment(Equipment);
         if (auto ToAttach = Pawn->GetComponentByClass<UCameraComponent>())
         {
             PickUp(ToAttach);
+            TScriptInterface<IVFActivatableInterface> Equipment(this);
+            VFCharacter->AddEquipment(Equipment);
+            VFCharacter->SwitchEquipment(Equipment);
             return true;
         }
     }
@@ -110,7 +110,7 @@ void AVFPhotoCatcher_PickUp::DropDown_Implementation()
     if (!bPickedUp)
         return;
 
-    auto CompAttatched = RootComponent->GetAttachParent();
+    auto PC = PlayerController;
 
     ActorsToIgnore.AddUnique(GetAttachParentActor());
     DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
@@ -132,7 +132,7 @@ void AVFPhotoCatcher_PickUp::DropDown_Implementation()
         FVFPhotoCatcherPickUpStepInfo Info(
             EVFPhotoCatcherPickUpOption::DroppedDown,
             GetActorTransform(),
-            CompAttatched);
+            PC);
         StepInfos.Emplace(Info);
         StepsRecorder->SubmitStep(
             this,
@@ -192,6 +192,16 @@ void AVFPhotoCatcher_PickUp::Activate_Implementation()
     }
 
     AddPostProcessToPlayerCamera();
+
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
+    {
+        StepsRecorder->SubmitStep(
+            this,
+            FVFStepInfo{
+                EnumToString<EVFPhotoCatcherPickUpOption>(
+                    EVFPhotoCatcherPickUpOption::Activate),
+            });
+    }
 }
 
 void AVFPhotoCatcher_PickUp::Deactivate_Implementation()
@@ -207,6 +217,16 @@ void AVFPhotoCatcher_PickUp::Deactivate_Implementation()
     }
 
     SetActorHiddenInGame(true);
+
+    if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
+    {
+        StepsRecorder->SubmitStep(
+            this,
+            FVFStepInfo{
+                EnumToString<EVFPhotoCatcherPickUpOption>(
+                    EVFPhotoCatcherPickUpOption::Deactivate),
+            });
+    }
 }
 
 bool AVFPhotoCatcher_PickUp::CanActivate_Implementation()
@@ -228,23 +248,35 @@ bool AVFPhotoCatcher_PickUp::StepBack_Implementation(FVFStepInfo &StepInfo)
         return true;
     }
 
-    auto Info = StepInfos.Pop(false);
     switch (Option)
     {
     case EVFPhotoCatcherPickUpOption::PickedUp:
     {
+        auto Info = StepInfos.Pop(false);
         DropDown();
         SetActorTransform(Info.Transform);
         return true;
     }
     case EVFPhotoCatcherPickUpOption::DroppedDown:
     {
-        if (IsValid(Info.CompAttached))
+        auto Info = StepInfos.Pop(false);
+        if (IsValid(Info.PlayerController))
         {
-            PickUp(Info.CompAttached);
+            Execute_Interact(this, Info.PlayerController);
             return true;
         }
+        StepInfos.Pop();
         return false;
+    }
+    case EVFPhotoCatcherPickUpOption::Activate:
+    {
+        Execute_Deactivate(this);
+        return true;
+    }
+    case EVFPhotoCatcherPickUpOption::Deactivate:
+    {
+        Execute_Activate(this);
+        return true;
     }
     default:
         return false;

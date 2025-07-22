@@ -222,6 +222,7 @@ void AVFPhotoContainerSteppable::TickBackward_Implementation(float Time)
             SetEnabled(true);
             break;
         }
+        case EVFPhotoContainerSteppableOperation::MAX:
         default:
             return;
         }

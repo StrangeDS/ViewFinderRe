@@ -14,6 +14,8 @@ enum class EVFPhotoCatcherPickUpOption : uint8
 {
 	PickedUp,
 	DroppedDown,
+	Activate,
+	Deactivate,
 	MAX,
 };
 
@@ -32,7 +34,7 @@ struct FVFPhotoCatcherPickUpStepInfo
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
 			  meta = (EditCondition = "Option == EVFPhotoCatcherPickUpOption::DroppedDown"))
-	TObjectPtr<USceneComponent> CompAttached;
+	TObjectPtr<APlayerController> PlayerController;
 };
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))

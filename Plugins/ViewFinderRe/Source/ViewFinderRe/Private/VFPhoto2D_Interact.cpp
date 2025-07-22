@@ -5,6 +5,17 @@
 
 #include "VFPhotoContainerInterface.h"
 
+void AVFPhoto2D_Interact::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    if (IsValid(AimingHintUMG))
+    {
+        AimingHintUMG->RemoveFromParent();
+        AimingHintUMG->MarkAsGarbage();
+    }
+
+    Super::EndPlay(EndPlayReason);
+}
+
 bool AVFPhoto2D_Interact::StartAiming_Implementation(APlayerController *Controller)
 {
     if (!AimingHintUMGClass.Get())
