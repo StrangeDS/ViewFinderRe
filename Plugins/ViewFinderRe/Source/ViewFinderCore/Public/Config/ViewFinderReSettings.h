@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Engine/DeveloperSettings.h"
 #include "VFSettingHeaders.h"
+#include "Components/DynamicMeshComponent.h"
 #include "ViewFinderReSettings.generated.h"
 
 class UVFDynamicMeshComponent;

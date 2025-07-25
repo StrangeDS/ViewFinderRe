@@ -39,6 +39,7 @@ public class ViewFinderCore : ModuleRules
 			{
 				"Core",
 				"DynamicMesh",
+				"GeometryFramework",
 				// "GeometryScriptingCore",
 			}
 			);
@@ -52,7 +53,6 @@ public class ViewFinderCore : ModuleRules
 				"MeshConversionEngineTypes",
 				"ModelingComponents",
 				"GeometryCore",
-				"GeometryFramework",
 				"PhysicsCore",
 				"DeveloperSettings",
 				"Projects",
