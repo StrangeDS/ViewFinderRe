@@ -13,6 +13,24 @@ UVFBackgroundCaptureComponent::UVFBackgroundCaptureComponent()
     PlaneActorClass = AVFPlaneActor::StaticClass();
 }
 
+#if WITH_EDITOR
+#include "Misc/DataValidation.h"
+
+EDataValidationResult UVFBackgroundCaptureComponent::IsDataValid(FDataValidationContext &Context) const
+{
+	if (Super::IsDataValid(Context) == EDataValidationResult::Invalid)
+		return EDataValidationResult::Invalid;
+
+    if (!PlaneActorClass.Get())
+    {
+        Context.AddError(FText::FromString(TEXT("PlaneActorClass is invalid.")));
+        return EDataValidationResult::Invalid;
+    }
+
+    return EDataValidationResult::Valid;
+}
+#endif
+
 UPrimitiveComponent *UVFBackgroundCaptureComponent::DrawABackgroundWithSize(
     float Distance, float Width, float Height)
 {

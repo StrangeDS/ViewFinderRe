@@ -88,6 +88,36 @@ void AVFPhotoCatcher::OnConstruction(const FTransform &Transform)
 	}
 }
 
+#if WITH_EDITOR
+#include "Misc/DataValidation.h"
+
+EDataValidationResult AVFPhotoCatcher::IsDataValid(FDataValidationContext &Context) const
+{
+	if (Super::IsDataValid(Context) == EDataValidationResult::Invalid)
+		return EDataValidationResult::Invalid;
+
+	bool AllValid = true;
+	if (!VFDMCompClass.Get())
+	{
+		Context.AddError(FText::FromString(TEXT("VFDMCompClass is invalid.")));
+		AllValid &= false;
+	}
+	if (!VFPhoto2DClass.Get())
+	{
+		Context.AddError(FText::FromString(TEXT("VFPhoto2DClass is invalid.")));
+		AllValid &= false;
+	}
+	if (!VFPhoto3DClass.Get())
+	{
+		Context.AddError(FText::FromString(TEXT("VFPhoto3DClass is invalid.")));
+		AllValid &= false;
+	}
+
+	return AllValid ? EDataValidationResult::Valid
+					: EDataValidationResult::Invalid;
+}
+#endif
+
 void AVFPhotoCatcher::BeginPlay()
 {
 	Super::BeginPlay();

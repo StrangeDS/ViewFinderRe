@@ -40,6 +40,24 @@ void UVFHelperComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
+#if WITH_EDITOR
+#include "Misc/DataValidation.h"
+
+EDataValidationResult UVFHelperComponent::IsDataValid(FDataValidationContext &Context) const
+{
+	if (Super::IsDataValid(Context) == EDataValidationResult::Invalid)
+		return EDataValidationResult::Invalid;
+
+	if (bReplacedWithStandIn && !StandInClass.Get())
+	{
+		Context.AddError(FText::FromString(TEXT("StandInClass is invalid.")));
+		return EDataValidationResult::Invalid;
+	}
+
+	return EDataValidationResult::Valid;
+}
+#endif
+
 bool UVFHelperComponent::NotifyDelegate(UObject *Sender, const FVFHelperDelegateType &Type)
 {
 	switch (Type)

@@ -37,6 +37,24 @@ void AVFPhoto3D::BeginPlay()
 	}
 }
 
+#if WITH_EDITOR
+#include "Misc/DataValidation.h"
+
+EDataValidationResult AVFPhoto3D::IsDataValid(FDataValidationContext &Context) const
+{
+	if (Super::IsDataValid(Context) == EDataValidationResult::Invalid)
+		return EDataValidationResult::Invalid;
+
+	if (!VFDMCompClass.Get())
+	{
+		Context.AddError(FText::FromString(TEXT("VFDMCompClass is invalid.")));
+		return EDataValidationResult::Invalid;
+	}
+
+	return EDataValidationResult::Valid;
+}
+#endif
+
 void AVFPhoto3D::FoldUp()
 {
 	if (State == EVFPhoto3DState::Folded)

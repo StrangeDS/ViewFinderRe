@@ -28,6 +28,7 @@ void AVFTransformRecordVolume::BeginPlay()
 {
     Super::BeginPlay();
 
+    check(CompClass.Get());
     Helper->OnCopyEndPlacingPhoto.AddUniqueDynamic(
         this,
         &AVFTransformRecordVolume::HandleCopyEndPlacingPhoto);

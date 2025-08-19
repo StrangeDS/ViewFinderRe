@@ -15,6 +15,10 @@ class VIEWFINDERCORE_API UVFBackgroundCaptureComponent : public UVFPhotoCaptureC
 public:
 	UVFBackgroundCaptureComponent();
 
+#if WITH_EDITOR
+	virtual EDataValidationResult IsDataValid(class FDataValidationContext& Context) const override;
+#endif
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	UPrimitiveComponent *DrawABackgroundWithSize(float Distance, float Width, float Height);
