@@ -20,10 +20,10 @@ struct FVFPhotoDecalRecordProps
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
-	bool bSimulatePhysics;
+	bool bSimulatePhysics = false;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
-	bool bGravity;
+	bool bGravity = false;
 };
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))

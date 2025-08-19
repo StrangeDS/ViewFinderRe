@@ -33,7 +33,7 @@ void UVFDMSteppableComponent::Init(UPrimitiveComponent *Source)
             StepsRecorder->Time});
         StepsRecorder->RegisterTickable(this);
 
-        if (bSimulatePhysicsRecorder)
+        if (Props.bSimulatePhysicsRecorder)
         {
             StepsRecorder->RecordTransform(this);
 

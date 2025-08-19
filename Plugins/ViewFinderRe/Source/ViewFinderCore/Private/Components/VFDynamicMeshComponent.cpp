@@ -35,7 +35,7 @@ void UVFDynamicMeshComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 void UVFDynamicMeshComponent::Init(UPrimitiveComponent *Source)
 {
-    check(bSimulatePhysicsRecorder || Source);
+    check(Source);
     SourceComponent = Source;
 
     /*
@@ -55,9 +55,7 @@ void UVFDynamicMeshComponent::Init(UPrimitiveComponent *Source)
     if (auto DMComp = Cast<UVFDynamicMeshComponent>(Source))
     {
         bEnabled = DMComp->bEnabled;
-        bSimulatePhysicsRecorder = DMComp->bSimulatePhysicsRecorder;
-        bEnableGravityRecorder = DMComp->bEnableGravityRecorder;
-        bCastShadowRecorder = DMComp->bCastShadowRecorder;
+        Props = DMComp->Props;
     }
 }
 
@@ -92,9 +90,9 @@ void UVFDynamicMeshComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
         UseSimpleCollision |= !Source->BodyInstance.GetBodySetup() ||
                               Source->BodyInstance.GetBodySetup()->GetCollisionTraceFlag() == ECollisionTraceFlag::CTF_UseSimpleAsComplex;
         SetComplexAsSimpleCollisionEnabled(!UseSimpleCollision, true);
-        bSimulatePhysicsRecorder = Source->BodyInstance.bSimulatePhysics;
-        bEnableGravityRecorder = Source->IsGravityEnabled();
-        bCastShadowRecorder = Source->CastShadow;
+        Props.bSimulatePhysicsRecorder = Source->BodyInstance.bSimulatePhysics;
+        Props.bEnableGravityRecorder = Source->IsGravityEnabled();
+        Props.bCastShadowRecorder = Source->CastShadow;
     }
     UpdateSimlpeCollision();
     SetCollisionEnabled(Source->GetCollisionEnabled());
@@ -116,9 +114,9 @@ void UVFDynamicMeshComponent::ReplaceMeshForComponent(UPrimitiveComponent *Sourc
     Source->SetCollisionEnabled(ECollisionEnabled::NoCollision);
     Source->SetHiddenInGame(true);
 
-    SetSimulatePhysics(bSimulatePhysicsRecorder);
-    SetEnableGravity(bEnableGravityRecorder);
-    SetCastShadow(bCastShadowRecorder);
+    SetSimulatePhysics(Props.bSimulatePhysicsRecorder);
+    SetEnableGravity(Props.bEnableGravityRecorder);
+    SetCastShadow(Props.bCastShadowRecorder);
 }
 
 void UVFDynamicMeshComponent::IntersectMeshWithDMComp(UDynamicMeshComponent *Tool)
@@ -267,14 +265,14 @@ void UVFDynamicMeshComponent::SetEnabled(bool Enabled)
 
     if (bEnabled)
     {
-        SetSimulatePhysics(bSimulatePhysicsRecorder);
-        SetEnableGravity(bEnableGravityRecorder);
+        SetSimulatePhysics(Props.bSimulatePhysicsRecorder);
+        SetEnableGravity(Props.bEnableGravityRecorder);
     }
     else
     {
         SetSimulatePhysics(false);
         SetEnableGravity(false);
-        if (bSimulatePhysicsRecorder)
+        if (Props.bSimulatePhysicsRecorder)
             AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
     }
 }
@@ -304,8 +302,8 @@ void UVFDynamicMeshComponent::RestoreSourceComponent()
     SourceComponent->SetHiddenInGame(false);
     SourceComponent->SetCollisionProfileName(GetCollisionProfileName());
     SourceComponent->SetCollisionEnabled(GetCollisionEnabled());
-    SourceComponent->SetSimulatePhysics(bSimulatePhysicsRecorder);
-    SourceComponent->BodyInstance.bEnableGravity = bEnableGravityRecorder;
+    SourceComponent->SetSimulatePhysics(Props.bSimulatePhysicsRecorder);
+    SourceComponent->BodyInstance.bEnableGravity = Props.bEnableGravityRecorder;
 }
 
 #if WITH_EDITOR

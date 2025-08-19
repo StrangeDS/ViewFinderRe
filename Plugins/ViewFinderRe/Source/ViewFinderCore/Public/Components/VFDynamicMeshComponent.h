@@ -4,6 +4,22 @@
 #include "Components/DynamicMeshComponent.h"
 #include "VFDynamicMeshComponent.generated.h"
 
+// 动态网格需要手动记录的属性
+USTRUCT(BlueprintType)
+struct FVFDMCompRecordProps
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	bool bSimulatePhysicsRecorder = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	bool bEnableGravityRecorder = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	bool bCastShadowRecorder = false;
+};
+
 UCLASS(Blueprintable, ClassGroup = (ViewFinder), meta = (BlueprintSpawnableComponent))
 class VIEWFINDERCORE_API UVFDynamicMeshComponent : public UDynamicMeshComponent
 {
@@ -87,12 +103,6 @@ protected:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
 	bool bEnabled = false;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
-	bool bSimulatePhysicsRecorder = false;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
-	bool bEnableGravityRecorder = false;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
-	bool bCastShadowRecorder = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	FVFDMCompRecordProps Props;
 };
