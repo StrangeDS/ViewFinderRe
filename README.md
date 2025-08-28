@@ -117,12 +117,16 @@ Photo2D索引Photo3D, 所以最简单的做法就是把场景放置在Photo3D中
 - [x] 贴花的不穿透影响: 实现是使用一个场景捕捉当前的场景深度, 给入贴花中, 贴花比较深度纹理和像素深度, 前者 >= 后者时意味着像素在相机拍摄到的深度上, 即不穿透的面. 目前使用额外的场景捕捉单独捕获深度, SCS_SceneColorSceneDepth似乎有版本问题, 我这无法使用.
 - [x] 后处理相关
 - [x] Demo场景
+- [ ] 模块重构: 最重要的是解决策略的插件依赖问题, 当前使用的条件编译 -> 应该使用多个模块拆分.
+- [ ] ViewFinderReSettings是错误的, 只能在编辑器中使用, 模块重建会有对应的模块Editor, 所以靠后.
 - [ ] README更新
 - [ ] DrawATexture2D还需要一个DrawOnTexture2D
 - [x] 插件全局配置
 - [x] background总是拍到自己: Capture放到生成PlaneActor之前
 - [ ] 插件设置: Geometry相关
 - [ ] 未完全解决展示 
+- [ ] 添加BlueprintType
+- [ ] Pref检查: 不应当复制自己
 
 ### 各系统讲解:
 1. 物体Transform回溯:
@@ -262,6 +266,105 @@ Photo2D索引Photo3D, 所以最简单的做法就是把场景放置在Photo3D中
 7. 西瓜: 估计是材质实现.
 
 ## 代码框架
+
+### 模块关系
+为理想的模块关系, 工作量太大不会做完
+
+#### VFLog
+提供日志宏定义, 简化日志使用
+插件内的日志都走这里, 其被依赖处没有写出
+
+
+#### VFGeometryGSBase
+接口: VFGeometryStrategyInterface
+定义几何策略接口, 提供胶水头文件
+
+#### VFGSGeometryScript: 依赖VFGeometry
+几何策略实现: 通过GeometryScript插件实现
+#### VFGSGeometryScriptNative: 依赖VFGeometry
+几何策略实现: 本地化GeometryScript插件
+
+### VFCompsPool
+子系统: VFDMCompPoolWorldSubsystem
+独立的组件对象池世界子系统
+
+#### VFGeometry
+依赖: VFGeometryGSBase, VFGSGeometryScript/VFGSGeometryScriptNative
+组件: VFDynamicMeshComponent, VFViewFrustumComponent
+FunctionsLib: VFGeometryFunctions
+配置类: 提供几何策略的配置, 视锥生成策略和参数, 碰撞拟合默认参数
+组合几何策略的功能到动态网格体组件中
+#### VFGeometryEditor
+依赖: VFGeometry
+配置类注册
+
+
+### VFPhotoCommon
+依赖: VFGeometry 
+组件: VFPhotoCaptureComponent, VFHelperComponent, 
+接口: IVFHelperInterface
+配置类: 提供Helper搜索策略配置
+VFPhotoCatcher和VFPhotoDecal的公用部分
+### VFPhotoCommonEditor
+依赖: VFGeometry
+配置类注册
+
+### VFActorsRegistar
+世界子系统: VFActorsRegistarWorldSubsystem
+独立的Actor注册系统
+
+### VFBackground
+依赖: VFActorsRegistar
+组件: VFBackgroundCaptureComponent
+世界子系统: VFBackgroundWorldSubsystem
+Actor: VFPlaneActor
+
+### VFPostProcess
+组件: VFPostProcessComponent
+引用后处理材质, 并根据规则修改场景捕捉或玩家相机的后处理效果
+
+### VFPhotoCatcher
+依赖: VFPhotoCommon, VFBackground, VFPostProcess
+接口: IVFStandInInterface
+Actor: PhotoCathcer, Photo2D, Photo3D, VFPawnStandIn
+FunctionsLib: VFFunctions
+配置类: 是否生成PlaneActor(使用VFBackground)
+### VFPhotoCatcherEditor
+依赖: VFPhotoCatcher
+配置类注册
+Actor: AVFPhotoCatcherPref
+
+### VFPhotoDecal
+依赖: VFPhotoCommon
+Actor: VFPhotoDecal
+配置类: 光照补偿
+### VFPhotoDecalEditor
+配置类注册
+
+
+### VFStepsRecorder
+接口: VFStepsRecordInterface
+世界子系统: VFStepsRecorderWorldSubsystem
+Actor: VFTransformRecordVolume, VFTransfromRecorderActor
+配置类: tick间隔, 回溯时间倍率, 预分配数组大小等
+
+### VFCore
+依赖: VFPhotoCatcher, VFPhotoDecal, VFStepsRecorder, VFCompsPool
+组件: VFDMSteppableComponent
+Actor: VFPhoto2DSteppable, VFPhoto3DSteppable, VFPhotoCatcherSteppable, VFPhotoDecalSteppable
+复刻ViewFinder核心功能(拍照, 贴花, 回溯), 最小化的模块.
+
+### VFInteract
+接口: VFInteractInterface, VFActivatableInterface
+提供可交互, 可启用的Actor接口定义
+
+### VFReplica
+依赖: VFCore, VFInteract
+组件:VFDMSteppableComponent, 
+接口: VFActivatebleInterface, VFPhotoContainerInterface
+Actor: VFPhotoContainer, VFCharacter, AVFPhoto2D_Interact, AVFPhotoCatcher_Fixed, AVFPhotoCatcher_PickUp, AVFPhotoContainer_Input
+对核心功能进行演示, 所需要的其它东西以及衍生出现的模块. 包括Actor提供UMG显示的交互接口, 以及设备Actor启用/关闭等接口, 以及实现接口的Actor和Pawn.
+
 ### 类图
 #### PhotoCatcher相关, 最为复杂, 设计两层接口和功能衍生
 ```mermaid
