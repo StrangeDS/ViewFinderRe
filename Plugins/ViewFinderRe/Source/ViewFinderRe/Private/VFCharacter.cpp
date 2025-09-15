@@ -11,7 +11,7 @@
 
 #include "Kismet/KismetSystemLibrary.h"
 
-#include "VFCommon.h"
+#include "VFLog.h"
 #include "VFInteractInterface.h"
 #include "VFHelperComponent.h"
 #include "VFPawnStandIn.h"

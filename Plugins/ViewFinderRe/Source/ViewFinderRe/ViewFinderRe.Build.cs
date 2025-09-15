@@ -26,7 +26,10 @@ public class ViewFinderRe : ModuleRules
 			new string[]
 			{
 				"Core",
-				"ViewFinderCore"
+
+				"VFCommon",
+				"VFInteract",
+				"ViewFinderCore",
 			}
 			);
 
@@ -37,7 +40,11 @@ public class ViewFinderRe : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"EnhancedInput",
-				"UMG"
+				"UMG",
+
+				"VFPhotoCommon",
+				"VFPhotoCatcher",
+				"VFStepsRecorder",
 			}
 			);
 

@@ -6,7 +6,7 @@
 
 #include "VFPhoto2D.h"
 #include "VFHelperComponent.h"
-#include "VFFunctions.h"
+#include "VFPCommonFunctions.h"
 
 AVFPhotoContainer::AVFPhotoContainer()
 {
@@ -170,7 +170,7 @@ void AVFPhotoContainer::PrepareCurrentPhoto_Move()
 	{
 		auto Rate = GetWorldTimerManager().GetTimerRate(PrepareTimeHandle);
 		Rate = 1 - Rate / TimeOfPrepare;
-		auto TransNext = UVFFunctions::TransformLerpNoScale(TransCur, TransTarget, Rate);
+		auto TransNext = UVFPCommonFunctions::TransformLerpNoScale(TransCur, TransTarget, Rate);
 		CurrentPhoto2D->SetActorTransform(TransNext);
 	}
 }
@@ -187,7 +187,7 @@ void AVFPhotoContainer::GiveUpPreparing_Move()
 	{
 		auto Rate = GetWorldTimerManager().GetTimerRate(PrepareTimeHandle);
 		Rate = 1 - Rate / TimeOfGivingUp;
-		auto TransNext = UVFFunctions::TransformLerpNoScale(TransCur, TransTarget, Rate);
+		auto TransNext = UVFPCommonFunctions::TransformLerpNoScale(TransCur, TransTarget, Rate);
 		CurrentPhoto2D->SetActorTransform(TransNext);
 	}
 }

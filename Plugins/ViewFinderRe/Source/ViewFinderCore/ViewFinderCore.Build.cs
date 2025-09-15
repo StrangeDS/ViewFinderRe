@@ -1,7 +1,6 @@
 // Copyright StrangeDS. All Rights Reserved.
 
 using UnrealBuildTool;
-using System.IO;
 
 public class ViewFinderCore : ModuleRules
 {
@@ -11,25 +10,14 @@ public class ViewFinderCore : ModuleRules
 
 		PublicIncludePaths.AddRange(
 			new string[] {
-				Path.Combine(ModuleDirectory, "Public"),
-				Path.Combine(ModuleDirectory, "Public/Components"),
-				Path.Combine(ModuleDirectory, "Public/Functions"),
-				Path.Combine(ModuleDirectory, "Public/Interfaces"),
-				Path.Combine(ModuleDirectory, "Public/Subsystems"),
-				Path.Combine(ModuleDirectory, "Public/Generators"),
-				Path.Combine(ModuleDirectory, "Public/Config"),
+				// ... add public include paths required here ...
 			}
 			);
 
 
 		PrivateIncludePaths.AddRange(
 			new string[] {
-				Path.Combine(ModuleDirectory, "Private"),
-				Path.Combine(ModuleDirectory, "Private/Components"),
-				Path.Combine(ModuleDirectory, "Private/Functions"),
-				Path.Combine(ModuleDirectory, "Private/Interfaces"),
-				Path.Combine(ModuleDirectory, "Private/Subsystems"),
-				Path.Combine(ModuleDirectory, "Private/Config"),
+				// ... add other private include paths required here ...
 			}
 			);
 
@@ -38,9 +26,12 @@ public class ViewFinderCore : ModuleRules
 			new string[]
 			{
 				"Core",
-				"DynamicMesh",
-				"GeometryFramework",
-				// "GeometryScriptingCore",
+
+				"VFCommon",
+				"VFPhotoCommon",
+				"VFPhotoCatcher",
+				"VFPhotoDecal",
+				"VFStepsRecorder",
 			}
 			);
 
@@ -50,12 +41,9 @@ public class ViewFinderCore : ModuleRules
 			{
 				"CoreUObject",
 				"Engine",
-				"MeshConversionEngineTypes",
-				"ModelingComponents",
-				"GeometryCore",
-				"PhysicsCore",
-				"DeveloperSettings",
-				"Projects",
+				"GeometryFramework",
+
+				"VFGeometry",
 			}
 			);
 

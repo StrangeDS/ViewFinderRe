@@ -5,9 +5,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "InputMappingContext.h"
 
-#include "VFCommon.h"
+#include "VFLog.h"
 #include "VFPhotoCaptureComponent.h"
-#include "VFFunctions.h"
+#include "VFPCommonFunctions.h"
 #include "VFCharacter.h"
 
 bool AVFPhotoCatcher_PickUp::Interact_Implementation(APlayerController *Controller)
@@ -158,7 +158,7 @@ void AVFPhotoCatcher_PickUp::CloseToPreview_Move()
     {
         auto Rate = GetWorldTimerManager().GetTimerRate(PreviewTimeHandle);
         Rate = 1 - Rate / TimeOfClose;
-        auto TransTarget = UVFFunctions::TransformLerp(TransCur, PreviewTrans, Rate);
+        auto TransTarget = UVFPCommonFunctions::TransformLerp(TransCur, PreviewTrans, Rate);
         RootComponent->SetRelativeTransform(TransTarget);
     }
 }
@@ -174,7 +174,7 @@ void AVFPhotoCatcher_PickUp::LeaveFromPreview_Move()
     {
         auto Rate = GetWorldTimerManager().GetTimerRate(PreviewTimeHandle);
         Rate = 1 - Rate / TimeOfLeave;
-        auto TransTarget = UVFFunctions::TransformLerp(TransCur, IdleTrans, Rate);
+        auto TransTarget = UVFPCommonFunctions::TransformLerp(TransCur, IdleTrans, Rate);
         RootComponent->SetRelativeTransform(TransTarget);
     }
 }

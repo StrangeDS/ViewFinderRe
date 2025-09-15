@@ -5,7 +5,7 @@
 #include "InputMappingContext.h"
 #include "Camera/CameraComponent.h"
 
-#include "VFCommon.h"
+#include "VFLog.h"
 #include "VFPostProcessComponent.h"
 
 bool AVFPhotoCatcher_Interact::StartAiming_Implementation(APlayerController *Controller)
