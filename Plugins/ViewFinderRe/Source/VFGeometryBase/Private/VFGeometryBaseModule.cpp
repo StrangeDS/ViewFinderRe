@@ -6,6 +6,21 @@
 
 void FVFGeometryBaseModule::StartupModule()
 {
+    auto &ModuleManager = FModuleManager::Get();
+    if (ModuleManager.IsModuleLoaded("GeometryScriptingCore"))
+    {
+        ModuleManager.LoadModule("VFGSGeometryScript");
+    }
+    else
+    {
+        ModuleManager.OnModulesChanged().AddLambda(
+            [&ModuleManager](FName Name, EModuleChangeReason Reason)
+            {
+				if (Name == "GeometryScriptingCore" && Reason == EModuleChangeReason::ModuleLoaded)
+				{
+					ModuleManager.LoadModule("VFGSGeometryScript");
+				} });
+    }
 }
 
 void FVFGeometryBaseModule::ShutdownModule()

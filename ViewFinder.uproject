@@ -19,8 +19,11 @@
 			]
 		},
 		{
-			"Name": "GeometryScripting",
-			"Enabled": true
+			"Name": "ViewFinderRe",
+			"Enabled": true,
+			"SupportedTargetPlatforms": [
+				"Win64"
+			]
 		}
 	]
 }

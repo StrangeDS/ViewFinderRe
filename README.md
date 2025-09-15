@@ -267,10 +267,13 @@ Photo2D索引Photo3D, 所以最简单的做法就是把场景放置在Photo3D中
 
 ## 代码框架
 
-### 模块关系
-为理想的模块关系, 工作量太大不会做完
+### 模块关系 
+模块VFGSGeometryScript依赖插件GeometryScript(默认关闭), 默认不开启.
+如需要使用VFGSGeometryScript, 开启插件GeometryScripting即可. 开启用有插件依赖警告, 无视即可. 
+在关闭插件GeometryScripting前, 请务必先设置GeometryStrategyClass为其它, 不然会出现项目启动断点到UVFGeometryFunctions::GetGeometryStrategyCDO.
+解决方案为: 删除DefaultViewFinderReSettings.ini中关于GeometryStrategyClass的配置即可.
 
-// 日志模块
+// 共用模块
 #### VFCommon
 提供日志宏定义, 简化日志使用, DeveloperSettings基础父类
 插件内的日志都走这里, 其被依赖处没有写出

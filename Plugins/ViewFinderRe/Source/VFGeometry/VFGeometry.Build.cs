@@ -29,7 +29,6 @@ public class VFGeometry : ModuleRules
 
 				"VFGeometryBase",
 				"VFUObjsPool",
-				"VFGSGeometryScriptNative",
 			}
 			);
 
@@ -41,7 +40,6 @@ public class VFGeometry : ModuleRules
 				"Engine",
 				"DeveloperSettings",
 				"GeometryFramework",
-				"DynamicMesh",
 				"PhysicsCore",
 
 				"VFCommon",
