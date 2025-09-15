@@ -270,77 +270,21 @@ Photo2D索引Photo3D, 所以最简单的做法就是把场景放置在Photo3D中
 ### 模块关系
 为理想的模块关系, 工作量太大不会做完
 
-#### VFLog
-提供日志宏定义, 简化日志使用
+// 日志模块
+#### VFCommon
+提供日志宏定义, 简化日志使用, DeveloperSettings基础父类
 插件内的日志都走这里, 其被依赖处没有写出
+配置类: 插件信息
 
+// 可拆功能模块
+### VFUObjsPool
+子系统: VFUObjsPoolWorldSubsystem
+接口: VFPoolableInterface
+独立的UObject对象池世界子系统
 
-#### VFGeometryGSBase
-接口: VFGeometryStrategyInterface
-定义几何策略接口, 提供胶水头文件
-
-#### VFGSGeometryScript: 依赖VFGeometry
-几何策略实现: 通过GeometryScript插件实现
-#### VFGSGeometryScriptNative: 依赖VFGeometry
-几何策略实现: 本地化GeometryScript插件
-
-### VFCompsPool
-子系统: VFDMCompPoolWorldSubsystem
-独立的组件对象池世界子系统
-
-#### VFGeometry
-依赖: VFGeometryGSBase, VFGSGeometryScript/VFGSGeometryScriptNative
-组件: VFDynamicMeshComponent, VFViewFrustumComponent
-FunctionsLib: VFGeometryFunctions
-配置类: 提供几何策略的配置, 视锥生成策略和参数, 碰撞拟合默认参数
-组合几何策略的功能到动态网格体组件中
-#### VFGeometryEditor
-依赖: VFGeometry
-配置类注册
-
-
-### VFPhotoCommon
-依赖: VFGeometry 
-组件: VFPhotoCaptureComponent, VFHelperComponent, 
-接口: IVFHelperInterface
-配置类: 提供Helper搜索策略配置
-VFPhotoCatcher和VFPhotoDecal的公用部分
-### VFPhotoCommonEditor
-依赖: VFGeometry
-配置类注册
-
-### VFActorsRegistar
-世界子系统: VFActorsRegistarWorldSubsystem
-独立的Actor注册系统
-
-### VFBackground
-依赖: VFActorsRegistar
-组件: VFBackgroundCaptureComponent
-世界子系统: VFBackgroundWorldSubsystem
-Actor: VFPlaneActor
-
-### VFPostProcess
-组件: VFPostProcessComponent
-引用后处理材质, 并根据规则修改场景捕捉或玩家相机的后处理效果
-
-### VFPhotoCatcher
-依赖: VFPhotoCommon, VFBackground, VFPostProcess
-接口: IVFStandInInterface
-Actor: PhotoCathcer, Photo2D, Photo3D, VFPawnStandIn
-FunctionsLib: VFFunctions
-配置类: 是否生成PlaneActor(使用VFBackground)
-### VFPhotoCatcherEditor
-依赖: VFPhotoCatcher
-配置类注册
-Actor: AVFPhotoCatcherPref
-
-### VFPhotoDecal
-依赖: VFPhotoCommon
-Actor: VFPhotoDecal
-配置类: 光照补偿
-### VFPhotoDecalEditor
-配置类注册
-
+### VFUObjsRegistar
+世界子系统: VFUObjsRegistarWorldSubsystem
+独立的UObject注册系统(不管理生命周期)
 
 ### VFStepsRecorder
 接口: VFStepsRecordInterface
@@ -348,17 +292,64 @@ Actor: VFPhotoDecal
 Actor: VFTransformRecordVolume, VFTransfromRecorderActor
 配置类: tick间隔, 回溯时间倍率, 预分配数组大小等
 
-### VFCore
-依赖: VFPhotoCatcher, VFPhotoDecal, VFStepsRecorder, VFCompsPool
+// 几何策略的定义和实现
+#### VFGeometryBase
+接口: VFGeometryStrategyInterface
+定义几何策略接口, 提供中间结构体头文件
+
+#### VFGSGeometryScript: 依赖VFGeometryBase
+几何策略实现: 通过GeometryScript插件实现
+#### VFGSGeometryScriptNative: 依赖VFGeometryBase
+几何策略实现: 本地化GeometryScript插件
+配置类: 视锥生成策略和参数
+
+// 几何模块中间层, 依赖几何策略, 对象池在此引入
+#### VFGeometry
+依赖: VFGeometryBase, VFGSGeometryScript/VFGSGeometryScriptNative, VFUObjsPool
+组件: VFDynamicMeshComponent, VFViewFrustumComponent
+FunctionsLib: VFGeometryFunctions调用具体策略实现
+配置类: 提供几何策略的配置, 碰撞拟合默认参数, 对象池相关
+组合几何策略的功能到动态网格体组件中
+
+// VFPhotoCatcher和VFPhotoDecal共用部分
+### VFPhotoCommon
+依赖: VFGeometry 
+组件: VFPhotoCaptureComponent, VFHelperComponent,
+Actor: VFPawnStandIn 
+接口: IVFHelperInterface, IVFStandInInterface
+FunctionsLib: VFPCommonFunctions提供Helper查找映射, 替身相关函数
+配置类: 提供Helper搜索策略配置
+VFPhotoCatcher和VFPhotoDecal的公用部分
+
+### VFPhotoCatcher
+依赖: VFPhotoCommon, VFUObjsRegistar
+组件: VFBackgroundCaptureComponent, VFPostProcessComponent
+Actor: PhotoCathcer, Photo2D, Photo3D, VFPlaneActor
+世界子系统: VFBackgroundWorldSubsystem
+FunctionsLib: VFFunctions提供Actor复制, 动态组件替换等函数
+配置类: PlaneActor相关设置
+### VFPhotoCatcherEditor
+依赖: VFPhotoCatcher
+Actor: AVFPhotoCatcherPref
+
+### VFPhotoDecal
+依赖: VFPhotoCommon
+Actor: VFPhotoDecal
+配置类: 光照补偿
+
+// 功能集合模块
+### ViewFinderCore
+依赖: VFPhotoCatcher, VFPhotoDecal, VFStepsRecorder
 组件: VFDMSteppableComponent
 Actor: VFPhoto2DSteppable, VFPhoto3DSteppable, VFPhotoCatcherSteppable, VFPhotoDecalSteppable
 复刻ViewFinder核心功能(拍照, 贴花, 回溯), 最小化的模块.
 
+// 功能演示模块
 ### VFInteract
 接口: VFInteractInterface, VFActivatableInterface
 提供可交互, 可启用的Actor接口定义
 
-### VFReplica
+### ViewFinderRe
 依赖: VFCore, VFInteract
 组件:VFDMSteppableComponent, 
 接口: VFActivatebleInterface, VFPhotoContainerInterface
