@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Modules/ModuleManager.h"
 
 /*
 通用模块: 简化日志Channel使用, 统一的UDeveloperSettings位置

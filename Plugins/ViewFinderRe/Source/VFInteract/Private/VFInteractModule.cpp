@@ -13,5 +13,5 @@ void FVFInteractModule::ShutdownModule()
 }
 
 #undef LOCTEXT_NAMESPACE
-	
+
 IMPLEMENT_MODULE(FVFInteractModule, VFInteract)

@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Modules/ModuleManager.h"
 
 // 几何策略定义和默认空实现(VFGSNone)
 class FVFGeometryBaseModule : public IModuleInterface

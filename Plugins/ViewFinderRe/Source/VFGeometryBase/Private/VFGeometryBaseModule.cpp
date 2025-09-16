@@ -2,25 +2,19 @@
 
 #include "VFGeometryBaseModule.h"
 
+#include "Modules/ModuleManager.h"
+
 #define LOCTEXT_NAMESPACE "FVFGeometryBaseModule"
 
 void FVFGeometryBaseModule::StartupModule()
 {
+    // 加载可用策略模块
     auto &ModuleManager = FModuleManager::Get();
-    if (ModuleManager.IsModuleLoaded("GeometryScriptingCore"))
+    if (ModuleManager.IsModuleLoaded(TEXT("GeometryScriptingCore")))
     {
-        ModuleManager.LoadModule("VFGSGeometryScript");
+        ModuleManager.LoadModuleChecked(TEXT("VFGSGeometryScript"));
     }
-    else
-    {
-        ModuleManager.OnModulesChanged().AddLambda(
-            [&ModuleManager](FName Name, EModuleChangeReason Reason)
-            {
-				if (Name == "GeometryScriptingCore" && Reason == EModuleChangeReason::ModuleLoaded)
-				{
-					ModuleManager.LoadModule("VFGSGeometryScript");
-				} });
-    }
+    ModuleManager.LoadModuleChecked(TEXT("VFGSGeometryScriptNative"));
 }
 
 void FVFGeometryBaseModule::ShutdownModule()
@@ -28,5 +22,5 @@ void FVFGeometryBaseModule::ShutdownModule()
 }
 
 #undef LOCTEXT_NAMESPACE
-	
+
 IMPLEMENT_MODULE(FVFGeometryBaseModule, VFGeometryBase)

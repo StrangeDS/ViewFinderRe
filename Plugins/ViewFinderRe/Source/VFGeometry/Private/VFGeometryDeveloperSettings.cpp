@@ -22,3 +22,12 @@ void UVFGeometryDeveloperSettings::PostEditChangeProperty(
     }
 }
 #endif
+
+bool UVFGeometryDeveloperSettings::IsGeometryStrategyNone()
+{
+    auto Settings = GetDefault<UVFGeometryDeveloperSettings>();
+    if (!IsValid(Settings->GeometryStrategyClass))
+        return true;
+
+    return Settings->GeometryStrategyClass == UVFGSNone::StaticClass();
+}

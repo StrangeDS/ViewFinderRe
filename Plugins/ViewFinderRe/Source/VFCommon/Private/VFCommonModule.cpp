@@ -49,5 +49,5 @@ void FVFCommonModule::AddPropertySections()
 #endif
 
 #undef LOCTEXT_NAMESPACE
-	
+
 IMPLEMENT_MODULE(FVFCommonModule, VFCommon)

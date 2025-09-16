@@ -32,6 +32,9 @@ public:
 						  "/Script/VFGeometryBase.VFGeometryStrategyInterface"))
 	TSubclassOf<UObject> GeometryStrategyClass;
 
+	UFUNCTION(BlueprintCallable, Category = "Settings|GeometryStrategy")
+	static bool IsGeometryStrategyNone();
+
 public:
 	// 使用对象池
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,

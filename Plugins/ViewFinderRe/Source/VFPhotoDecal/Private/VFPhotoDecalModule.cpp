@@ -7,7 +7,7 @@
 void FVFPhotoDecalModule::StartupModule()
 {
 #if WITH_EDITOR
-    CheckVSM();
+	CheckVSM();
 #endif
 }
 

@@ -13,5 +13,5 @@ void FVFUObjsPoolModule::ShutdownModule()
 }
 
 #undef LOCTEXT_NAMESPACE
-	
+
 IMPLEMENT_MODULE(FVFUObjsPoolModule, VFUObjsPool)

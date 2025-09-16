@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Modules/ModuleManager.h"
 
 // 步骤记录模块
 class FVFStepsRecorderModule : public IModuleInterface
