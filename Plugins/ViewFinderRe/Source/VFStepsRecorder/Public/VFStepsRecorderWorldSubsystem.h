@@ -15,6 +15,7 @@ enum class EVFStepsRecorderSubsystemCheckMode : uint8
 };
 
 class IVFStepsRecordInterface;
+class AVFTransfromRecorderActor;
 
 UCLASS(ClassGroup = (ViewFinder))
 class VFSTEPSRECORDER_API UVFStepsRecorderWorldSubsystem : public UTickableWorldSubsystem
@@ -27,6 +28,8 @@ public:
 	virtual void OnWorldBeginPlay(UWorld &InWorld) override;
 
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void Deinitialize() override;
 
 public:
 	UFUNCTION(BlueprintPure, Category = "ViewFinder")
@@ -41,18 +44,17 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "ViewFinder")
 	TArray<FVFStepInfo> Infos;
 
-	// public:
-	// 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	// 	void RecordTransform(USceneComponent *Component);
+public:
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	void RecordTransform(USceneComponent *Component,
+						 const FString &Channel = TEXT(""));
 
-	// 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	// 	void UnrecordTransform(USceneComponent *Component);
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	void UnrecordTransform(USceneComponent *Component,
+						   const FString &Channel = TEXT(""));
 
-	// 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	// 	void RegisterTransformRecorder(AVFTransfromRecorderActor *Recorder);
-
-	// 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	// 	TObjectPtr<AVFTransfromRecorderActor> TransformRecorder;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	TMap<FString, TObjectPtr<AVFTransfromRecorderActor>> TransformRecorderMap;
 
 public:
 	void TickForward(float DeltaTime);

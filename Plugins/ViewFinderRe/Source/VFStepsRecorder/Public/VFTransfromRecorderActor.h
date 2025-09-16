@@ -60,12 +60,17 @@ public:
 
 	virtual void BeginPlay() override;
 
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void AddToRecord(USceneComponent *Component);
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void RemoveFromRecord(USceneComponent *Component);
+
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	bool IsBegingRecorded(USceneComponent *Component);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	TSubclassOf<UPrimitiveComponent> CompClassToCollect;

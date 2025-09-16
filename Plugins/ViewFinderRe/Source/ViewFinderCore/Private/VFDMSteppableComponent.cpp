@@ -34,7 +34,7 @@ void UVFDMSteppableComponent::Init(UPrimitiveComponent *Source)
 
         if (Props.bSimulatePhysicsRecorder)
         {
-            // StepsRecorder->RecordTransform(this);
+            StepsRecorder->RecordTransform(this, StaticClass()->GetName());
 
             Steps.Add(FVFDMCompStep{
                 UVFDMCompStepOperation::RegisterToTransformRecorder,
@@ -188,7 +188,7 @@ void UVFDMSteppableComponent::TickBackward_Implementation(float Time)
                 EVFStepsRecorderSubsystemCheckMode::IgnoreRewinding);
             if (ensure(IsValid(StepsRecorder)))
             {
-                // StepsRecorder->UnrecordTransform(this);
+                StepsRecorder->UnrecordTransform(this, StaticClass()->GetName());
             }
             break;
         }

@@ -5,6 +5,7 @@
 #include "VFLog.h"
 #include "VFStepsRecordInterface.h"
 #include "VFStepsRecorderDeveloperSettings.h"
+#include "VFTransfromRecorderActor.h"
 
 TStatId UVFStepsRecorderWorldSubsystem::GetStatId() const
 {
@@ -52,6 +53,15 @@ void UVFStepsRecorderWorldSubsystem::Tick(float DeltaTime)
         TimeSinceLastTick -= TickInterval;
         OnTickTime.Broadcast(Time);
     }
+}
+
+void UVFStepsRecorderWorldSubsystem::Deinitialize()
+{
+    for (auto &[Channel, TransformRecorder] : TransformRecorderMap)
+    {
+        TransformRecorder->Destroy();
+    }
+    TransformRecorderMap.Empty();
 }
 
 void UVFStepsRecorderWorldSubsystem::SubmitStep(UObject *Sender, FVFStepInfo Info)
@@ -118,33 +128,37 @@ void UVFStepsRecorderWorldSubsystem::TickBackward(float DeltaTime)
     }
 }
 
-// void UVFStepsRecorderWorldSubsystem::RecordTransform(USceneComponent *Component)
-// {
-//     if (!IsValid(TransformRecorder))
-//     {
-//         VF_LOG(Warning, TEXT("%s: invalid TransformRecorder."), __FUNCTIONW__);
-//         return;
-//     }
-//     if (Component->Mobility == EComponentMobility::Movable)
-//         TransformRecorder->AddToRecord(Component);
-// }
+void UVFStepsRecorderWorldSubsystem::RecordTransform(
+    USceneComponent *Component, const FString &Channel)
+{
+    check(Component && Component->Mobility == EComponentMobility::Movable);
 
-// void UVFStepsRecorderWorldSubsystem::UnrecordTransform(USceneComponent *Component)
-// {
-//     if (!IsValid(TransformRecorder))
-//     {
-//         VF_LOG(Warning, TEXT("%s: invalid TransformRecorder."), __FUNCTIONW__);
-//         return;
-//     }
-//     TransformRecorder->RemoveFromRecord(Component);
-// }
+    if (!TransformRecorderMap.Contains(Channel))
+    {
+        auto TransformRecorder = GetWorld()->SpawnActor<AVFTransfromRecorderActor>();
+        TransformRecorderMap.Emplace(Channel, TransformRecorder);
+    }
+    TransformRecorderMap[Channel]->AddToRecord(Component);
+}
 
-// void UVFStepsRecorderWorldSubsystem::RegisterTransformRecorder(AVFTransfromRecorderActor *Recorder)
-// {
-//     check(Recorder);
-//     TransformRecorder = Recorder;
-//     RegisterTickable(TransformRecorder);
-// }
+void UVFStepsRecorderWorldSubsystem::UnrecordTransform(
+    USceneComponent *Component, const FString &Channel)
+{
+    check(Component && Component->Mobility == EComponentMobility::Movable);
+
+    if (!TransformRecorderMap.Contains(Channel))
+    {
+        VF_LOG(Error, TEXT("%s invalid channel."), __FUNCTIONW__);
+        return;
+    }
+
+    if (!TransformRecorderMap[Channel]->IsBegingRecorded(Component))
+    {
+        VF_LOG(Error, TEXT("%s Comp is not being Recorded."), __FUNCTIONW__);
+        return;
+    }
+    TransformRecorderMap[Channel]->RemoveFromRecord(Component);
+}
 
 void UVFStepsRecorderWorldSubsystem::RegisterTickable(const TScriptInterface<IVFStepsRecordInterface> &Target)
 {
