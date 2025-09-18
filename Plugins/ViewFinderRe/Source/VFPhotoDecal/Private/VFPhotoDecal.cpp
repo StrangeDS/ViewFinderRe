@@ -79,7 +79,8 @@ void AVFPhotoDecal::DrawDecal(bool ForceToUpdate)
         MaterialInstance->SetVectorParameterValue(TEXT("DecalSize"), Decal->DecalSize);
         MaterialInstance->SetScalarParameterValue(TEXT("FOVAngle"), ViewAngle);
         MaterialInstance->SetScalarParameterValue(TEXT("AspectRatio"), AspectRatio);
-        // MaterialInstance->SetScalarParameterValue(TEXT("LightFix"), GetDefault<UVFPhotoDecalDeveloperSettings>()->PhotoDecalLightFix);
+        MaterialInstance->SetScalarParameterValue(TEXT("LightFix"),
+                                                  GetDefault<UVFPhotoDecalDeveloperSettings>()->PhotoDecalLightFix);
 
         CaptureOfDecal->CaptureScene();
         if (!IsValid(TextureOfDecal) || ForceToUpdate)
