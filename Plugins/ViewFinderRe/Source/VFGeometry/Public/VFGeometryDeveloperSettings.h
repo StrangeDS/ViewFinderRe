@@ -64,7 +64,10 @@ public:
 			  Category = "Settings|CompsPool")
 	bool bUseVFDMCompsPool = true;
 
-	// 组件对象池预生成数量
+	/*
+	组件对象池预生成数量
+	由于类归属的模块问题, 无法正常设置, 建议在关卡蓝图中手动获取子系统并设置
+	*/
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,
 			  Category = "Settings|CompsPool",
 			  meta = (EditCondition = "bUseVFDMCompsPool"))
