@@ -117,16 +117,10 @@ Photo2D索引Photo3D, 所以最简单的做法就是把场景放置在Photo3D中
 - [x] 贴花的不穿透影响: 实现是使用一个场景捕捉当前的场景深度, 给入贴花中, 贴花比较深度纹理和像素深度, 前者 >= 后者时意味着像素在相机拍摄到的深度上, 即不穿透的面. 目前使用额外的场景捕捉单独捕获深度, SCS_SceneColorSceneDepth似乎有版本问题, 我这无法使用.
 - [x] 后处理相关
 - [x] Demo场景
-- [ ] 模块重构: 最重要的是解决策略的插件依赖问题, 当前使用的条件编译 -> 应该使用多个模块拆分.
-- [ ] ViewFinderReSettings是错误的, 只能在编辑器中使用, 模块重建会有对应的模块Editor, 所以靠后.
 - [ ] README更新
-- [ ] DrawATexture2D还需要一个DrawOnTexture2D
-- [x] 插件全局配置
-- [x] background总是拍到自己: Capture放到生成PlaneActor之前
 - [ ] 插件设置: Geometry相关
 - [ ] 未完全解决展示 
 - [ ] 添加BlueprintType
-- [ ] Pref检查: 不应当复制自己
 
 ### 各系统讲解:
 1. 物体Transform回溯:
