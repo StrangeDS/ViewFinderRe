@@ -16,9 +16,24 @@ bool FVFTransCompInfo::operator==(const FVFTransCompInfo &Other) const
 {
 	if (Component != Other.Component)
 		return false;
+	if (Visible != Other.Visible)
+		return false;
 	if (Velocity != Other.Velocity)
 		return false;
 	return Transform.Equals(Other.Transform);
+}
+
+bool FVFTransCompInfo::IsChanged(const FVFTransCompInfo &InfoNew) const
+{
+	check(Component == InfoNew.Component);
+
+	if (Visible != InfoNew.Visible)
+		return true;
+
+	if (!Visible)
+		return false;
+
+	return Velocity != InfoNew.Velocity || !Transform.Equals(InfoNew.Transform);
 }
 
 AVFTransfromRecorderActor::AVFTransfromRecorderActor()
@@ -65,7 +80,7 @@ void AVFTransfromRecorderActor::RemoveFromRecord(USceneComponent *Component)
 
 bool AVFTransfromRecorderActor::IsBegingRecorded(USceneComponent *Component)
 {
-    return Components.Contains(Component);
+	return Components.Contains(Component);
 }
 
 void AVFTransfromRecorderActor::ReCollectComponents_Implementation()
@@ -149,7 +164,7 @@ void AVFTransfromRecorderActor::TickForward_Implementation(float Time)
 		}
 
 		auto Info = FVFTransCompInfo(Comp);
-		if (!CompInfoMap.Contains(Comp) || CompInfoMap[Comp] != Info)
+		if (!CompInfoMap.Contains(Comp) || CompInfoMap[Comp].IsChanged(Info))
 		{
 			CompInfoMap.Add(Comp, Info);
 			Infos.Add(Info);
