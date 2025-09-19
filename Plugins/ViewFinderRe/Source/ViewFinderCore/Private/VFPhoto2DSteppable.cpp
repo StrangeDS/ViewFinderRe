@@ -1,6 +1,7 @@
 #include "VFPhoto2DSteppable.h"
 
 #include "VFStepsRecorderWorldSubsystem.h"
+#include "VFPCommonFunctions.h"
 
 void AVFPhoto2DSteppable::BeginPlay()
 {
@@ -10,8 +11,12 @@ void AVFPhoto2DSteppable::BeginPlay()
     {
         StepsRecorder->SubmitStep(
             this,
-            FVFStepInfo{EnumToString<EVFPhoto2DSteppableOperation>(
-                EVFPhoto2DSteppableOperation::None)});
+            FVFStepInfo{
+                EnumToString<EVFPhoto2DSteppableOperation>(EVFPhoto2DSteppableOperation::None),
+                false,
+                UVFPCommonFunctions::IsEditorCreated(this)
+                    ? StepsRecorder->GetTimeOfMin()
+                    : -1.0f});
     }
 }
 

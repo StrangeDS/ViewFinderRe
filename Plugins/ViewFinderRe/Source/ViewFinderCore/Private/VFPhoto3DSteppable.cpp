@@ -1,6 +1,7 @@
 #include "VFPhoto3DSteppable.h"
 
 #include "VFStepsRecorderWorldSubsystem.h"
+#include "VFPCommonFunctions.h"
 
 void AVFPhoto3DSteppable::BeginPlay()
 {
@@ -10,8 +11,12 @@ void AVFPhoto3DSteppable::BeginPlay()
     {
         StepsRecorder->SubmitStep(
             this,
-            FVFStepInfo{EnumToString<EVFPhoto3DState>(
-                EVFPhoto3DState::None)});
+            FVFStepInfo{
+                EnumToString<EVFPhoto3DState>(EVFPhoto3DState::None),
+                false,
+                UVFPCommonFunctions::IsEditorCreated(this)
+                    ? StepsRecorder->GetTimeOfMin()
+                    : -1.0f});
     }
 }
 
@@ -51,7 +56,7 @@ bool AVFPhoto3DSteppable::StepBack_Implementation(FVFStepInfo &StepInfo)
     {
     case EVFPhoto3DState::None:
     {
-        TArray<AActor*> Actors;
+        TArray<AActor *> Actors;
         GetAttachedActors(Actors, true, true);
         for (auto Actor : Actors)
         {

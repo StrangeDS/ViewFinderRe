@@ -111,8 +111,38 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	float TimeSinceLastTick = 0.f;
 
-	static inline const float TIME_MAX = 1e6;  // 计时器时间的最大值(最大时间)
-	static inline const float TIME_MIN = 1e-6; // 计时器时间的最小值(开始时间)
+public:
+	// <0将使用当前时间
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	void SetTimeOfStart(float Start = -1.0f);
+
+	// <0将使用TIME_MAX
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	void SetTimeOfEnd(float End = -1.0f);
+
+	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
+	FVFStepsRecorderDelegate OnSetTimeOfStart;
+
+	// 计时器回溯的最小值(开始时间)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	float TimeOfStart = TIME_MIN;
+
+	// 计时器回溯记录的最大值(结束时间)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	float TimeOfEnd = TIME_MAX;
+
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	static float GetTimeOfMin();
+
+	// <0将使用TIME_MAX
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	static float GetTimeOfMax();
+
+	// 计时器时间的最小值(建议开始时间)
+	static inline const float TIME_MIN = 1e-6;
+
+	// 计时器时间的最大值(建议最大时间)
+	static inline const float TIME_MAX = 1e6;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")

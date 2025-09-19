@@ -29,7 +29,9 @@ void UVFDMSteppableComponent::Init(UPrimitiveComponent *Source)
         Steps.Add(FVFDMCompStep{
             UVFDMCompStepOperation::Init,
             nullptr,
-            StepsRecorder->Time});
+            UVFGeometryFunctions::IsEditorCreated(this)
+                ? StepsRecorder->GetTimeOfMin()
+                : StepsRecorder->GetTime()});
         StepsRecorder->RegisterTickable(this);
 
         if (Props.bSimulatePhysicsRecorder)

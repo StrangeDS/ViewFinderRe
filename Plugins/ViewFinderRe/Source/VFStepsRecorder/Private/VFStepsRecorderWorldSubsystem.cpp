@@ -74,7 +74,7 @@ void UVFStepsRecorderWorldSubsystem::SubmitStep(UObject *Sender, FVFStepInfo Inf
 
 void UVFStepsRecorderWorldSubsystem::TickForward(float DeltaTime)
 {
-    Time = FMath::Min(Time, TIME_MAX);
+    Time = FMath::Min(Time, TimeOfEnd);
 
     for (auto It = TickTargets.CreateIterator(); It; ++It)
     {
@@ -92,9 +92,9 @@ void UVFStepsRecorderWorldSubsystem::TickForward(float DeltaTime)
 
 void UVFStepsRecorderWorldSubsystem::TickBackward(float DeltaTime)
 {
-    if (Time <= TIME_MIN)
+    if (Time <= TimeOfStart)
     {
-        Time = TIME_MIN;
+        Time = TimeOfStart;
         EndRewinding();
         return;
     }
@@ -197,6 +197,36 @@ void UVFStepsRecorderWorldSubsystem::EndRewinding()
     TimeSinceLastTick = 0.f;
     OnEndRewinding.Broadcast(Time);
     bIsRewinding = false;
+}
+
+void UVFStepsRecorderWorldSubsystem::SetTimeOfStart(float Start)
+{
+    if (Start < 0.f)
+        Start = Time;
+
+    if (Start > Time)
+        VF_LOG(Warning, TEXT("%s: TimeOfStart(%f) is later than current(%f)"),
+               __FUNCTIONW__, Start, Time);
+
+    TimeOfStart = Start;
+}
+
+void UVFStepsRecorderWorldSubsystem::SetTimeOfEnd(float End)
+{
+    if (End < 0.f)
+        End = TIME_MAX;
+
+    TimeOfEnd = End;
+}
+
+float UVFStepsRecorderWorldSubsystem::GetTimeOfMin()
+{
+    return TIME_MIN;
+}
+
+float UVFStepsRecorderWorldSubsystem::GetTimeOfMax()
+{
+    return TIME_MAX;
 }
 
 int UVFStepsRecorderWorldSubsystem::GetSizeRecommended()
