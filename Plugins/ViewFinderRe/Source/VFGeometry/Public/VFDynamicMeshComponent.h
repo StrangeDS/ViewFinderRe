@@ -19,6 +19,13 @@ struct FVFDMCompRecordProps
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	bool bCastShadowRecorder = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	uint8 LevelOfCollision = 0;
+
+	FVFDMCompRecordProps GenerateNew();
+
+	void Reset();
 };
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder), meta = (BlueprintSpawnableComponent))

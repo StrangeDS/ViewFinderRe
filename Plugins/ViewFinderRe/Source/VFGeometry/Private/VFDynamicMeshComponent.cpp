@@ -5,6 +5,22 @@
 
 #include "VFLog.h"
 #include "VFGeometryFunctions.h"
+#include "VFGeometryDeveloperSettings.h"
+
+FVFDMCompRecordProps FVFDMCompRecordProps::GenerateNew()
+{
+    FVFDMCompRecordProps New(*this);
+    New.LevelOfCollision = FMath::Clamp(LevelOfCollision + 1, 0, 255);
+    return New;
+}
+
+void FVFDMCompRecordProps::Reset()
+{
+    bSimulatePhysicsRecorder = false;
+    bEnableGravityRecorder = false;
+    bCastShadowRecorder = false;
+    LevelOfCollision = 0;
+}
 
 UVFDynamicMeshComponent::UVFDynamicMeshComponent(const FObjectInitializer &ObjectInitializer)
     : UDynamicMeshComponent(ObjectInitializer)
@@ -56,7 +72,7 @@ void UVFDynamicMeshComponent::Init(UPrimitiveComponent *Source)
     if (auto DMComp = Cast<UVFDynamicMeshComponent>(Source))
     {
         bEnabled = DMComp->bEnabled;
-        Props = DMComp->Props;
+        Props = DMComp->Props.GenerateNew();
     }
 }
 
@@ -64,6 +80,7 @@ void UVFDynamicMeshComponent::Clear()
 {
     SourceComponent = nullptr;
 
+    Props.Reset();
     MeshObject->Reset();
     ClearSimpleCollisionShapes(true);
 }
@@ -74,7 +91,7 @@ void UVFDynamicMeshComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
     UVFGeometryFunctions::CopyMeshFromComponent(
         Source,
         MeshObject,
-        FVF_GeometryScriptCopyMeshFromComponentOptions(),
+        GetDefault<UVFGeometryDeveloperSettings>()->CopyMeshOption,
         false);
 
     // 复制物理
@@ -122,9 +139,11 @@ void UVFDynamicMeshComponent::ReplaceMeshForComponent(UPrimitiveComponent *Sourc
 
 void UVFDynamicMeshComponent::IntersectMeshWithDMComp(UDynamicMeshComponent *Tool)
 {
-    static FVF_GeometryScriptMeshBooleanOptions Options;
     static EVF_GeometryScriptBooleanOperation Operation =
         EVF_GeometryScriptBooleanOperation::Intersection;
+
+    const FVF_GeometryScriptMeshBooleanOptions &Options =
+        GetDefault<UVFGeometryDeveloperSettings>()->IntersectOption;
     UVFGeometryFunctions::ApplyMeshBoolean(
         MeshObject,
         GetComponentToWorld(),
@@ -137,9 +156,11 @@ void UVFDynamicMeshComponent::IntersectMeshWithDMComp(UDynamicMeshComponent *Too
 
 void UVFDynamicMeshComponent::SubtractMeshWithDMComp(UDynamicMeshComponent *Tool)
 {
-    static FVF_GeometryScriptMeshBooleanOptions Options;
     static EVF_GeometryScriptBooleanOperation Operation =
         EVF_GeometryScriptBooleanOperation::Subtract;
+
+    const FVF_GeometryScriptMeshBooleanOptions &Options =
+        GetDefault<UVFGeometryDeveloperSettings>()->SubtractOption;
     UVFGeometryFunctions::ApplyMeshBoolean(
         MeshObject,
         GetComponentToWorld(),
@@ -152,9 +173,11 @@ void UVFDynamicMeshComponent::SubtractMeshWithDMComp(UDynamicMeshComponent *Tool
 
 void UVFDynamicMeshComponent::UnionMeshWithDMComp(UDynamicMeshComponent *Tool)
 {
-    static FVF_GeometryScriptMeshBooleanOptions Options;
     static EVF_GeometryScriptBooleanOperation Operation =
         EVF_GeometryScriptBooleanOperation::Union;
+
+    const FVF_GeometryScriptMeshBooleanOptions &Options =
+        GetDefault<UVFGeometryDeveloperSettings>()->UnionOption;
     UVFGeometryFunctions::ApplyMeshBoolean(
         MeshObject,
         GetComponentToWorld(),
@@ -169,11 +192,11 @@ void UVFDynamicMeshComponent::UpdateSimlpeCollision()
 {
     if (bEnableComplexCollision)
         return;
-    static FVF_GeometryScriptCollisionFromMeshOptions Options;
+
     UVFGeometryFunctions::SetDynamicMeshCollisionFromMesh(
         MeshObject,
         this,
-        Options);
+        GetDefault<UVFGeometryDeveloperSettings>()->GetCollisionOption(Props.LevelOfCollision));
 }
 
 #if WITH_EDITOR

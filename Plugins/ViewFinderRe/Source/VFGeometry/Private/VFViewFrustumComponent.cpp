@@ -32,8 +32,17 @@ void UVFViewFrustumComponent::GenerateViewFrustum_Implementation(float Angle, fl
     check(StartDis > 0.0f);
     check(EndDis > 0.0f && StartDis < EndDis);
 
-    UVFGeometryFunctions::AppendFrustum(MeshObject, PrimitiveOptions, Angle, AspectRatio, StartDis, EndDis);
-    UVFGeometryFunctions::SetDynamicMeshCollisionFromMesh(MeshObject, this, CollisionOptions);
+    UVFGeometryFunctions::AppendFrustum(
+        MeshObject,
+        GetDefault<UVFGeometryDeveloperSettings>()->ViewFrustumPrimitiveOption,
+        Angle,
+        AspectRatio,
+        StartDis,
+        EndDis);
+    UVFGeometryFunctions::SetDynamicMeshCollisionFromMesh(
+        MeshObject,
+        this,
+        GetDefault<UVFGeometryDeveloperSettings>()->ViewFrustumCollisionOption);
 }
 
 void UVFViewFrustumComponent::RegenerateViewFrustum(float Angle, float AspectRatio, float StartDis, float EndDis)
