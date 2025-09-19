@@ -83,8 +83,14 @@ void AVFPhotoDecal::DrawDecal(bool ForceToUpdate)
                                                   GetDefault<UVFPhotoDecalDeveloperSettings>()->PhotoDecalLightFix);
 
         CaptureOfDecal->CaptureScene();
-        if (!IsValid(TextureOfDecal) || ForceToUpdate)
+        if (!IsValid(TextureOfDecal))
+        {
             TextureOfDecal = CaptureOfDecal->DrawATexture2D();
+        }
+        else if (ForceToUpdate)
+        {
+            CaptureOfDecal->DrawOnTexture2D(TextureOfDecal);
+        }
         MaterialInstance->SetTextureParameterValue(TEXT("Texture"), TextureOfDecal);
     }
     else
@@ -98,8 +104,14 @@ void AVFPhotoDecal::DrawSceneDepth(bool ForceToUpdate)
     if (GetMaterialInstance())
     {
         CaptureOfDepth->CaptureScene();
-        if (!IsValid(TextureOfDepth) || ForceToUpdate)
+        if (!IsValid(TextureOfDepth))
+        {
             TextureOfDepth = CaptureOfDepth->DrawATexture2D();
+        }
+        else if (ForceToUpdate)
+        {
+            CaptureOfDepth->DrawOnTexture2D(TextureOfDepth);
+        }
         MaterialInstance->SetTextureParameterValue(TEXT("TextureOfDepth"), TextureOfDepth);
     }
     else

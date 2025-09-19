@@ -119,3 +119,99 @@ UTexture2D *UVFPhotoCaptureComponent::DrawATexture2D()
 	Texture->UpdateResource();
 	return Texture;
 }
+
+void UVFPhotoCaptureComponent::DrawOnTexture2D(UTexture2D *Texture2D)
+{
+	check(IsValid(Texture2D));
+	const auto RTFormat = TextureTarget->GetFormat();
+	check(RTFormat == Texture2D->GetPlatformData()->PixelFormat);
+
+	FIntPoint TSize(Texture2D->GetSizeX(), Texture2D->GetSizeY());
+	FIntPoint RTSize(TextureTarget->SizeX, TextureTarget->SizeY);
+	check(TSize == RTSize);
+
+	FTextureRenderTargetResource *RTResource = TextureTarget->GameThread_GetRenderTargetResource();
+
+	if (RTFormat == EPixelFormat::PF_R8G8B8A8)
+	{
+		TArray<FColor> PixelData;
+		RTResource->ReadPixels(PixelData);
+
+		// 确保数据大小匹配
+		const int32 ExpectedSize = RTSize.X * RTSize.Y;
+		check(PixelData.Num() == ExpectedSize);
+		FTexture2DMipMap &Mip = Texture2D->GetPlatformData()->Mips[0];
+
+		// 检查Mip数据大小
+		const int32 RequiredSize = ExpectedSize * sizeof(FColor);
+		if (Mip.BulkData.GetBulkDataSize() < RequiredSize)
+		{
+			VF_LOG(Warning, TEXT("Mip data too small, reallocating. Required: %d, Available: %d"),
+				   RequiredSize, Mip.BulkData.GetBulkDataSize());
+
+			// 重新分配Mip数据
+			Mip.BulkData.Lock(LOCK_READ_WRITE);
+			Mip.BulkData.Realloc(RequiredSize);
+			Mip.BulkData.Unlock();
+		}
+
+		// FTexture2DMipMap &Mip = Texture2D->GetPlatformData()->Mips[0];
+		void *Data = Mip.BulkData.Lock(LOCK_READ_WRITE);
+		FMemory::Memcpy(Data, PixelData.GetData(), PixelData.Num() * sizeof(FColor));
+		Mip.BulkData.Unlock();
+#if WITH_EDITOR
+		Texture2D->Source.Init2DWithMipChain(
+			TSize.X,
+			TSize.Y,
+			ETextureSourceFormat::TSF_BGRA8);
+
+		uint8 *MipData = Texture2D->Source.LockMip(0);
+		FMemory::Memcpy(MipData, PixelData.GetData(), PixelData.Num() * sizeof(FColor));
+		Texture2D->Source.UnlockMip(0);
+#endif
+	}
+	else if (RTFormat == EPixelFormat::PF_FloatRGBA)
+	{
+		TArray<FFloat16Color> PixelData;
+		RTResource->ReadFloat16Pixels(PixelData);
+
+		// 确保数据大小匹配
+		const int32 ExpectedSize = RTSize.X * RTSize.Y;
+		check(PixelData.Num() == ExpectedSize);
+		FTexture2DMipMap &Mip = Texture2D->GetPlatformData()->Mips[0];
+
+		// 检查Mip数据大小
+		const int32 RequiredSize = ExpectedSize * sizeof(FFloat16Color);
+		if (Mip.BulkData.GetBulkDataSize() < RequiredSize)
+		{
+			VF_LOG(Warning, TEXT("Mip data too small, reallocating. Required: %d, Available: %d"),
+				   RequiredSize, Mip.BulkData.GetBulkDataSize());
+
+			// 重新分配Mip数据
+			Mip.BulkData.Lock(LOCK_READ_WRITE);
+			Mip.BulkData.Realloc(RequiredSize);
+			Mip.BulkData.Unlock();
+		}
+
+		// FTexture2DMipMap &Mip = Texture2D->GetPlatformData()->Mips[0];
+		void *Data = Mip.BulkData.Lock(LOCK_READ_WRITE);
+		FMemory::Memcpy(Data, PixelData.GetData(), PixelData.Num() * sizeof(FFloat16Color));
+		Mip.BulkData.Unlock();
+#if WITH_EDITOR
+		Texture2D->Source.Init2DWithMipChain(
+			TSize.X,
+			TSize.Y,
+			ETextureSourceFormat::TSF_RGBA16F);
+
+		uint8 *MipData = Texture2D->Source.LockMip(0);
+		FMemory::Memcpy(MipData, PixelData.GetData(), PixelData.Num() * sizeof(FFloat16Color));
+		Texture2D->Source.UnlockMip(0);
+#endif
+	}
+	else
+	{
+		VF_LOG(Error, TEXT("%s Unimplemented EPixelFormat."), __FUNCTIONW__);
+	}
+
+	Texture2D->UpdateResource();
+}
