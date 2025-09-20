@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-// #include "VFGeometryHeaders.h"
 #include "VFGeometryStrategyInterface.h"
 #include "VFGSNone.generated.h"
 

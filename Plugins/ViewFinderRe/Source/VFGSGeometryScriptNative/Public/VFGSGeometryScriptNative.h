@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-// #include "UObject/NoExportTypes.h"
 #include "VFGeometryHeaders.h"
 #include "VFGeometryStrategyInterface.h"
 #include "VFGSGeometryScriptNative.generated.h"
