@@ -19,7 +19,7 @@ void AVFPhotoCatcherPref::OnConstruction(const FTransform &Transform)
 {
     Super::OnConstruction(Transform);
 
-	PhotoCapture->HiddenActors.AddUnique(this);
+    ActorsToIgnore.AddUnique(this);
     PhotoCapture->ShowOnlyActors = OnlyActorsCatched;
     if (OnlyActorsCatched.Num() > 0)
     {
