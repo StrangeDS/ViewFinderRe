@@ -53,6 +53,8 @@ void AVFPhotoDecal::OnConstruction(const FTransform &Transform)
     CaptureOfDepth->FOVAngle = ViewAngle;
     CaptureOfDepth->CustomNearClippingPlane = StartDis;
     CaptureOfDepth->MaxViewDistanceOverride = EndDis;
+    CaptureOfDepth->TargetWidth = CaptureOfDecal->TargetWidth;
+    CaptureOfDepth->TargetHeight = CaptureOfDecal->TargetHeight;
     AspectRatio = CaptureOfDecal->GetTargetAspectRatio();
     ViewFrustum->RegenerateViewFrustum(ViewAngle, AspectRatio, StartDis, EndDis);
     FVector Scale = Decal->GetRelativeScale3D();
