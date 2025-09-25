@@ -379,6 +379,9 @@ UDynamicMesh *UVFGSGeometryScript::
 {
     check(FromStaticMeshAsset);
     check(ToDynamicMesh);
+    ensureMsgf(FromStaticMeshAsset->bAllowCPUAccess,
+               TEXT("Mesh %s bAllowCPUAccess needs to be true."),
+               *FromStaticMeshAsset->GetName());
 
     EGeometryScriptOutcomePins Outcome;
     return UGeometryScriptLibrary_StaticMeshFunctions::CopyMeshFromStaticMesh(

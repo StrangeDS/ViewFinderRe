@@ -26,6 +26,9 @@ UDynamicMesh *UVFGSNone::
 {
     check(FromStaticMeshAsset);
     check(ToDynamicMesh);
+    ensureMsgf(FromStaticMeshAsset->bAllowCPUAccess,
+               TEXT("Mesh %s bAllowCPUAccess needs to be true."),
+               *FromStaticMeshAsset->GetName());
 
     VF_LOG(Warning, TEXT("VFGSNone is used."));
     return ToDynamicMesh;
