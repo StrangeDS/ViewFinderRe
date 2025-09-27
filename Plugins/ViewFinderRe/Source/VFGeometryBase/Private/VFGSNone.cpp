@@ -1,6 +1,7 @@
 #include "VFGSNone.h"
 
 #include "VFLog.h"
+#include "Engine/StaticMesh.h"
 
 #define LOCTEXT_NAMESPACE "UVFGSNone"
 

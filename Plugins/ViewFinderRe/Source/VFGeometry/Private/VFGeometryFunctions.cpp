@@ -11,6 +11,7 @@ using namespace UE::Geometry;
 
 #define LOCTEXT_NAMESPACE "UVFGeometryFunctions"
 
+#include "VFDynamicMeshComponent.h"
 #include "VFGeometryDeveloperSettings.h"
 #include "VFUObjsPoolWorldSubsystem.h"
 

@@ -14,10 +14,10 @@ struct FVFLevelOfCollisionMapping
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
-	uint8 MinValue;
+	uint8 MinValue = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
-	uint8 MaxValue;
+	uint8 MaxValue = 255;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	FVF_GeometryScriptCollisionFromMeshOptions Option;
