@@ -77,7 +77,8 @@ public:
 
 	// 需具体实现的替身类
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder",
-			  meta = (EditCondition = "bReplacedWithStandIn"))
+			  meta = (EditCondition = "bReplacedWithStandIn",
+					  MustImplement = "/Script/VFPhotoCommon.VFStandInInterface"))
 	TSubclassOf<AActor> StandInClass;
 
 	// 使用替身的Actor, 便于访问使用

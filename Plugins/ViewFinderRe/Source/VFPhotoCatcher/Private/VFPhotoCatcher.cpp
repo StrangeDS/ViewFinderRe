@@ -21,6 +21,7 @@
 #include "VFHelperComponent.h"
 #include "VFBackgroundCaptureComponent.h"
 #include "VFPostProcessComponent.h"
+#include "VFPhotoCatcherDeveloperSettings.h"
 
 static void GetMapHelpers(
 	const TMap<UPrimitiveComponent *, UVFHelperComponent *> &Map,
@@ -344,7 +345,7 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 		TArray<AActor *> ActorsToHide;
 		for (int i = 0; i < VFDMComps.Num(); ++i)
 		{
-			// 注意: 对于生成的副本, 它应该使用原本的FVFShowInPhotoRule设置.
+			// 对于生成的副本, 它应该与原本的FVFShowInPhotoRule相同
 			auto Comp = VFDMComps[i];
 			auto CopiedComp = CopiedComps[i];
 			check(Comp == CopiedComp->GetSourceComponent());
@@ -497,5 +498,6 @@ UVFHelperComponent *AVFPhotoCatcher::GetHelper_Implementation()
 void AVFPhotoCatcher::HandleOriginalBeforeCheckVFDMComps_Implementation(
 	UObject *Sender)
 {
+	// 保证照片被拍照后能同步图案内容
 	GetScreenMID();
 }

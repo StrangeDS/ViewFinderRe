@@ -3,18 +3,14 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "VFHelperInterface.h"
-
-#include "VFPhotoCaptureComponent.h"
-
 #include "VFPhotoCatcher.generated.h"
 
 class UStaticMeshComponent;
-
 class AVFPhoto2D;
 class AVFPhoto3D;
 class UVFViewFrustumComponent;
 class UVFDynamicMeshComponent;
-// class UVFPhotoCaptureComponent;
+class UVFPhotoCaptureComponent;
 class UVFBackgroundCaptureComponent;
 class UVFPostProcessComponent;
 
