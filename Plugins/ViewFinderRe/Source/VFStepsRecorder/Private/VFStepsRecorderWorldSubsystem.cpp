@@ -16,8 +16,10 @@ void UVFStepsRecorderWorldSubsystem::OnWorldBeginPlay(UWorld &InWorld)
 {
     Super::OnWorldBeginPlay(InWorld);
 
-    auto Setting = GetDefault<UVFStepsRecorderDeveloperSettings>();
-    TickInterval = Setting->StepsRecorderTickInterval;
+    auto Settings = GetDefault<UVFStepsRecorderDeveloperSettings>();
+    TickInterval = Settings->StepsRecorderTickInterval;
+    RewindCurFactor = Settings->StepsRecorderRewindFactor;
+
     Infos.Reserve(10 * GetSizeRecommended());
 }
 
@@ -37,7 +39,6 @@ void UVFStepsRecorderWorldSubsystem::Tick(float DeltaTime)
         TargetsNeedToRemove.Reset();
     }
 
-    RewindCurFactor = GetDefault<UVFStepsRecorderDeveloperSettings>()->StepsRecorderRewindFactor;
     TimeSinceLastTick += bIsRewinding ? DeltaTime * RewindCurFactor : DeltaTime;
     while (TimeSinceLastTick > TickInterval)
     {
@@ -236,28 +237,31 @@ int UVFStepsRecorderWorldSubsystem::GetSizeRecommended()
 
 void UVFStepsRecorderWorldSubsystem::RewindToLastKey()
 {
+    float TimeOfTarget = TimeOfStart;
     for (int i = Infos.Num() - 1; i >= 0; i--)
     {
         if (Infos[i].bIsKeyFrame)
         {
-            float TimeSpan = (Time - Infos[i].Time + TickInterval);
-            TimeSpan = FMath::Max(TimeSpan, TickInterval);
-            float Speed = TimeSpan / GetDefault<UVFStepsRecorderDeveloperSettings>()
-                                         ->StepsRecorderTimeOfRewindToLastKey;
-            Speed = FMath::Max(Speed, 1.0f);
-            RewindCurFactor = Speed;
-            StartRewinding();
-            GetWorld()->GetTimerManager().SetTimer(
-                RewindHandle, [this, TimeSpan]()
-                {
-                    RewindCurFactor = GetDefault<UVFStepsRecorderDeveloperSettings>()
-                    ->StepsRecorderRewindFactor;
-                    EndRewinding(); },
-                FMath::Min(TimeSpan, TimeOfRewindToLastKey),
-                false);
-            return;
+            TimeOfTarget = Infos[i].Time;
+            break;
         }
     }
+
+    TimeOfTarget = TimeOfTarget - TickInterval;
+    float TimeSpan = Time - TimeOfTarget;
+    auto Settings = GetDefault<UVFStepsRecorderDeveloperSettings>();
+    float TimeOfBackard = TimeSpan / Settings->StepsRecorderRewindFactor;
+    TimeOfBackard = FMath::Min(TimeOfBackard, Settings->StepsRecorderTimeOfRewindToLastKey);
+    RewindCurFactor = TimeSpan / TimeOfBackard;
+
+    GetWorld()->GetTimerManager().SetTimer(
+        RewindHandle, [this, TimeSpan]()
+        {
+            RewindCurFactor = GetDefault<UVFStepsRecorderDeveloperSettings>()->StepsRecorderRewindFactor;
+            EndRewinding(); },
+        TimeOfBackard,
+        false);
+    StartRewinding();
 }
 
 UVFStepsRecorderWorldSubsystem *UVFStepsRecorderWorldSubsystem::GetStepsRecorder(

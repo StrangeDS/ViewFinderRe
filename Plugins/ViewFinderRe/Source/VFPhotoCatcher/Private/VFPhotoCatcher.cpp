@@ -176,15 +176,6 @@ TArray<UPrimitiveComponent *> AVFPhotoCatcher::FilterOverlapComps_Implementation
 			auto Comp = *It;
 			bool HasHelper = HelperMap.Contains(Comp);
 
-			// 剔除不显示的Actor
-			bool HideOriginal = !HasHelper ||
-								(HelperMap[Comp]->ShowInPhotoRule != FVFShowInPhotoRule::OriginalOnly &&
-								 HelperMap[Comp]->ShowInPhotoRule != FVFShowInPhotoRule::Both);
-			if (HideOriginal)
-			{
-				ActorsToHide.AddUnique(Comp->GetOwner());
-			}
-
 			// 剔除不进入后续的Actor
 			if (bOnlyOverlapWithHelper && !HasHelper)
 			{
