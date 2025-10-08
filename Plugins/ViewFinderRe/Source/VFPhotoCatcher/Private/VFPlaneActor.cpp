@@ -9,6 +9,7 @@
 #include "Engine/StaticMesh.h"
 #include "Components/StaticMeshComponent.h"
 
+#include "VFHelperComponent.h"
 #include "VFPhotoCatcher.h"
 #include "VFBackgroundWorldSubsystem.h"
 

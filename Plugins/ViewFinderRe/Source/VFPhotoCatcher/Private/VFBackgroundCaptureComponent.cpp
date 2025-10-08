@@ -5,6 +5,7 @@
 
 #include "VFPlaneActor.h"
 #include "VFBackgroundWorldSubsystem.h"
+#include "VFPhotoCatcherDeveloperSettings.h"
 
 UVFBackgroundCaptureComponent::UVFBackgroundCaptureComponent()
     : Super()

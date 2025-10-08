@@ -77,6 +77,7 @@ void AVFPhotoCatcher::OnConstruction(const FTransform &Transform)
 	PhotoCapture->TargetHeight = PhotoCapture->TargetWidth / AspectRatio;
 
 	BackgroundCapture->FOVAngle = ViewAngle;
+	BackgroundCapture->AspectRatio = AspectRatio;
 	BackgroundCapture->CustomNearClippingPlane = StartDis;
 	BackgroundCapture->MaxViewDistanceOverride = EndDis;
 	BackgroundCapture->TargetHeight = BackgroundCapture->TargetWidth / AspectRatio;
