@@ -229,11 +229,19 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 {
 	TRACE_CPUPROFILER_EVENT_SCOPE(TEXT("AVFPhotoCatcher::TakeAPhoto_Implementation()"));
 
-	// 预生成Photo2D, 方便调试
+	// 预生成Photo3D
+	AVFPhoto3D *Photo3D = GetWorld()->SpawnActor<AVFPhoto3D>(
+		VFPhoto3DClass.Get(),
+		ViewFrustum->GetComponentLocation(),
+		ViewFrustum->GetComponentRotation());
+	Photo3D->RecordProperty(ViewFrustum, bOnlyOverlapWithHelper, ObjectTypesToOverlap);
+
+	// 预生成Photo2D
 	AVFPhoto2D *Photo2D = GetWorld()->SpawnActor<AVFPhoto2D>(
 		VFPhoto2DClass.Get(),
 		ViewFrustum->GetComponentLocation(),
 		ViewFrustum->GetComponentRotation());
+	Photo2D->SetPhoto3D(Photo3D);
 
 	// 重叠检测
 	TArray<UPrimitiveComponent *> OverlapComps = GetOverlapComps();
@@ -278,10 +286,6 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 
 	// 复制对应Actor
 	TArray<UVFDynamicMeshComponent *> CopiedComps;
-	AVFPhoto3D *Photo3D = GetWorld()->SpawnActor<AVFPhoto3D>(
-		VFPhoto3DClass.Get(),
-		ViewFrustum->GetComponentLocation(),
-		ViewFrustum->GetComponentRotation());
 	{
 		for (auto &HelperComp : HelpersRecorder)
 		{
@@ -364,14 +368,16 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 		ActorsToHide.AddUnique(Photo3D);
 		PhotoCapture->HiddenActors.Append(ActorsToHide);
 	}
+	
+	// 绘制Photo2D图案
 	Photo2D->SetPhoto(PhotoCapture);
 	PhotoCapture->HiddenActors = ActorsToIgnore;
 
+	// 背景绘制. 注意如果在拍摄照片前, 同一帧绘制会导致照片捕捉为未渲染状态.
 	bool GenerateAPlaneActor = bGenerateAPlaneActor &&
 							   GetDefault<UVFPhotoCatcherDeveloperSettings>()->bGeneratePlaneActor;
 	if (GenerateAPlaneActor)
 	{
-		// 背景绘制. 注意如果在拍摄照片前, 同一帧绘制会导致照片捕捉为未渲染状态.
 		auto Plane = BackgroundCapture->DrawABackground();
 		if (PostProcess->IsAnyRule())
 		{
@@ -379,15 +385,12 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 		}
 		Plane->GetOwner()->AttachToActor(Photo3D, FAttachmentTransformRules::KeepWorldTransform);
 	}
-
 	// Photo2D和Photo3D的后续处理
 	{
 		for (auto &HelperComp : CopiedHelpersRecorder)
 		{
 			HelperComp->NotifyDelegate(Photo3D, FVFHelperDelegateType::CopyBeforeFoldedInPhoto);
 		}
-		Photo2D->SetPhoto3D(Photo3D);
-		Photo3D->RecordProperty(ViewFrustum, bOnlyOverlapWithHelper, ObjectTypesToOverlap);
 		Photo2D->FoldUp();
 	}
 
