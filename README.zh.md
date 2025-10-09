@@ -160,6 +160,7 @@
   - [核心流程](#核心流程)
     - [拍照流程图](#拍照流程图)
     - [Photo3D放置, 覆盖场景](#photo3d放置-覆盖场景)
+    - [预制照片流程图](#预制照片流程图)
   - [*未实现猜测*](#未实现猜测)
   - [*ViewFinder流程拆解*](#viewfinder流程拆解)
   - [*Demo流程设计*](#demo流程设计)
@@ -431,7 +432,14 @@ AVFPhotoDecal制作的贴花颜色, 无法与场景完全一致
 使用UVFPhotoDecalDeveloperSettings::PhotoDecalLightFix进行光照修正
 
 ### *图案颜色转换卡顿*
-
+![Alt text](Plugins/ViewFinderRe/Resources/README/DecalInsight.png)  
+通过Insight可以看到性能瓶颈为, 场景捕捉和纹理写入, 也可以说是主线程与渲染线程的同步上  
+已做出的努力:
+- 纹理对象(UTexture2D)已经复用, 但底层的Mip依然会重新分配内存
+- 分帧处理: 一帧只进行场景捕捉, 第二帧进行纹理更新和材质赋值
+- 异步生成纹理
+  - 生成的图案是玩家几帧之前的图案, 玩家极可能多走了几步, 这是否穿帮?
+  - L_N2中, 即便是同步, 也需要Delay才能捕获到贴花
 
 ### *使用了GeometryScript的哪些功能*
 - 查看接口IVFGeometryStrategyInterface, 它是使用功能的抽象策略接口
@@ -527,14 +535,31 @@ R: 仅需使用Helper组件就能自定义行为
 [拍照流程图](#拍照流程图) 
 
 ### *预制照片流程*
-S: ViewFinder中, 场景中存在照片, 它不是玩家拍摄的, 是一开始就存在的, 且它可以是完全风格不一致的, 是其它场景的  
-T: 作为使用者, 需要从ULevel制作照片, 且能直接放置在其它ULevel中  
-Photo2D索引Photo3D, 所以最简单的做法就是把场景放置在Photo3D中.但这样场景是没有被裁切的, 
-直接由相机在编辑器中, 对场景进行拍照, 然后生成Photo2D和Photo3D, 再将这俩作为场景实例就可以完美解决这个问题  
-递归照片解决方案: Photo2D的Help中, 在被放置后复制外层Photo3D, 初始化为None并FlodUp, 即可解决  
+[预制照片流程图](#预制照片流程图)
 
-在实操中, 对于各式各样的Actor, 它们很难在编辑器的非运行状态下正常的被拍摄  
-S: 作为使用者, 我可能还会对它进行微调, 例如  
+S: ViewFinder中, 场景中存在一开始就存在的照片, 它可以是完全风格不一致的  
+T: 作为插件使用者, 这张照片应当是在另外的ULevel制作的, 放置在需要的ULevel中  
+即便是已经制作的照片, 应当也可以支持修改和更新  
+A: 预制场景中BeginPlay中实时拍照× 还需要限制仅对当前关卡实例的Actor生效和管理  
+考虑固化所有资产√ 动态网格体组件支持序列化, 还需要对相片纹理, 背景面纹理进行固化  
+R: 预制场景中放置Pref相机, 它拍照后会将内容移到一个新的关卡, 即预制场景加工出预制照片场景  
+固化相片和背景面的纹理(IAssetTools::DuplicateAsset), 并使用材质实例常量替换对应材质  
+
+S: 使用LevelInstanceSubsystem->CreateLevelInstanceFrom迁移Actors到新的关卡实例, Photo2D对于Photo3D的引用关系将会消失  
+T: 引用关系必然被破坏, 需要重建引用关系  
+里面很可能不止一个Photo2D和Photo3D, 甚至还有递归照片
+A: 在迁移前, Photo2D和对应的Photo3D, 都添加唯一的FGuid
+迁移后, 根据FGuid重新建立引用关系
+迁移后, Photo2D和PlaneActor的材质需要替换为固化资产
+R: 预制相片是一个新的Level, 意味着你其实可以对它进行改动  
+持有固化资产的引用, 可以更新图案  
+
+S: 递归相片, 里面还有一张一样图案的相片, 放置后也能对它进行放置, 会出现一样的递归场景  
+T: 其实在已有框架下, 是很好实现的, 即使用Helper组件, 在外层的Photo3D被放置前, 完整的复制一份即可  
+A: 不是Photo3D里面的Photo2D都是递归的, 所以需要一个布尔值进行标识  
+它可以完全在运行时进行处理, 编辑器中无需过多关心  
+R: 极简易的创建递归相片, 仅需勾选一个布尔值  
+运行时BeginPlay自动绑定动态多播(递归复制Photo3D), 无需关心  
 
 ### *回溯子系统*
 S: 回溯系统可以回溯位移, 网格体布尔运算等几乎所有操作  
@@ -1157,6 +1182,7 @@ graph TD
 ```
 
 #### Photo3D放置, 覆盖场景
+代码位于AVFPhoto3D::PlaceDown()
 ```mermaid
 flowchart TB
     A[重叠检测组件] --> B[映射Helper组件] --> sg1 --> C[替换的网格与视锥做差集] --> D[递归恢复Actor状态] --> E[结束]
@@ -1185,6 +1211,46 @@ flowchart TB
     %% 连接线优化
     C -.->|触发| dC
     D -.->|触发| dG
+```
+
+#### 预制照片流程图
+使用AI辅助生成, 代码位于AVFPhotoCatcherPref::PrefabricateAPhotoLevel
+```mermaid
+graph TD
+    %% 主流程列
+    subgraph MainProcess [主流程]
+        CheckLevelInstance[检查LevelInstanceSubsystem] --> DefineTemporaries[定义临时数据和纹理目标]
+        DefineTemporaries --> DefineHelperFunctions[定义清理和失败处理函数]
+        DefineHelperFunctions --> TakePhoto[执行拍照流程, 得到Photo2DRoot/Photo3DRoot]
+        TakePhoto --> GeneratePhoto2D[生成Photo2D纹理和MIC]
+        GeneratePhoto2D --> GeneratePlaneActor[生成PlaneActor纹理和MIC]
+        GeneratePlaneActor --> PM1[收集递归Photo2D更新材质]
+        
+        subgraph PrepareMigration [迁移前准备]
+            PM1 --> PM2[使用FGuid保存引用关系]
+        end
+        
+        PM2 --> CreateLevelInstance[创建关卡实例并进入编辑]
+        CreateLevelInstance --> FixReferences[修复引用关系]
+        FixReferences --> CreateAssets[创建持久化资产]
+        CreateAssets --> ReplaceMaterials[替换为常量材质资产]
+        ReplaceMaterials --> ExitEdit[退出关卡实例编辑]
+        ExitEdit --> CaptureOriginal[原场景拍照更新纹理]
+        CaptureOriginal --> ClearTemporary[执行清理]
+        ClearTemporary --> HoldAssets[持有固化资产引用]
+    end
+    
+    %% 失败处理列
+    subgraph FailureProcess [失败处理流程]
+        FPStart[失败处理开始] --> FPCleanup[清理临时资源]
+        FPCleanup --> FPEnd[失败结束]
+    end
+    
+    %% 主流程到失败处理的连接
+    GeneratePhoto2D -->|生成失败| FPStart
+    GeneratePlaneActor -->|生成失败| FPStart
+    CreateLevelInstance -->|创建失败| FPStart
+    CreateAssets -->|创建失败| FPStart
 ```
 
 ### *未实现猜测*
