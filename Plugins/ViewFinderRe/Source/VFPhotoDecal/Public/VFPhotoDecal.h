@@ -39,14 +39,14 @@ public:
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void DrawDecal(bool ForceToUpdate = false);
+	void DrawDecal(bool ForceToUpdate = false, bool NextFrameUpdate = true);
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void DrawSceneDepth(bool ForceToUpdate = false);
+	void DrawSceneDepth(bool ForceToUpdate = false, bool NextFrameUpdate = true);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, CallInEditor, Category = "ViewFinder")
-	void ReplaceWithDecal(bool ForceToUpdate = false);
-	virtual void ReplaceWithDecal_Implementation(bool ForceToUpdate = false);
+	void ReplaceWithDecal(bool ForceToUpdate = false, bool NextFrameUpdate = true);
+	virtual void ReplaceWithDecal_Implementation(bool ForceToUpdate = false, bool NextFrameUpdate = true);
 
 #if WITH_EDITOR
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")

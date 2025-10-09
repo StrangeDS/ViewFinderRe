@@ -1,5 +1,6 @@
 #include "VFPhotoDecal.h"
 
+#include "TimerManager.h"
 #include "Engine/Texture2D.h"
 #include "Components/DecalComponent.h"
 #include "UObject/ConstructorHelpers.h"
@@ -61,7 +62,7 @@ void AVFPhotoDecal::OnConstruction(const FTransform &Transform)
     Decal->SetRelativeScale3D(FVector(Scale.X, Scale.Y, Scale.Y / AspectRatio));
 }
 
-void AVFPhotoDecal::DrawDecal(bool ForceToUpdate)
+void AVFPhotoDecal::DrawDecal(bool ForceToUpdate, bool NextFrameUpdate)
 {
     if (bOnlyCatchManagedActors)
     {
@@ -84,16 +85,28 @@ void AVFPhotoDecal::DrawDecal(bool ForceToUpdate)
         MaterialInstance->SetScalarParameterValue(TEXT("LightFix"),
                                                   GetDefault<UVFPhotoDecalDeveloperSettings>()->PhotoDecalLightFix);
 
+        auto Update = [this, ForceToUpdate]()
+        {
+            if (!IsValid(TextureOfDecal))
+            {
+                TextureOfDecal = CaptureOfDecal->DrawATexture2D();
+            }
+            else if (ForceToUpdate)
+            {
+                CaptureOfDecal->DrawOnTexture2D(TextureOfDecal);
+            }
+            MaterialInstance->SetTextureParameterValue(TEXT("Texture"), TextureOfDecal);
+        };
+
         CaptureOfDecal->CaptureScene();
-        if (!IsValid(TextureOfDecal))
+        if (NextFrameUpdate)
         {
-            TextureOfDecal = CaptureOfDecal->DrawATexture2D();
+            GetWorldTimerManager().SetTimerForNextTick(Update);
         }
-        else if (ForceToUpdate)
+        else
         {
-            CaptureOfDecal->DrawOnTexture2D(TextureOfDecal);
+            Update();
         }
-        MaterialInstance->SetTextureParameterValue(TEXT("Texture"), TextureOfDecal);
     }
     else
     {
@@ -101,20 +114,32 @@ void AVFPhotoDecal::DrawDecal(bool ForceToUpdate)
     }
 }
 
-void AVFPhotoDecal::DrawSceneDepth(bool ForceToUpdate)
+void AVFPhotoDecal::DrawSceneDepth(bool ForceToUpdate, bool NextFrameUpdate)
 {
     if (GetMaterialInstance())
     {
+        auto Update = [this, ForceToUpdate]()
+        {
+            if (!IsValid(TextureOfDepth))
+            {
+                TextureOfDepth = CaptureOfDepth->DrawATexture2D();
+            }
+            else if (ForceToUpdate)
+            {
+                CaptureOfDepth->DrawOnTexture2D(TextureOfDepth);
+            }
+            MaterialInstance->SetTextureParameterValue(TEXT("TextureOfDepth"), TextureOfDepth);
+        };
+
         CaptureOfDepth->CaptureScene();
-        if (!IsValid(TextureOfDepth))
+        if (NextFrameUpdate)
         {
-            TextureOfDepth = CaptureOfDepth->DrawATexture2D();
+            GetWorldTimerManager().SetTimerForNextTick(Update);
         }
-        else if (ForceToUpdate)
+        else
         {
-            CaptureOfDepth->DrawOnTexture2D(TextureOfDepth);
+            Update();
         }
-        MaterialInstance->SetTextureParameterValue(TEXT("TextureOfDepth"), TextureOfDepth);
     }
     else
     {
@@ -122,15 +147,16 @@ void AVFPhotoDecal::DrawSceneDepth(bool ForceToUpdate)
     }
 }
 
-void AVFPhotoDecal::ReplaceWithDecal_Implementation(bool ForceToUpdate)
+void AVFPhotoDecal::ReplaceWithDecal_Implementation(bool ForceToUpdate, bool NextFrameUpdate)
 {
     if (bReplacing)
         return;
 
+    TRACE_CPUPROFILER_EVENT_SCOPE(ReplaceWithDecal_Implementation);
     bReplacing = true;
-    DrawDecal(ForceToUpdate);
+    DrawDecal(ForceToUpdate, NextFrameUpdate);
     SetDecalEnabled(bReplacing);
-    DrawSceneDepth(ForceToUpdate);
+    DrawSceneDepth(ForceToUpdate, NextFrameUpdate);
 
     OnReplace.Broadcast();
 }
@@ -138,7 +164,7 @@ void AVFPhotoDecal::ReplaceWithDecal_Implementation(bool ForceToUpdate)
 #if WITH_EDITOR
 void AVFPhotoDecal::ReplaceWithDecalInEditor()
 {
-    ReplaceWithDecal(true);
+    ReplaceWithDecal(true, false);
 }
 #endif
 

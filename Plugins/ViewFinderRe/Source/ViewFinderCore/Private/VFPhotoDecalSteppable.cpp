@@ -19,7 +19,7 @@ void AVFPhotoDecalSteppable::BeginPlay()
     }
 }
 
-void AVFPhotoDecalSteppable::ReplaceWithDecal_Implementation(bool ForceToUpdate)
+void AVFPhotoDecalSteppable::ReplaceWithDecal_Implementation(bool ForceToUpdate, bool NextFrameUpdate)
 {
     Super::ReplaceWithDecal_Implementation(ForceToUpdate);
 
