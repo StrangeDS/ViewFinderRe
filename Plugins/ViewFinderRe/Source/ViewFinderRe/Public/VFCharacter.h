@@ -172,6 +172,9 @@ public: // UVFActivatableInterface管理
 	bool SwitchEquipment(const TScriptInterface<IVFActivatableInterface> &Equipment);
 	virtual bool SwitchEquipment_Implementation(const TScriptInterface<IVFActivatableInterface> &Equipment);
 
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	void OnEndRewinding(float Time);
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	int EquipmentCurIndex = INDEX_NONE;
 

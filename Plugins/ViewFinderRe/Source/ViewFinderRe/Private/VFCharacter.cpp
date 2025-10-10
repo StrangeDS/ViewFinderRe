@@ -79,6 +79,7 @@ void AVFCharacter::BeginPlay()
 	}
 	Steps.Reserve(UVFStepsRecorderWorldSubsystem::GetSizeRecommended());
 	StepsRecorder->RegisterTickable(this);
+	StepsRecorder->OnEndRewinding.AddUniqueDynamic(this, &AVFCharacter::OnEndRewinding);
 }
 
 void AVFCharacter::Tick(float DeltaTime)
@@ -301,7 +302,7 @@ int AVFCharacter::GetPhoto2DNum_Implementation()
 {
 	if (IsValid(Container) && Container->Implements<UVFPhotoContainerInterface>())
 	{
-		IVFPhotoContainerInterface::Execute_GetPhoto2DNum(Container);
+		return IVFPhotoContainerInterface::Execute_GetPhoto2DNum(Container);
 	}
 	return -1;
 }
@@ -383,4 +384,18 @@ bool AVFCharacter::SwitchEquipment_Implementation(const TScriptInterface<IVFActi
 	DeactivateCurEquipment();
 	EquipmentCurIndex = Equipments.Find(Equipment);
 	return IVFActivatableInterface::Execute_TryActivate(Equipment.GetObject());
+}
+
+void AVFCharacter::OnEndRewinding(float Time)
+{
+	// 设备自行回溯开启状态, 这里检查并更新EquipmentCurIndex
+	for (auto Equipment : Equipments)
+	{
+		if (IVFActivatableInterface::Execute_IsActive(Equipment.GetObject()))
+		{
+			EquipmentCurIndex = Equipments.Find(Equipment);
+			return;
+		}
+	}
+	EquipmentCurIndex = INDEX_NONE;
 }
