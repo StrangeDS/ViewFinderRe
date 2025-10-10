@@ -21,6 +21,7 @@ AVFPhotoDecal::AVFPhotoDecal()
 
     CaptureOfDecal = CreateDefaultSubobject<UVFPhotoCaptureComponent>(TEXT("CaptureOfDecal"));
     CaptureOfDecal->SetupAttachment(CaptureRoot);
+	CaptureOfDecal->CaptureSource = ESceneCaptureSource::SCS_SceneColorSceneDepth;
 
     CaptureOfDepth = CreateDefaultSubobject<UVFPhotoCaptureComponent>(TEXT("CaptureOfDepth"));
     CaptureOfDepth->SetupAttachment(CaptureRoot);
@@ -82,6 +83,8 @@ void AVFPhotoDecal::DrawDecal(bool ForceToUpdate, bool NextFrameUpdate)
         MaterialInstance->SetVectorParameterValue(TEXT("DecalSize"), Decal->DecalSize);
         MaterialInstance->SetScalarParameterValue(TEXT("FOVAngle"), ViewAngle);
         MaterialInstance->SetScalarParameterValue(TEXT("AspectRatio"), AspectRatio);
+        MaterialInstance->SetScalarParameterValue(TEXT("DecalStart"), StartDis);
+        MaterialInstance->SetScalarParameterValue(TEXT("EndDis"), EndDis);
         MaterialInstance->SetScalarParameterValue(TEXT("LightFix"),
                                                   GetDefault<UVFPhotoDecalDeveloperSettings>()->PhotoDecalLightFix);
 

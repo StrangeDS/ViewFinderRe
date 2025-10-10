@@ -16,10 +16,7 @@ public:
 		const FObjectInitializer &ObjectInitializer =FObjectInitializer::Get()) {};
 
 public:
-	/*
-	贴花光照强度修正
-	可能更应该考虑不同ULevel给予不同的修正?
-	*/
+	// 通用贴花光照强度修正
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,
 			  Category = "Settings|PhotoDecal",
 			  meta = (UIMin = 0.01f, UIMax = 2.0f))

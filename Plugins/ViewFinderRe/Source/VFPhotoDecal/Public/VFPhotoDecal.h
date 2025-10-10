@@ -111,6 +111,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TArray<AActor *> ManagedActors;
 
+	// 使用此项将使用ShowOnlyActors, 注意: 将不会接收到其它物体的遮挡和阴影效果
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	bool bOnlyCatchManagedActors = false;
 
