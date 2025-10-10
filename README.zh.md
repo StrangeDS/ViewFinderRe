@@ -170,31 +170,31 @@
 
 <a id="camera-照片物体"></a>
 ### :camera: 照片⇄物体
-|                                                 |                                                 |
-| :---------------------------------------------: | :---------------------------------------------: |
-| ![](Plugins/ViewFinderRe/Resources/Icon128.png) | ![](Plugins/ViewFinderRe/Resources/Icon128.png) |
-|            对模拟物理的物体进行拍照             |                    不同视锥                     |
-| ![](Plugins/ViewFinderRe/Resources/Icon128.png) | ![](Plugins/ViewFinderRe/Resources/Icon128.png) |
-|            不同配置的Actor有不同响应            |                  剪切而非复制                   |
-| ![](Plugins/ViewFinderRe/Resources/Icon128.png) | ![](Plugins/ViewFinderRe/Resources/Icon128.png) |
-|                    滤镜效果                     |                    递归照片                     |
-|                                                 |                                                 |
+|                                                                            |                                                                        |
+| :------------------------------------------------------------------------: | :--------------------------------------------------------------------: |
+| ![](Plugins/ViewFinderRe/Resources/README/Display_CapturePhysicsCubes.gif) | ![](Plugins/ViewFinderRe/Resources/README/Display_DiffViewFrustum.gif) |
+|                          对模拟物理的物体进行拍照                          |                                不同视锥                                |
+|    ![](Plugins/ViewFinderRe/Resources/README/Display_DiffBehavior.gif)     |       ![](Plugins/ViewFinderRe/Resources/README/Display_Cut.gif)       |
+|                         不同配置的Actor有不同响应                          |                              剪切而非复制                              |
+|       ![](Plugins/ViewFinderRe/Resources/README/Display_Filter.gif)        |    ![](Plugins/ViewFinderRe/Resources/README/Display_Recursion.gif)    |
+|                                  滤镜效果                                  |                                递归照片                                |
+|                                                                            |                                                                        |
 
 <a id="art-图案物体"></a>
 ### :art: 图案⇄物体
-|                                                 |                                                 |
-| :---------------------------------------------: | :---------------------------------------------: |
-| ![](Plugins/ViewFinderRe/Resources/Icon128.png) | ![](Plugins/ViewFinderRe/Resources/Icon128.png) |
-|                   图案->物体                    |                   物体->图案                    |
-|                                                 |                                                 |
+|                                                                    |                                                                    |
+| :----------------------------------------------------------------: | :----------------------------------------------------------------: |
+| ![](Plugins/ViewFinderRe/Resources/README/Display_DecalToObjs.gif) | ![](Plugins/ViewFinderRe/Resources/README/Display_ObjsToDecal.gif) |
+|                             图案->物体                             |                             物体->图案                             |
+|                                                                    |                                                                    |
 
 <a id="previous_track_button-时间回溯"></a>
 ### :previous_track_button: 时间回溯
-|                                                 |                                                 |
-| :---------------------------------------------: | :---------------------------------------------: |
-| ![](Plugins/ViewFinderRe/Resources/Icon128.png) | ![](Plugins/ViewFinderRe/Resources/Icon128.png) |
-|                   相片的回溯                    |            图案->场景回溯和再次触发             |
-|                                                 |                                                 |
+|                                                               |                                                                              |
+| :-----------------------------------------------------------: | :--------------------------------------------------------------------------: |
+| ![](Plugins/ViewFinderRe/Resources/README/Display_Rewind.gif) | ![](Plugins/ViewFinderRe/Resources/README/Display_RewindAndTriggerAgain.gif) |
+|                           相片回溯                            |                           图案->场景回溯和再次触发                           |
+|                                                               |                                                                              |
 
 ## 体验和使用
 
@@ -422,14 +422,15 @@ AVFPhotoDecal制作的贴花颜色, 无法与场景完全一致
 一个可能的解决方案: [插件CameraCapture](https://zhuanlan.zhihu.com/p/702941885)  
 
 然后是"二次光照"(我也不知道如何称呼)  
-1. 场景捕捉捕获的物体, 经过了一次PBR流程, 成为了贴花的图案
-2. 贴花赋予到物体上, 再经过了一次PBR流程, 进入玩家视角
+1. 场景捕捉捕获的物体, 经过了一次光照计算流程, 成为了贴花的图案
+2. 贴花赋予到物体上, 再经过了一次光照计算流程, 进入玩家视角
 
 这就是我认为的"二次光照", 需要减少一次光照过程  
-第一个阶段通过修改ShowFlags, 能实现"不进行光照"的, 但捕获的图像将没有阴影  
-第二个阶段中, 贴花也无法调整着色模型, 只能通过自发光来减少差距  
+第一个阶段通过修改ShowFlags, 能实现获取"光照计算前"的基础颜色, 但捕获的图像将没有阴影  
+第二个阶段中, 贴花也无法调整着色模型, 无法跳过光照计算 只能通过自发光来减少差距  
 最终的结果是, 贴花在光照强的地方偏凉, 光照弱的地方偏暗  
-使用UVFPhotoDecalDeveloperSettings::PhotoDecalLightFix进行光照修正
+场景捕获使用的是ESceneCaptureSource::SCS_SceneColorSceneDepth, 在后处理流程之前, 方便后续只进行一次后处理流程  
+使用UVFPhotoDecalDeveloperSettings::PhotoDecalLightFix进行光照修正, 简单根据当前颜色值反向抵消一次光照计算  
 
 ### *图案颜色转换卡顿*
 ![Alt text](Plugins/ViewFinderRe/Resources/README/DecalInsight.png)  
@@ -1419,3 +1420,4 @@ graph TD
 1. 本地化
 2. FrustumGenerator法线验证和修复
 3. 删除类重定向
+4. 回溯后拍照会双持
