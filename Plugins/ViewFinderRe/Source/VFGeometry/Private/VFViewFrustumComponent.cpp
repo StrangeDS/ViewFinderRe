@@ -16,6 +16,7 @@ UVFViewFrustumComponent::UVFViewFrustumComponent()
         TEXT("/ViewFinderRe/Materials/Frustum/MI_Transparent.MI_Transparent"));
     Matirial = MaterialSelector.Object;
     SetMaterial(0, Matirial);
+    CastShadow = false;
 }
 
 void UVFViewFrustumComponent::BeginPlay()
