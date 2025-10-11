@@ -128,7 +128,6 @@ void UVFPhotoCaptureComponent::DrawOnTexture2D(UTexture2D *Texture2D)
 
 	FIntPoint TSize(Texture2D->GetSizeX(), Texture2D->GetSizeY());
 	FIntPoint RTSize(TextureTarget->SizeX, TextureTarget->SizeY);
-	check(TSize == RTSize);
 
 	FTextureRenderTargetResource *RTResource = TextureTarget->GameThread_GetRenderTargetResource();
 
@@ -161,8 +160,8 @@ void UVFPhotoCaptureComponent::DrawOnTexture2D(UTexture2D *Texture2D)
 		Mip.BulkData.Unlock();
 #if WITH_EDITOR
 		Texture2D->Source.Init2DWithMipChain(
-			TSize.X,
-			TSize.Y,
+			RTSize.X,
+			RTSize.Y,
 			ETextureSourceFormat::TSF_BGRA8);
 
 		uint8 *MipData = Texture2D->Source.LockMip(0);
@@ -199,8 +198,8 @@ void UVFPhotoCaptureComponent::DrawOnTexture2D(UTexture2D *Texture2D)
 		Mip.BulkData.Unlock();
 #if WITH_EDITOR
 		Texture2D->Source.Init2DWithMipChain(
-			TSize.X,
-			TSize.Y,
+			RTSize.X,
+			RTSize.Y,
 			ETextureSourceFormat::TSF_RGBA16F);
 
 		uint8 *MipData = Texture2D->Source.LockMip(0);
