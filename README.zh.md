@@ -124,7 +124,7 @@
   - [*支持回溯的动态网格组件*](#支持回溯的动态网格组件)
 - [其它技术细节](#其它技术细节)
   - [*贴花透视投影*](#贴花透视投影)
-  - [*VFTransfromRecorderActor*](#vftransfromrecorderactor)
+  - [*VFTransformRecorderActor*](#vftransformrecorderactor)
   - [*替身*](#替身)
   - [*背景面*](#背景面)
   - [*滤镜*](#滤镜)
@@ -373,7 +373,7 @@ PlaneActor是拍照时对于天空盒等背景内容单独捕获的图像, 然�
 你还可以查看[回溯子系统](#回溯子系统), 有更详尽的解释
 - VFStepsRecorderWorldSubsystem还提供了
   - 一个统一的数组预分配大小
-  - 提供了RecordTransform和UnrecordTransform, 方便了AVFTransfromRecorderActor的使用
+  - 提供了RecordTransform和UnrecordTransform, 方便了AVFTransformRecorderActor的使用
   - 提供了StartRewinding和EndRewinding的动态多播
   - 考虑未来的拓展(手动设置开始和结束区间), 提供SetTimeOfStart和SetTimeOfEnd等
     - 最开始的为了解决流式关卡加载, 回溯到TIME_MIN会销毁的问题
@@ -573,7 +573,7 @@ R: 提供"TickForward和TickBackward", "SubmitStep和StepBack"两种使用方式
   - tick驱动, 高频持续调用
   - 本地存储帧级别数据, 使用增量进行优化
   - 访问者模式
-  - 更多例子可见: AVFTransfromRecorderActor, AVFCharacter
+  - 更多例子可见: AVFTransformRecorderActor, AVFCharacter
 - 视SubmitStep和StepBack为:
   - 事件驱动, 低频瞬发操作
   - 统一管理轻量数据(FString), 较大数据也应该放到本地
@@ -616,13 +616,13 @@ R: 代码位于AVFPhotoDecal::DrawDecal(), 材质参数在此给入
 材质位于ViewFinder/Plugins/ViewFinderRe/Content/Materials/Decal/M_Decal_Photolize  
 不使用SCS_SceneColorSceneDepth的捕获源, 还需要单独捕捉一张深度图, 原因则是距离不好计算  
 
-### *VFTransfromRecorderActor*
+### *VFTransformRecorderActor*
 S: ViewFinder中所有的物体都支持回溯  
 T: 作为项目插件, 应当是易用且可控的   
 不应该嵌入到其它Actor内, 单独独立一个Actor, 记录多个网格体的回溯信息  
-A: AVFTransfromRecorderActor认为其下的基元组件重叠的网格体都应该是需要记录回溯的  
+A: AVFTransformRecorderActor认为其下的基元组件重叠的网格体都应该是需要记录回溯的  
 R: 批量处理网格体, 支持带物理的Actor, 增量变动  
-回溯子系统有一个TMap<FString, AVFTransfromRecorderActor>的成员变量,作为一个更方便使用的入口  
+回溯子系统有一个TMap<FString, AVFTransformRecorderActor>的成员变量,作为一个更方便使用的入口  
 
 ### *替身*
 S: ViewFinder中拍照拍到玩家角色, 会显示一个黑影, 照片放置时, 玩家会瞬移到黑影的位置  
@@ -807,7 +807,7 @@ graph TD
 #### VFStepsRecorder
 接口: VFStepsRecordInterface
 世界子系统: VFStepsRecorderWorldSubsystem
-Actor: VFTransformRecordVolume, VFTransfromRecorderActor
+Actor: VFTransformRecordVolume, VFTransformRecorderActor
 配置类: tick间隔, 回溯时间倍率, 预分配数组大小等
 
 <!-- 几何策略的定义和实现 -->
@@ -1144,41 +1144,41 @@ graph TD
     M2 --> M3
     M3 --> M4
     
-    %% 第一水平阶段：创建VFDynamicMeshComponent
+    %% 第一水平阶段: 创建VFDynamicMeshComponent
     M4 --> HO1
     HO1 --> O1
     O1 --> M5
     
-    %% 第二水平阶段：重新生成HelperMap
+    %% 第二水平阶段: 重新生成HelperMap
     M5 --> HO2
     HO2 --> M6
     M6 --> C1
     
-    %% 第三水平阶段：原组件做切割
+    %% 第三水平阶段: 原组件做切割
     C1 --> HO3
     HO3 --> O2
     
-    %% 第四水平阶段：副本组件做交集
+    %% 第四水平阶段: 副本组件做交集
     O2 --> HC1
     HC1 --> C2
     
-    %% 第五水平阶段：拍照准备
+    %% 第五水平阶段: 拍照准备
     C2 --> HO4
     HO4 --> HC2
     HC2 --> M7
     
-    %% 第六水平阶段：滤镜处理和隐藏设置
+    %% 第六水平阶段: 滤镜处理和隐藏设置
     M7 --> M8
     
-    %% 第七水平阶段：背景绘制
+    %% 第七水平阶段: 背景绘制
     M8 --> M9
     M9 --> M10
     
-    %% 第八水平阶段：折叠处理
+    %% 第八水平阶段: 折叠处理
     M10 --> HC3
     HC3 --> M11
     
-    %% 第九水平阶段：结束处理
+    %% 第九水平阶段: 结束处理
     M11 --> HO5
     HO5 --> HC4
 ```
@@ -1257,7 +1257,7 @@ graph TD
 
 ### *未实现猜测*
 1. Actor失效: 使用Helper就完事了
-   1. 电池, 传送装置, 管线等大多数: 使用OnCopyEndPlacingPhoto, OnOriginalEndPlacingPhoto判断(关键)组件的三角面(/顶点)数。
+   1. 电池, 传送装置, 管线等大多数: 使用OnCopyEndPlacingPhoto, OnOriginalEndPlacingPhoto判断(关键)组件的三角面(/顶点)数
    2. 风车: OnOriginalEndTakingPhoto判断关键组件
    3. 猫咪: 使用透明网格的StandIn, 这样就能: 不被拍入照片, 拍摄换位置, 放置后出现在新场景等
 2. 关卡传送装置: 这个其实很怪异
@@ -1418,6 +1418,5 @@ graph TD
 8. 插件参数设置
 
 ### *ToDoList*
-1. 本地化
-2. FrustumGenerator法线验证和修复
-3. 删除类重定向
+完善方向, 但很可能不会做
+1. FrustumGenerator法线验证和修复
