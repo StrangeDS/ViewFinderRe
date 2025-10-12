@@ -25,12 +25,20 @@ void AVFPhotoDecalSteppable::ReplaceWithDecal_Implementation(bool ForceToUpdate,
 
     if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
+        float Time = StepsRecorder->GetTime();
+        if (bIsFirstReplacement)
+        {
+            Time = StepsRecorder->GetTimeOfMin();
+            bIsFirstReplacement = false;
+        }
+
         StepsRecorder->SubmitStep(
             this,
             FVFStepInfo{
                 EnumToString<AVFPhotoDecalOperation>(
                     AVFPhotoDecalOperation::Replace),
-                true});
+                true,
+                Time});
     }
 }
 

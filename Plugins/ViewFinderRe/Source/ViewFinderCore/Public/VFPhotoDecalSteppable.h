@@ -26,5 +26,12 @@ public:
 	virtual void RestoreWithActors_Implementation() override;
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	bool bKeepFirstReplacement = false;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "ViewFinder")
+	bool bIsFirstReplacement = true;
+
+public:
 	virtual bool StepBack_Implementation(FVFStepInfo &StepInfo) override;
 };

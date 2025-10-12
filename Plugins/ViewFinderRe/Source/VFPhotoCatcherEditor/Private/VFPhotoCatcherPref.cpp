@@ -584,43 +584,64 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
 
 void AVFPhotoCatcherPref::UpdateMIC()
 {
-    if (!Texture2DAsset)
+    bool UpdatePhoto = IsValid(Texture2DAsset) && IsValid(MIConstantAsset);
+    bool UpdateBackground = IsValid(BgTexture2DAsset) && IsValid(BgMIConstantAsset);
+    if (!UpdatePhoto && !UpdateBackground)
     {
         VF_LOG(Error,
-               TEXT("%s invalid Texture2DAsset. Select or Prefabricate first."),
+               TEXT("%s invalid Assets. Select or Prefabricate first."),
                __FUNCTIONW__);
         return;
     }
-
-    if (!MIConstantAsset)
-    {
-        VF_LOG(Error,
-               TEXT("%s invalid MIConstantAsset. Select or Prefabricate first."),
-               __FUNCTIONW__);
-        return;
-    }
-
+    
     FScopedTransaction Transaction(FText::FromString(TEXT("UpdateMIC")));
-    Texture2DAsset->Modify();
-    MIConstantAsset->Modify();
-
-    bool bPhotoCaptureTempRT = PhotoCapture->TextureTarget == nullptr;
-    if (bPhotoCaptureTempRT)
+    if (UpdatePhoto)
     {
-        PhotoCapture->Init();
+        Texture2DAsset->Modify();
+        MIConstantAsset->Modify();
+
+        bool bPhotoCaptureTempRT = PhotoCapture->TextureTarget == nullptr;
+        if (bPhotoCaptureTempRT)
+        {
+            PhotoCapture->Init();
+        }
+
+        PhotoCapture->CaptureScene();
+        PhotoCapture->TextureTarget->UpdateTexture2D(Texture2DAsset, Texture2DAsset->Source.GetFormat());
+
+        if (bPhotoCaptureTempRT)
+        {
+            PhotoCapture->TextureTarget = nullptr;
+        }
+
+        Texture2DAsset->PostEditChange();
+        Texture2DAsset->MarkPackageDirty();
+        MIConstantAsset->MarkPackageDirty();
     }
 
-    PhotoCapture->CaptureScene();
-    PhotoCapture->TextureTarget->UpdateTexture2D(Texture2DAsset, Texture2DAsset->Source.GetFormat());
-
-    if (bPhotoCaptureTempRT)
+    if (UpdateBackground)
     {
-        PhotoCapture->TextureTarget = nullptr;
-    }
+        BgTexture2DAsset->Modify();
+        BgMIConstantAsset->Modify();
 
-    Texture2DAsset->PostEditChange();
-    Texture2DAsset->MarkPackageDirty();
-    MIConstantAsset->MarkPackageDirty();
+        bool bPhotoCaptureTempRT = BackgroundCapture->TextureTarget == nullptr;
+        if (bPhotoCaptureTempRT)
+        {
+            BackgroundCapture->Init();
+        }
+
+        BackgroundCapture->CaptureScene();
+        BackgroundCapture->TextureTarget->UpdateTexture2D(BgTexture2DAsset, BgTexture2DAsset->Source.GetFormat());
+
+        if (bPhotoCaptureTempRT)
+        {
+            BackgroundCapture->TextureTarget = nullptr;
+        }
+
+        BgTexture2DAsset->PostEditChange();
+        BgTexture2DAsset->MarkPackageDirty();
+        BgMIConstantAsset->MarkPackageDirty();
+    }
 }
 
 #include "Engine/Engine.h"
