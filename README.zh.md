@@ -220,8 +220,8 @@
 ![](Plugins/ViewFinderRe/Resources/README/ObjectChannels.png)
 3. 确保碰撞预设(Preset)存在ViewFrustum, 无则新建, 设置如图:  
 ![](Plugins/ViewFinderRe/Resources/README/CollisionPreset.png)
-1. 复制粘贴DefaultEngine.ini中**CoreRedirects**的设置
-2. 重启编辑器
+4. ProjectSettings-Engine-Render-Shadow Map Method改为ShadowMaps, 即关闭VSM
+5. 重启编辑器
 
 #### 设计考虑
 从偷懒上说, 场景最好什么都不用动, 相机一视同仁, 都可拍照复制  
@@ -275,6 +275,7 @@
    3. 在选择的路径下, 除了刚刚创建的新关卡, 还会有2个纹理, 2个材质实例. 它们分别是相片的材质(纹理), 和背景图片的材质(纹理)
 5. "_Photo"关卡就是一张预制的照片, 你可以把它放置在其它关卡中, 它会以照片存在
 6. 注意: 删除的时候, 请先删除四个纹理和材质实例资产, 然后再删除地图_Photo
+   1. 不然会出现编辑器崩溃, 原因未知, 猜测可能是循环引用的问题
 
 ### *图案->物体*
 1. 搭建场景
