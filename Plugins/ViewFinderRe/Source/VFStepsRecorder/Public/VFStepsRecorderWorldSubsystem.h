@@ -15,7 +15,7 @@ enum class EVFStepsRecorderSubsystemCheckMode : uint8
 };
 
 class IVFStepsRecordInterface;
-class AVFTransfromRecorderActor;
+class AVFTransformRecorderActor;
 
 UCLASS(ClassGroup = (ViewFinder))
 class VFSTEPSRECORDER_API UVFStepsRecorderWorldSubsystem : public UTickableWorldSubsystem
@@ -54,7 +54,7 @@ public:
 						   const FString &Channel = TEXT(""));
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TMap<FString, TObjectPtr<AVFTransfromRecorderActor>> TransformRecorderMap;
+	TMap<FString, TObjectPtr<AVFTransformRecorderActor>> TransformRecorderMap;
 
 public:
 	void TickForward(float DeltaTime);

@@ -1,4 +1,4 @@
-#include "VFTransfromRecorderActor.h"
+#include "VFTransformRecorderActor.h"
 
 #include "Components/PrimitiveComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -36,7 +36,7 @@ bool FVFTransCompInfo::IsChanged(const FVFTransCompInfo &InfoNew) const
 	return Velocity != InfoNew.Velocity || !Transform.Equals(InfoNew.Transform);
 }
 
-AVFTransfromRecorderActor::AVFTransfromRecorderActor()
+AVFTransformRecorderActor::AVFTransformRecorderActor()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	CompClassToCollect = UPrimitiveComponent::StaticClass();
@@ -44,7 +44,7 @@ AVFTransfromRecorderActor::AVFTransfromRecorderActor()
 	RootComponent = CreateDefaultSubobject<USceneComponent>("RootComponent");
 }
 
-void AVFTransfromRecorderActor::BeginPlay()
+void AVFTransformRecorderActor::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -59,7 +59,7 @@ void AVFTransfromRecorderActor::BeginPlay()
 	ReCollectComponents();
 }
 
-void AVFTransfromRecorderActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void AVFTransformRecorderActor::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	ClearComponents();
 	ClearInfoMap();
@@ -67,30 +67,24 @@ void AVFTransfromRecorderActor::EndPlay(const EEndPlayReason::Type EndPlayReason
 	Super::EndPlay(EndPlayReason);
 }
 
-void AVFTransfromRecorderActor::AddToRecord(USceneComponent *Component)
+void AVFTransformRecorderActor::AddToRecord(USceneComponent *Component)
 {
 	check(Component);
 	Components.AddUnique(Component);
 }
 
-void AVFTransfromRecorderActor::RemoveFromRecord(USceneComponent *Component)
+void AVFTransformRecorderActor::RemoveFromRecord(USceneComponent *Component)
 {
 	Components.RemoveSwap(Component);
 }
 
-bool AVFTransfromRecorderActor::IsBegingRecorded(USceneComponent *Component)
+bool AVFTransformRecorderActor::IsBegingRecorded(USceneComponent *Component)
 {
 	return Components.Contains(Component);
 }
 
-void AVFTransfromRecorderActor::ReCollectComponents_Implementation()
+void AVFTransformRecorderActor::ReCollectComponents_Implementation()
 {
-	if (!GetStepsRecorder())
-	{
-		VF_LOG(Error, TEXT("%s invalid StepsRecorder."));
-		return;
-	}
-
 	if (!IsValid(CompClassToCollect))
 	{
 		VF_LOG(Error, TEXT("%s invalid CompClassToCollect."));
@@ -109,7 +103,7 @@ void AVFTransfromRecorderActor::ReCollectComponents_Implementation()
 		bool Result = UKismetSystemLibrary::ComponentOverlapComponents(
 			Cast<UPrimitiveComponent>(ChildComp),
 			ChildComp->GetComponentTransform(),
-			{},
+			ObjectTypes,
 			CompClassToCollect,
 			ActorsToIgnore,
 			Overlaps);
@@ -140,17 +134,17 @@ void AVFTransfromRecorderActor::ReCollectComponents_Implementation()
 	SetActorEnableCollision(false);
 }
 
-void AVFTransfromRecorderActor::ClearComponents()
+void AVFTransformRecorderActor::ClearComponents()
 {
 	Components.Reset();
 }
 
-void AVFTransfromRecorderActor::ClearInfoMap()
+void AVFTransformRecorderActor::ClearInfoMap()
 {
 	CompInfoMap.Reset();
 }
 
-void AVFTransfromRecorderActor::TickForward_Implementation(float Time)
+void AVFTransformRecorderActor::TickForward_Implementation(float Time)
 {
 	TArray<FVFTransCompInfo> Infos;
 	for (auto It = Components.CreateIterator(); It; It++)
@@ -178,7 +172,7 @@ void AVFTransfromRecorderActor::TickForward_Implementation(float Time)
 	}
 }
 
-void AVFTransfromRecorderActor::TickBackward_Implementation(float Time)
+void AVFTransformRecorderActor::TickBackward_Implementation(float Time)
 {
 	while (Steps.Num() > 1)
 	{

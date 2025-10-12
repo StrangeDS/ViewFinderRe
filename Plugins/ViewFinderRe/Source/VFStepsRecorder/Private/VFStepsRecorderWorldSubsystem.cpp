@@ -5,7 +5,7 @@
 #include "VFLog.h"
 #include "VFStepsRecordInterface.h"
 #include "VFStepsRecorderDeveloperSettings.h"
-#include "VFTransfromRecorderActor.h"
+#include "VFTransformRecorderActor.h"
 
 TStatId UVFStepsRecorderWorldSubsystem::GetStatId() const
 {
@@ -136,7 +136,7 @@ void UVFStepsRecorderWorldSubsystem::RecordTransform(
 
     if (!TransformRecorderMap.Contains(Channel))
     {
-        auto TransformRecorder = GetWorld()->SpawnActor<AVFTransfromRecorderActor>();
+        auto TransformRecorder = GetWorld()->SpawnActor<AVFTransformRecorderActor>();
         TransformRecorderMap.Emplace(Channel, TransformRecorder);
     }
     TransformRecorderMap[Channel]->AddToRecord(Component);

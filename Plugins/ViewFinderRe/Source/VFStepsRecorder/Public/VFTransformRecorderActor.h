@@ -4,7 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "VFStepsRecordInterface.h"
 #include "VFStepsRecorderWorldSubsystem.h"
-#include "VFTransfromRecorderActor.generated.h"
+#include "VFTransformRecorderActor.generated.h"
 
 USTRUCT(BlueprintType)
 struct FVFTransCompInfo
@@ -57,12 +57,12 @@ struct FVFTransStepInfo
 // 对Actor瞬移(SetActorLocation())的回退, 效果不佳, 会认为是从不动后到瞬移后的长时间位移.
 // VFCharacter对瞬移的回退效果较好, 可以考虑进行改进. (懒得改了)
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
-class VFSTEPSRECORDER_API AVFTransfromRecorderActor : public AActor, public IVFStepsRecordInterface
+class VFSTEPSRECORDER_API AVFTransformRecorderActor : public AActor, public IVFStepsRecordInterface
 {
 	GENERATED_BODY()
 
 public:
-	AVFTransfromRecorderActor();
+	AVFTransformRecorderActor();
 
 	virtual void BeginPlay() override;
 
@@ -77,6 +77,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	bool IsBegingRecorded(USceneComponent *Component);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	TSubclassOf<UPrimitiveComponent> CompClassToCollect;
