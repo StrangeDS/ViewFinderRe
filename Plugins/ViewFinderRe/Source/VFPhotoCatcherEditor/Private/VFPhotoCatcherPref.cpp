@@ -593,7 +593,7 @@ void AVFPhotoCatcherPref::UpdateMIC()
                __FUNCTIONW__);
         return;
     }
-    
+
     FScopedTransaction Transaction(FText::FromString(TEXT("UpdateMIC")));
     if (UpdatePhoto)
     {
@@ -649,7 +649,7 @@ AVFPhoto2D *AVFPhotoCatcherPref::TakeAPhoto_Implementation()
 {
     if (GEngine && !GEngine->IsEditor())
     {
-        VF_LOG(Error, TEXT("%s should only call in editor and not runtime."));
+        VF_LOG(Error, TEXT("%s should only call in editor and not runtime."), __FUNCTIONW__);
         return nullptr;
     }
 

@@ -50,7 +50,7 @@ void AVFTransformRecorderActor::BeginPlay()
 
 	if (!GetStepsRecorder())
 	{
-		VF_LOG(Error, TEXT("%s invalid StepsRecorder."));
+		VF_LOG(Error, TEXT("%s invalid StepsRecorder."), __FUNCTIONW__);
 		return;
 	}
 
@@ -87,7 +87,7 @@ void AVFTransformRecorderActor::ReCollectComponents_Implementation()
 {
 	if (!IsValid(CompClassToCollect))
 	{
-		VF_LOG(Error, TEXT("%s invalid CompClassToCollect."));
+		VF_LOG(Error, TEXT("%s invalid CompClassToCollect."), __FUNCTIONW__);
 		return;
 	}
 

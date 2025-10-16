@@ -8,7 +8,7 @@
 class VFStepsRecordInterface;
 
 UENUM(BlueprintType)
-enum class UVFDMCompStepOperation
+enum class UVFDMCompStepOperation : uint8
 {
 	None = 0,
 	Init,

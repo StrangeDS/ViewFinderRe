@@ -63,6 +63,8 @@ void UVFStepsRecorderWorldSubsystem::Deinitialize()
         TransformRecorder->Destroy();
     }
     TransformRecorderMap.Empty();
+
+    Super::Deinitialize();
 }
 
 void UVFStepsRecorderWorldSubsystem::SubmitStep(UObject *Sender, FVFStepInfo Info)

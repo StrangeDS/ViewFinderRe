@@ -51,28 +51,28 @@ bool UVFPostProcessComponent::IsAnyRule()
 void UVFPostProcessComponent::AddOrUpdateSceneCapturePostProcess(USceneCaptureComponent2D *SceneCapture)
 {
 	check(IsValid(SceneCapture));
-	ensureMsgf(IsValid(PostProcess), TEXT("%s invalid PostProcess."));
+	ensureMsgf(IsValid(PostProcess), TEXT("%s invalid PostProcess."), __FUNCTIONW__);
 	SceneCapture->AddOrUpdateBlendable(PostProcess);
 }
 
 void UVFPostProcessComponent::RemoveSceneCapturePostProcess(USceneCaptureComponent2D *SceneCapture)
 {
 	check(IsValid(SceneCapture));
-	// if (ensureMsgf(IsValid(PostProcess), TEXT("%s invalid PostProcess.")))
+	ensureMsgf(IsValid(PostProcess), TEXT("%s invalid PostProcess."), __FUNCTIONW__);
 	SceneCapture->RemoveBlendable(PostProcess);
 }
 
 void UVFPostProcessComponent::AddOrUpdateCameraPostProcess(UCameraComponent *Camera)
 {
 	check(IsValid(Camera));
-	ensureMsgf(IsValid(PostProcess), TEXT("%s invalid PostProcess."));
+	ensureMsgf(IsValid(PostProcess), TEXT("%s invalid PostProcess."), __FUNCTIONW__);
 	Camera->AddOrUpdateBlendable(PostProcess);
 }
 
 void UVFPostProcessComponent::RemoveCameraPostProcess(UCameraComponent *Camera)
 {
 	check(IsValid(Camera));
-	// if (ensureMsgf(IsValid(PostProcess), TEXT("%s invalid PostProcess.")))
+	ensureMsgf(IsValid(PostProcess), TEXT("%s invalid PostProcess."), __FUNCTIONW__);
 	Camera->RemoveBlendable(PostProcess);
 }
 
@@ -103,7 +103,7 @@ void UVFPostProcessComponent::SetStencilValueNext_Implementation(UPrimitiveCompo
 	}
 	default:
 	{
-		VF_LOG(Warning, TEXT("%s doesn't handle Rule(%i).") __FUNCTIONW__, Rule);
+		VF_LOG(Warning, TEXT("%s doesn't handle Rule(%i)."), __FUNCTIONW__, (int)Rule);
 		break;
 	}
 	}
@@ -128,7 +128,7 @@ int UVFPostProcessComponent::GetStencilValueNext_Implementation(int Stencil)
 	}
 	default:
 	{
-		VF_LOG(Warning, TEXT("%s doesn't handle Rule(%i).") __FUNCTIONW__, Rule);
+		VF_LOG(Warning, TEXT("%s doesn't handle Rule(%i)."), __FUNCTIONW__, (int)Rule);
 		return Stencil;
 	}
 	}
