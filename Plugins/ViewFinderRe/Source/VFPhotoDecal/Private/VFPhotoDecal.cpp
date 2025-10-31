@@ -1,7 +1,7 @@
 #include "VFPhotoDecal.h"
 
 #include "TimerManager.h"
-#include "Engine/Texture2D.h"
+#include "Engine/TextureRenderTarget2D.h"
 #include "Components/DecalComponent.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Materials/MaterialInstanceDynamic.h"
@@ -21,7 +21,7 @@ AVFPhotoDecal::AVFPhotoDecal()
 
     CaptureOfDecal = CreateDefaultSubobject<UVFPhotoCaptureComponent>(TEXT("CaptureOfDecal"));
     CaptureOfDecal->SetupAttachment(CaptureRoot);
-	CaptureOfDecal->CaptureSource = ESceneCaptureSource::SCS_SceneColorSceneDepth;
+    CaptureOfDecal->CaptureSource = ESceneCaptureSource::SCS_SceneColorSceneDepth;
 
     CaptureOfDepth = CreateDefaultSubobject<UVFPhotoCaptureComponent>(TEXT("CaptureOfDepth"));
     CaptureOfDepth->SetupAttachment(CaptureRoot);
@@ -63,7 +63,27 @@ void AVFPhotoDecal::OnConstruction(const FTransform &Transform)
     Decal->SetRelativeScale3D(FVector(Scale.X, Scale.Y, Scale.Y / AspectRatio));
 }
 
-void AVFPhotoDecal::DrawDecal(bool ForceToUpdate, bool NextFrameUpdate)
+void AVFPhotoDecal::UpdateMaterialParams()
+{
+    GetMaterialInstance();
+
+    MaterialInstance->SetVectorParameterValue(TEXT("CameraPosition"), CaptureRoot->GetComponentLocation());
+    MaterialInstance->SetVectorParameterValue(TEXT("CameraFacing"), CaptureRoot->GetComponentRotation().Vector());
+    MaterialInstance->SetVectorParameterValue(TEXT("DecalSize"), Decal->DecalSize);
+    MaterialInstance->SetScalarParameterValue(TEXT("FOVAngle"), ViewAngle);
+    MaterialInstance->SetScalarParameterValue(TEXT("AspectRatio"), AspectRatio);
+    MaterialInstance->SetScalarParameterValue(TEXT("DecalStart"), StartDis);
+    MaterialInstance->SetScalarParameterValue(TEXT("EndDis"), EndDis);
+    MaterialInstance->SetScalarParameterValue(TEXT("LightFix"),
+                                              GetDefault<UVFPhotoDecalDeveloperSettings>()->PhotoDecalLightFix);
+
+    if (CaptureOfDecal->TextureTarget)
+        MaterialInstance->SetTextureParameterValue(TEXT("Texture"), CaptureOfDecal->TextureTarget);
+    if (CaptureOfDepth->TextureTarget)
+        MaterialInstance->SetTextureParameterValue(TEXT("TextureOfDepth"), CaptureOfDepth->TextureTarget);
+}
+
+void AVFPhotoDecal::DrawDecal()
 {
     if (bOnlyCatchManagedActors)
     {
@@ -76,90 +96,25 @@ void AVFPhotoDecal::DrawDecal(bool ForceToUpdate, bool NextFrameUpdate)
         CaptureOfDecal->ShowOnlyActors.Reset();
     }
 
-    if (GetMaterialInstance())
-    {
-        MaterialInstance->SetVectorParameterValue(TEXT("CameraPosition"), CaptureRoot->GetComponentLocation());
-        MaterialInstance->SetVectorParameterValue(TEXT("CameraFacing"), CaptureRoot->GetComponentRotation().Vector());
-        MaterialInstance->SetVectorParameterValue(TEXT("DecalSize"), Decal->DecalSize);
-        MaterialInstance->SetScalarParameterValue(TEXT("FOVAngle"), ViewAngle);
-        MaterialInstance->SetScalarParameterValue(TEXT("AspectRatio"), AspectRatio);
-        MaterialInstance->SetScalarParameterValue(TEXT("DecalStart"), StartDis);
-        MaterialInstance->SetScalarParameterValue(TEXT("EndDis"), EndDis);
-        MaterialInstance->SetScalarParameterValue(TEXT("LightFix"),
-                                                  GetDefault<UVFPhotoDecalDeveloperSettings>()->PhotoDecalLightFix);
-
-        auto Update = [this, ForceToUpdate]()
-        {
-            if (!IsValid(TextureOfDecal))
-            {
-                TextureOfDecal = CaptureOfDecal->DrawATexture2D();
-            }
-            else if (ForceToUpdate)
-            {
-                CaptureOfDecal->DrawOnTexture2D(TextureOfDecal);
-            }
-            MaterialInstance->SetTextureParameterValue(TEXT("Texture"), TextureOfDecal);
-        };
-
-        CaptureOfDecal->CaptureScene();
-        if (NextFrameUpdate)
-        {
-            GetWorldTimerManager().SetTimerForNextTick(Update);
-        }
-        else
-        {
-            Update();
-        }
-    }
-    else
-    {
-        VF_LOG(Error, TEXT("%s invalid MaterialInstance."), __FUNCTIONW__);
-    }
+    CaptureOfDecal->CaptureScene();
 }
 
-void AVFPhotoDecal::DrawSceneDepth(bool ForceToUpdate, bool NextFrameUpdate)
+void AVFPhotoDecal::DrawSceneDepth()
 {
-    if (GetMaterialInstance())
-    {
-        auto Update = [this, ForceToUpdate]()
-        {
-            if (!IsValid(TextureOfDepth))
-            {
-                TextureOfDepth = CaptureOfDepth->DrawATexture2D();
-            }
-            else if (ForceToUpdate)
-            {
-                CaptureOfDepth->DrawOnTexture2D(TextureOfDepth);
-            }
-            MaterialInstance->SetTextureParameterValue(TEXT("TextureOfDepth"), TextureOfDepth);
-        };
-
-        CaptureOfDepth->CaptureScene();
-        if (NextFrameUpdate)
-        {
-            GetWorldTimerManager().SetTimerForNextTick(Update);
-        }
-        else
-        {
-            Update();
-        }
-    }
-    else
-    {
-        VF_LOG(Error, TEXT("%s invalid MaterialInstance."), __FUNCTIONW__);
-    }
+    CaptureOfDepth->CaptureScene();
 }
 
-void AVFPhotoDecal::ReplaceWithDecal_Implementation(bool ForceToUpdate, bool NextFrameUpdate)
+void AVFPhotoDecal::ReplaceWithDecal_Implementation()
 {
     if (bReplacing)
         return;
 
     TRACE_CPUPROFILER_EVENT_SCOPE(ReplaceWithDecal_Implementation);
     bReplacing = true;
-    DrawDecal(ForceToUpdate, NextFrameUpdate);
+    UpdateMaterialParams();
+    DrawDecal();
     SetDecalEnabled(bReplacing);
-    DrawSceneDepth(ForceToUpdate, NextFrameUpdate);
+    DrawSceneDepth();
 
     OnReplace.Broadcast();
 }
@@ -167,7 +122,7 @@ void AVFPhotoDecal::ReplaceWithDecal_Implementation(bool ForceToUpdate, bool Nex
 #if WITH_EDITOR
 void AVFPhotoDecal::ReplaceWithDecalInEditor()
 {
-    ReplaceWithDecal(true, false);
+    ReplaceWithDecal();
 }
 #endif
 
@@ -204,7 +159,8 @@ void AVFPhotoDecal::SetManagedActorsEnabled(bool Enabled)
     {
         if (!IsValid(Actor))
         {
-            VF_LOG(Error, TEXT("%s: Invalid Actor in ManagedActors."), __FUNCTIONW__);
+            VF_LOG(Error, TEXT("%s: Invalid Actor in ManagedActors in %s."),
+                   __FUNCTIONW__, *GetOutermostObject()->GetName());
             continue;
         }
         Actor->SetActorHiddenInGame(!Enabled);

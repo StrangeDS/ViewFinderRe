@@ -105,6 +105,7 @@ void AVFPhoto3D::PlaceDown()
 	}
 
 	// 外部场景切割
+	if (bCuttingOthers)
 	{
 		auto VFDMComps = UVFPCatcherFunctions::CheckVFDMComps(OverlapComps, VFDMCompClass);
 		for (auto &Helper : HelpersPlaced)

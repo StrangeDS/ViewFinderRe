@@ -44,6 +44,9 @@ public:
 	void SetVFDMCompsEnabled(const bool &Enabled, const bool IncludingActor = true);
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	bool bCuttingOthers = true;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder|ClassSetting")
 	TSubclassOf<UVFDynamicMeshComponent> VFDMCompClass;
 

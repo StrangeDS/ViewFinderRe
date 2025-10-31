@@ -24,8 +24,13 @@ public:
 	float Time = -1.0f;
 
 	// 由UVFStepsRecorderWorldSubsystem填入
-	UPROPERTY(BlueprintReadWrite, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<UObject> Sender;
+
+	bool operator<(const FVFStepInfo& Other) const
+    {
+        return Time < Other.Time;
+    }
 };
 
 UINTERFACE(MinimalAPI)

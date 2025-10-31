@@ -1,6 +1,7 @@
 #include "VFStepsRecorderWorldSubsystem.h"
 
 #include "TimerManager.h"
+#include "Algo/BinarySearch.h"
 
 #include "VFLog.h"
 #include "VFStepsRecordInterface.h"
@@ -69,10 +70,29 @@ void UVFStepsRecorderWorldSubsystem::Deinitialize()
 
 void UVFStepsRecorderWorldSubsystem::SubmitStep(UObject *Sender, FVFStepInfo Info)
 {
+    if (!IsValid(Sender) || !Sender->Implements<UVFStepsRecordInterface>())
+    {
+        VF_LOG(Error, TEXT("%s: invliad Sender(%s) in %s."),
+               __FUNCTIONW__,
+               *Sender->GetName(),
+               *Sender->GetOutermost()->GetName());
+        return;
+    }
+
     Info.Sender = Sender;
     if (Info.Time < 0.f)
         Info.Time = Time;
-    Infos.Add(Info);
+
+    if (Infos.IsEmpty() || Infos.Last().Time <= Info.Time)
+    {
+        Infos.Add(Info);
+    }
+    else
+    {
+        // 插入排序, 二分查找
+        int32 Index = Algo::UpperBound(Infos, Info);
+        Infos.Insert(Info, Index);
+    }
 }
 
 void UVFStepsRecorderWorldSubsystem::TickForward(float DeltaTime)
@@ -268,7 +288,7 @@ void UVFStepsRecorderWorldSubsystem::RewindToLastKey()
 
 UVFStepsRecorderWorldSubsystem *UVFStepsRecorderWorldSubsystem::GetStepsRecorder(
     const UObject *WorldContext,
-    const EVFStepsRecorderSubsystemCheckMode &Mode)
+    const EVFStepsRecorderSubsystemCheckMode Mode)
 {
     const UWorld *World = WorldContext->GetWorld();
     bool IsRuntime = World && (World->WorldType == EWorldType::Game ||

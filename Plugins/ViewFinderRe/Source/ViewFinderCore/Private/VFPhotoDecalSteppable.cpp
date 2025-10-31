@@ -19,14 +19,14 @@ void AVFPhotoDecalSteppable::BeginPlay()
     }
 }
 
-void AVFPhotoDecalSteppable::ReplaceWithDecal_Implementation(bool ForceToUpdate, bool NextFrameUpdate)
+void AVFPhotoDecalSteppable::ReplaceWithDecal_Implementation()
 {
-    Super::ReplaceWithDecal_Implementation(ForceToUpdate);
+    Super::ReplaceWithDecal_Implementation();
 
     if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
         float Time = StepsRecorder->GetTime();
-        if (bIsFirstReplacement)
+        if (bKeepFirstReplacement && bIsFirstReplacement)
         {
             Time = StepsRecorder->GetTimeOfMin();
             bIsFirstReplacement = false;
@@ -78,7 +78,7 @@ bool AVFPhotoDecalSteppable::StepBack_Implementation(FVFStepInfo &StepInfo)
         GetWorldTimerManager().SetTimerForNextTick(
             [this]()
             {
-                AVFPhotoDecalSteppable::ReplaceWithDecal(true);
+                ReplaceWithDecal();
             });
         break;
     }

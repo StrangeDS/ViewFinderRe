@@ -7,7 +7,6 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FVFPhotoDecalDelegate);
 
-class UTexture2D;
 class UDecalComponent;
 class UMaterialInstanceDynamic;
 
@@ -28,7 +27,7 @@ struct FVFPhotoDecalRecordProps
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VFPHOTODECAL_API AVFPhotoDecal : public AActor,
-										 public IVFHelperInterface
+									   public IVFHelperInterface
 {
 	GENERATED_BODY()
 
@@ -38,15 +37,18 @@ public:
 	virtual void OnConstruction(const FTransform &Transform) override;
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void DrawDecal(bool ForceToUpdate = false, bool NextFrameUpdate = true);
+	UFUNCTION(CallInEditor, BlueprintCallable, Category = "ViewFinder")
+	void UpdateMaterialParams();
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void DrawSceneDepth(bool ForceToUpdate = false, bool NextFrameUpdate = true);
+	void DrawDecal();
+
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	void DrawSceneDepth();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, CallInEditor, Category = "ViewFinder")
-	void ReplaceWithDecal(bool ForceToUpdate = false, bool NextFrameUpdate = true);
-	virtual void ReplaceWithDecal_Implementation(bool ForceToUpdate = false, bool NextFrameUpdate = true);
+	void ReplaceWithDecal();
+	virtual void ReplaceWithDecal_Implementation();
 
 #if WITH_EDITOR
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")
@@ -131,12 +133,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<UMaterialInstanceDynamic> MaterialInstance;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<UTexture2D> TextureOfDecal;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<UTexture2D> TextureOfDepth;
 
 public:
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")

@@ -38,9 +38,12 @@ public:
 	UFUNCTION(BlueprintPure, Category = "ViewFinder")
 	FORCEINLINE float GetDeltaTime() { return TickInterval; }
 
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	// 稳定插入维护顺序
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder",
+			  meta = (DefaultToSelf = "Sender"))
 	void SubmitStep(UObject *Sender, FVFStepInfo Info);
 
+	// 有序数组
 	UPROPERTY(VisibleAnywhere, Category = "ViewFinder")
 	TArray<FVFStepInfo> Infos;
 
@@ -156,13 +159,13 @@ public:
 
 	FTimerHandle RewindHandle;
 
-	// 实时获取, 适合低频率, 事件驱动
 public:
+	// 静态函数获取, 默认非回溯状态下才能获取
 	UFUNCTION(BlueprintPure, Category = "ViewFinder",
 			  meta = (WorldContext = "WorldContext"))
 	static UVFStepsRecorderWorldSubsystem *GetStepsRecorder(
 		const UObject *WorldContext,
-		const EVFStepsRecorderSubsystemCheckMode &Mode = EVFStepsRecorderSubsystemCheckMode::RequireRewinding);
+		const EVFStepsRecorderSubsystemCheckMode Mode = EVFStepsRecorderSubsystemCheckMode::RequireRewinding);
 };
 
 // 使用成员变量的方式, 需要头文件
