@@ -1,6 +1,7 @@
 #include "VFStepsRecorderWorldSubsystem.h"
 
 #include "TimerManager.h"
+#include "UObject/Package.h"
 #include "Algo/BinarySearch.h"
 
 #include "VFLog.h"
