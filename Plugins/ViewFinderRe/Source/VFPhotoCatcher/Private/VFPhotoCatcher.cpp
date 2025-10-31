@@ -135,6 +135,10 @@ void AVFPhotoCatcher::BeginPlay()
 	Helper->OnOriginalBeforeCheckVFDMComps.AddUniqueDynamic(
 		this,
 		&AVFPhotoCatcher::HandleOriginalBeforeCheckVFDMComps);
+
+	Helper->OnCopyEndPlacingPhoto.AddUniqueDynamic(
+		this,
+		&AVFPhotoCatcher::HandleCopyEndPlacingPhoto);
 }
 
 void AVFPhotoCatcher::Tick(float DeltaTime)
@@ -504,4 +508,13 @@ void AVFPhotoCatcher::HandleOriginalBeforeCheckVFDMComps_Implementation(
 {
 	// 保证照片被拍照后能同步图案内容
 	GetScreenMID();
+}
+
+void AVFPhotoCatcher::HandleCopyEndPlacingPhoto_Implementation(UObject *Sender)
+{
+	// ScreenMID重新生成, 与Original的动态材质实例独立
+	ScreenMID = StaticMesh->CreateDynamicMaterialInstance(1, StaticMesh->GetMaterial(1)->GetMaterial());
+	auto VFDynamicMeshComp = Cast<UVFDynamicMeshComponent>(StaticMesh->GetChildComponent(0));
+	if (IsValid(VFDynamicMeshComp))
+		VFDynamicMeshComp->SetMaterial(1, ScreenMID);
 }

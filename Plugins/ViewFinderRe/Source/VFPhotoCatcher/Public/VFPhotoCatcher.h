@@ -160,4 +160,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
 	void HandleOriginalBeforeCheckVFDMComps(UObject *Sender);
 	void HandleOriginalBeforeCheckVFDMComps_Implementation(UObject *Sender);
+
+public:
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
+	void HandleCopyEndPlacingPhoto(UObject *Sender);
+	void HandleCopyEndPlacingPhoto_Implementation(UObject *Sender);
 };
