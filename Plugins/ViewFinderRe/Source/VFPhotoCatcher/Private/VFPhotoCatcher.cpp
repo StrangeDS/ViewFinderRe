@@ -369,7 +369,7 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 		ActorsToHide.AddUnique(Photo3D);
 		PhotoCapture->HiddenActors.Append(ActorsToHide);
 	}
-	
+
 	// 绘制Photo2D图案
 	Photo2D->SetPhoto(PhotoCapture);
 	PhotoCapture->HiddenActors = ActorsToIgnore;

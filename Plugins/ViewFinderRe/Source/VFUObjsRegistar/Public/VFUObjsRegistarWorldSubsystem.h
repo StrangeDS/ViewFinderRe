@@ -41,12 +41,14 @@ public:
 	virtual void Deinitialize() override;
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder|UObjsRegistar")
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder|UObjsRegistar",
+			  meta = (DefaultToSelf = "Obj"))
 	bool Register(UObject *Obj,
 				  const FString &Channel = TEXT(""),
 				  TSubclassOf<UObject> ObjClass = nullptr);
 
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder|UObjsRegistar")
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder|UObjsRegistar",
+			  meta = (DefaultToSelf = "Obj"))
 	bool Unregister(UObject *Obj,
 					const FString &Channel = TEXT(""),
 					TSubclassOf<UObject> ObjClass = nullptr);
