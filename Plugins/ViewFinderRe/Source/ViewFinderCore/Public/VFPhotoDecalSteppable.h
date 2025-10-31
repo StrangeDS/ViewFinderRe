@@ -21,11 +21,14 @@ class VIEWFINDERCORE_API AVFPhotoDecalSteppable : public AVFPhotoDecal, public I
 public:
 	virtual void BeginPlay() override;
 
-	virtual void ReplaceWithDecal_Implementation() override;
+	virtual void ReplaceWithDecal_Implementation(bool bUpdateRT = true) override;
 
 	virtual void RestoreWithActors_Implementation() override;
 
 public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	bool bPersistent = true;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	bool bKeepFirstReplacement = false;
 

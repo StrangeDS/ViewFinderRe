@@ -1,7 +1,5 @@
 #include "VFPhotoDecalSteppable.h"
 
-#include "TimerManager.h"
-
 #include "VFStepsRecorderWorldSubsystem.h"
 
 void AVFPhotoDecalSteppable::BeginPlay()
@@ -10,18 +8,20 @@ void AVFPhotoDecalSteppable::BeginPlay()
 
     if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
+        float Time = bPersistent ? StepsRecorder->GetTimeOfMin() : -1.0f;
         StepsRecorder->SubmitStep(
             this,
             FVFStepInfo{
                 EnumToString<AVFPhotoDecalOperation>(
                     AVFPhotoDecalOperation::None),
-                true});
+                true,
+                Time});
     }
 }
 
-void AVFPhotoDecalSteppable::ReplaceWithDecal_Implementation()
+void AVFPhotoDecalSteppable::ReplaceWithDecal_Implementation(bool bUpdateRT)
 {
-    Super::ReplaceWithDecal_Implementation();
+    Super::ReplaceWithDecal_Implementation(bUpdateRT);
 
     if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
@@ -74,12 +74,7 @@ bool AVFPhotoDecalSteppable::StepBack_Implementation(FVFStepInfo &StepInfo)
     }
     case AVFPhotoDecalOperation::Restore:
     {
-        // 拍照需要在下一帧进行(还原的网格还没更新)
-        GetWorldTimerManager().SetTimerForNextTick(
-            [this]()
-            {
-                ReplaceWithDecal();
-            });
+        ReplaceWithDecal(false);
         break;
     }
     default:

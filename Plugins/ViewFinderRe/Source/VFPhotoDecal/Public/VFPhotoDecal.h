@@ -47,8 +47,8 @@ public:
 	void DrawSceneDepth();
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, CallInEditor, Category = "ViewFinder")
-	void ReplaceWithDecal();
-	virtual void ReplaceWithDecal_Implementation();
+	void ReplaceWithDecal(bool bUpdateRT = true);
+	virtual void ReplaceWithDecal_Implementation(bool bUpdateRT = true);
 
 #if WITH_EDITOR
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")

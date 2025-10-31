@@ -1,6 +1,5 @@
 #include "VFPhotoDecal.h"
 
-#include "TimerManager.h"
 #include "Engine/TextureRenderTarget2D.h"
 #include "Components/DecalComponent.h"
 #include "UObject/ConstructorHelpers.h"
@@ -104,7 +103,7 @@ void AVFPhotoDecal::DrawSceneDepth()
     CaptureOfDepth->CaptureScene();
 }
 
-void AVFPhotoDecal::ReplaceWithDecal_Implementation()
+void AVFPhotoDecal::ReplaceWithDecal_Implementation(bool bUpdateRT)
 {
     if (bReplacing)
         return;
@@ -112,9 +111,11 @@ void AVFPhotoDecal::ReplaceWithDecal_Implementation()
     TRACE_CPUPROFILER_EVENT_SCOPE(ReplaceWithDecal_Implementation);
     bReplacing = true;
     UpdateMaterialParams();
-    DrawDecal();
+    if (bUpdateRT)
+        DrawDecal();
     SetDecalEnabled(bReplacing);
-    DrawSceneDepth();
+    if (bUpdateRT)
+        DrawSceneDepth();
 
     OnReplace.Broadcast();
 }
