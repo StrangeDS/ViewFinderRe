@@ -5,6 +5,9 @@
 #include "Engine/World.h"
 #include "VFStepsRecorderWorldSubsystem.generated.h"
 
+class IVFStepsRecordInterface;
+class AVFTransformRecorderActor;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FVFStepsRecorderDelegate, float, Time);
 
 UENUM(BlueprintType)
@@ -13,9 +16,6 @@ enum class EVFStepsRecorderSubsystemCheckMode : uint8
 	RequireRewinding, // 必须处于回放状态
 	IgnoreRewinding,  // 不检查回放状态
 };
-
-class IVFStepsRecordInterface;
-class AVFTransformRecorderActor;
 
 UCLASS(ClassGroup = (ViewFinder))
 class VFSTEPSRECORDER_API UVFStepsRecorderWorldSubsystem : public UTickableWorldSubsystem

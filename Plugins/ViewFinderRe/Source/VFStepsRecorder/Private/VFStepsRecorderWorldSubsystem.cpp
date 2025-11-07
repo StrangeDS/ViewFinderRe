@@ -27,6 +27,7 @@ void UVFStepsRecorderWorldSubsystem::OnWorldBeginPlay(UWorld &InWorld)
 
 void UVFStepsRecorderWorldSubsystem::Tick(float DeltaTime)
 {
+    // 优先处理TickTargets变动
     if (TargetsNeedToAdd.Num() > 0)
     {
         TickTargets.Append(TargetsNeedToAdd);
@@ -41,6 +42,7 @@ void UVFStepsRecorderWorldSubsystem::Tick(float DeltaTime)
         TargetsNeedToRemove.Reset();
     }
 
+    // 正向/反向tick
     TimeSinceLastTick += bIsRewinding ? DeltaTime * RewindCurFactor : DeltaTime;
     while (TimeSinceLastTick > TickInterval)
     {
@@ -71,7 +73,13 @@ void UVFStepsRecorderWorldSubsystem::Deinitialize()
 
 void UVFStepsRecorderWorldSubsystem::SubmitStep(UObject *Sender, FVFStepInfo Info)
 {
-    if (!IsValid(Sender) || !Sender->Implements<UVFStepsRecordInterface>())
+    if (!IsValid(Sender))
+    {
+        VF_LOG(Error, TEXT("%s: Sender is null or pending kill"), __FUNCTIONW__);
+        return;
+    }
+
+    if (!Sender->Implements<UVFStepsRecordInterface>())
     {
         VF_LOG(Error, TEXT("%s: invliad Sender(%s) in %s."),
                __FUNCTIONW__,
@@ -155,7 +163,16 @@ void UVFStepsRecorderWorldSubsystem::TickBackward(float DeltaTime)
 void UVFStepsRecorderWorldSubsystem::RecordTransform(
     USceneComponent *Component, const FString &Channel)
 {
-    check(Component && Component->Mobility == EComponentMobility::Movable);
+    check(IsValid(Component));
+
+    if (Component->Mobility != EComponentMobility::Movable)
+    {
+        VF_LOG(Error,
+               TEXT("Component(%s) on Actor(%s) Mobility is not Movable."),
+               *Component->GetName(),
+               *Component->GetOuter()->GetName());
+        return;
+    }
 
     if (!TransformRecorderMap.Contains(Channel))
     {
@@ -168,7 +185,16 @@ void UVFStepsRecorderWorldSubsystem::RecordTransform(
 void UVFStepsRecorderWorldSubsystem::UnrecordTransform(
     USceneComponent *Component, const FString &Channel)
 {
-    check(Component && Component->Mobility == EComponentMobility::Movable);
+    check(IsValid(Component));
+
+    if (Component->Mobility != EComponentMobility::Movable)
+    {
+        VF_LOG(Error,
+               TEXT("Component(%s) on Actor(%s) Mobility is not Movable."),
+               *Component->GetName(),
+               *Component->GetOuter()->GetName());
+        return;
+    }
 
     if (!TransformRecorderMap.Contains(Channel))
     {
