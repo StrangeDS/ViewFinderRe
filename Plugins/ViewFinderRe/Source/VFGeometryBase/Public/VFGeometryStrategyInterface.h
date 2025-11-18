@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -8,14 +10,14 @@
 class UDynamicMesh;
 class UDynamicMeshComponent;
 
-// 策略模式接口, 实现几何操作.
+// Geometry strategy interface for implementing geometric operations.
 UINTERFACE(MinimalAPI)
 class UVFGeometryStrategyInterface : public UInterface
 {
 	GENERATED_BODY()
 };
 
-// 策略模式接口, 实现几何操作.
+// Geometry strategy interface for implementing geometric operations.
 class VFGEOMETRYBASE_API IVFGeometryStrategyInterface
 {
 	GENERATED_BODY()

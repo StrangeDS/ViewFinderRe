@@ -4,7 +4,7 @@
 
 #include "Modules/ModuleManager.h"
 
-// 几何策略实现模块: 使用GeometryScript插件的本地化代码
+// Geometry Strategy Implementation Module: Using the locally ported code of the GeometryScript plugin.
 class FVFGSGeometryScriptNativeModule : public IModuleInterface
 {
 public:

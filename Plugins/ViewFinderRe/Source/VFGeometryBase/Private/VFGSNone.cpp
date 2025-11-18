@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFGSNone.h"
 
 #include "VFLog.h"

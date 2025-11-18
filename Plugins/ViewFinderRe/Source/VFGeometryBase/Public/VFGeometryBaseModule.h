@@ -4,7 +4,7 @@
 
 #include "Modules/ModuleManager.h"
 
-// 几何策略定义和默认空实现(VFGSNone)
+// Geometry strategy definition and default empty implementation (VFGSNone)
 class FVFGeometryBaseModule : public IModuleInterface
 {
 public:

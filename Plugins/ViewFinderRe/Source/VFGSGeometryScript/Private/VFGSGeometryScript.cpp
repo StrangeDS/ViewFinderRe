@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFGSGeometryScript.h"
 
 #include "GeometryScript/CollisionFunctions.h"
@@ -9,9 +11,9 @@
 
 #include "VFLog.h"
 
-// 中间层参数需要转换为插件中的参数类型
-// 可考虑使用地址, memcpy(&b, &a, sizeof(A)), 但万一插件更新, 又新添了一个值呢?
-// 手动转换的健壮性强得多, 但也保留宏开关
+// Intermediate layer parameters need to be converted to the parameter types used in the plugin
+// Consider using addresses, memcpy(&b, &a, sizeof(A)), but what if the plugin updates and adds a new value?
+// Manual conversion is much more robust, but also retain macro toggles
 #define MANUAL_CONVERT 1
 
 #ifndef MANUAL_CONVERT
@@ -249,7 +251,7 @@ FGeometryScriptCopyMeshFromComponentOptions Convert(
         Convert(Options_.RequestedLOD)};
     return Options;
 }
-#endif // 宏 MANUAL_CONVERT 结束
+#endif // Macro MANUAL_CONVERT ends.
 
 #include "DynamicSubmesh3.h"
 #include "DynamicMesh/DynamicMesh3.h"
@@ -456,10 +458,9 @@ UDynamicMesh *UVFGSGeometryScript::
         float EndDis)
 {
     check(TargetMesh);
-    // 实现: 从简单盒上修改点位置制成视锥.
-    // 更好的做法是写一个FMeshShapeGenerator.
+    // Implementation: Modify vertex positions on a simple box to create a frustum.
+    // A better approach would be to write an FMeshShapeGenerator.
 
-    // 生成盒状
     float DimensionX = 100.0f, DimensionY = 100.0f, DimensionZ = 100.0f;
     int32 StepsX = 0, StepsY = 0, StepsZ = 0;
 
@@ -476,7 +477,7 @@ UDynamicMesh *UVFGSGeometryScript::
         EGeometryScriptPrimitiveOriginMode::Center,
         nullptr);
 
-    // 计算并放置视锥各点的位置
+    // Calculate position of each vertex in frustum.
     TArray<FVector> Positions;
     {
         Positions.Reserve(8);

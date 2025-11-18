@@ -1,10 +1,12 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
 #include "VFDeveloperSettingsCommon.h"
 #include "VFGSGSNDeveloperSettings.generated.h"
 
-// 视锥分段设置
+// Frustum Segmentation Settings
 UCLASS(Config = ViewFinderReSettings, defaultconfig,
 	   autoExpandCategories =
 		   ("Settings", "Settings|FrustumSegment"))
@@ -17,12 +19,12 @@ public:
 		const FObjectInitializer &ObjectInitializer = FObjectInitializer::Get()) {};
 
 public:
-	// 仅bUseGeometryScript为false可用, 现版本法线存在问题.
+	// The current version has normal vector issues.
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,
 			  Category = "Settings|FrustumSegment")
 	bool bUseFrustumSegmented = true;
 
-	// 视锥分段参数, 需要重启编辑器.
+	// Frustum segmentation parameters require an editor restart.
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,
 			  Category = "Settings|FrustumSegment",
 			  meta = (EditCondition = "bUseFrustumSegmented"))

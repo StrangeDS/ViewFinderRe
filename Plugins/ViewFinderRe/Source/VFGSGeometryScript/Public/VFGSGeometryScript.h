@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -6,8 +8,8 @@
 #include "VFGSGeometryScript.generated.h"
 
 /*
-使用GeometryScript插件
-布尔操作经常报错, 但没关系, It Works Fine.
+Using the GeometryScript plugin
+Boolean operations often logs error, but it's fine.
 */
 UCLASS(BlueprintType, Blueprintable, ClassGroup = (ViewFinder))
 class VFGSGEOMETRYSCRIPT_API UVFGSGeometryScript

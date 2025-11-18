@@ -8,7 +8,7 @@
 
 void FVFGeometryBaseModule::StartupModule()
 {
-    // 加载可用策略模块
+    // Load available strategy modules.
     auto &ModuleManager = FModuleManager::Get();
     if (ModuleManager.IsModuleLoaded(TEXT("GeometryScriptingCore")))
     {

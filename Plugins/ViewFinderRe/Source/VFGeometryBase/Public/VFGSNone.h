@@ -1,10 +1,12 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
 #include "VFGeometryStrategyInterface.h"
 #include "VFGSNone.generated.h"
 
-// 使用本地的(代码搬运)GeomeryScript插件进行网格操作. 减少插件依赖.
+// Do nothing.
 UCLASS(BlueprintType, Blueprintable, ClassGroup = (ViewFinder))
 class VFGEOMETRYBASE_API UVFGSNone
 	: public UObject,

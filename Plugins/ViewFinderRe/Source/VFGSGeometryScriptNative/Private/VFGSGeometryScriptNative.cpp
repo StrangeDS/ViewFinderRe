@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFGSGeometryScriptNative.h"
 
 #include "DynamicMesh/DynamicMesh3.h"
@@ -181,8 +183,10 @@ UDynamicMesh *UVFGSGeometryScriptNative::
     check(FromStaticMeshAsset);
     check(ToDynamicMesh);
 
-    // 要求Runtime, 所以只使用CopyMeshFromStaticMesh_RenderData()
-    // from GeometryScript/MeshAssetFunctions.cpp CopyMeshFromStaticMesh_RenderData()
+    /*
+    Requires Runtime, so only CopyMeshFromStaticMesh_RenderData() is used.
+    from GeometryScript/MeshAssetFunctions.cpp CopyMeshFromStaticMesh_RenderData()
+    */
     check(
         RequestedLOD.LODType == EVF_GeometryScriptLODType::MaxAvailable ||
         RequestedLOD.LODType == EVF_GeometryScriptLODType::RenderData);
@@ -287,13 +291,14 @@ UDynamicMesh *UVFGSGeometryScriptNative::
 			bSuccess = MeshBoolean.Compute();
 			NewBoundaryEdges = MoveTemp(MeshBoolean.CreatedBoundaryEdges); }); });
 
-    // if (!bSuccess) // bSuccess经常为False, 但实际并不影响
+    // bSuccess is often false, but it doesn't actually affect the result.
+    // if (!bSuccess)
     // 	VF_LOG(Warning, TEXT("%s may Get something wrong at ProcessMesh."), __FUNCTIONW__);
 
-    // 逆Transform
+    // Inverse Transform.
     MeshTransforms::ApplyTransformInverse(NewResultMesh, (FTransformSRT3d)TargetTransform, true);
 
-    // 修复边界
+    // Fix boundary.
     if (NewBoundaryEdges.Num() > 0 && Options.bFillHoles)
     {
         FMeshBoundaryLoops OpenBoundary(&NewResultMesh, false);

@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -5,7 +7,7 @@
 #include "VFGeometryStrategyInterface.h"
 #include "VFGSGeometryScriptNative.generated.h"
 
-// 使用本地的(代码搬运)GeomeryScript插件进行网格操作. 减少插件依赖.
+// Use the local (code-ported) GeometryScript plugin for mesh operations to reduce plugin dependencies.
 UCLASS(BlueprintType, Blueprintable, ClassGroup = (ViewFinder))
 class VFGSGEOMETRYSCRIPTNATIVE_API UVFGSGeometryScriptNative
 	: public UObject,

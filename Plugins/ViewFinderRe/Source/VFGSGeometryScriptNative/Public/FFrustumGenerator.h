@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "Generators/MeshShapeGenerator.h"
@@ -17,14 +19,14 @@ namespace UE::Geometry::Frustum
         ERROR
     };
 
-    // 防止浮点数精度问题
+    // Prevent floating-point precision issues
     static int FloatFloor(float x)
     {
         x = FMath::FloorToFloat(x);
         return int(x + 0.1f);
     }
 
-    // 防止浮点数精度问题
+    // Prevent floating-point precision issues
     static int FloatCeil(float x)
     {
         x = FMath::CeilToFloat(x);
@@ -32,26 +34,33 @@ namespace UE::Geometry::Frustum
     }
 
     /*
-    锥体生成器, 按SegmentSize进行分段.
-    参照FGridBoxMeshGenerator写了几个版本全部无果, 干脆全部自己写了, 这样分段其实更好些.
+    Frustum generator, segmented according to SegmentSize.
 
-    点存储顺序: 角点(bottom顺时针, top顺时针), 边点(X, Y, Z正方形顺时针, 值由小到大), 面点.
-    边顺序: 分别以x/y/z轴的正方形作为右手螺旋定则的正方向, 再以角点0的边开始, 右手螺旋定则的方向进行.
-    边点顺序: x/y/z轴的值由小到大.
-    面顺序(EFrustumPlane): 0 -> near, 1 -> far, 2 -> left, 3 -> right, 4 -> bottom, 5 -> top.
-    面点顺序: X轴面: -x → +x, -y → +y; 其它Side面: 正对着面(上窄下宽), 从左到右, 从上到下.
+    Vertex order(Vertices):
+    CornerVertices(clockwise in bottom plane, clockwise in top plane),
+    EdgeVertices(X, Y, Z square clockwise, values from small to large),
+    PlaneVertices.
+
+    Edge order:
+    Using the squares along the x/y/z axes as the positive direction according to the right-hand rule,
+    Starting from the edge at corner point 0, following the direction of the right-hand rule.
+    EdgeVertices order:: Values along x/y/z axes from small to large.
+    Plane order(EFrustumPlane): 0 -> near, 1 -> far, 2 -> left, 3 -> right, 4 -> bottom, 5 -> top.
+    PlaneVertices oorder:
+    X-axis planes: -x -> +x, -y -> +y.
+    Other side planes: facing the plane directly (narrower at top, wider at bottom), left to right, top to bottom.
     */
     class /*VIEWFINDERCORE_API*/ FFrustumGenerator : public FMeshShapeGenerator
     {
-    public: // 视锥参数
+    public: // Frustum Parameters
         float VerticalFOV = 60.0f;
         float AspectRatio = 16.0f / 9.0f;
         float NearPlaneDis = 100.0f;
         float FarPlaneDis = 10000.0f;
-        // 根据x进行分层, 竖直朝向的边根据y进行分段, 水平方向的边根据z进行分段
+        // Stratified along the X-axis, vertically oriented edges segmented according to Y, horizontally oriented edges segmented according to Z.
         FVector SegmentSize = FVector{2000.0f, 2000.0f, 2000.0f};
 
-    protected: // 中间参数缓存
+    protected: // Intermediate Parameter Cache
         float NearWidthHalf = 0.f;
         float NearHeightHalf = 0.f;
         float FarWidthHalf = 0.f;
@@ -65,7 +74,7 @@ namespace UE::Geometry::Frustum
         // 0 -> near, 1 -> far, 2 -> left, 3 -> right, 4 -> bottom, 5 -> top
         TArray<int> NumOfPlaneVertices;
         TArray<int> NumOfPlaneTriangles;
-        TArray<FVector3f> PlaneNormals; // 事实上，点法线和面法线并不需要手动填入(无需平滑, 光照), 会自动计算.
+        TArray<FVector3f> PlaneNormals; // In fact, point normals and face normals do not need to be filled in manually (no need for smoothing and lighting), and will be calculated automatically.
 
     public:
         virtual FMeshShapeGenerator &Generate() override
@@ -103,7 +112,7 @@ namespace UE::Geometry::Frustum
             return *this;
         }
 
-    private: // 工具函数
+    private: // Utility function
         int GetVerticesNumOfRowOrDepth(EFrustumPlane Plane, int DepthOrRow, bool bIncludingBoundary) const
         {
             check(DepthOrRow >= 0);
@@ -140,7 +149,7 @@ namespace UE::Geometry::Frustum
             return Res;
         }
 
-        // 左, 右, 下, 上. // 不包括边点和面点
+        // Left, right, bottom, top planes. Exclude edge points and face points.
         int GetVerticesNumOfSidePlane(EFrustumPlane Plane, bool bIncludingBoundary) const
         {
             check(Depth >= 0);
@@ -152,7 +161,7 @@ namespace UE::Geometry::Frustum
             return Res;
         }
 
-        // 近, 远
+        // Near, Far planes.
         int GetVerticesNumOfFrontPlane(bool bIsNear, bool bIncludingBoundary) const
         {
             int Row = bIsNear ? NearVertices.X : FarVertices.X;
@@ -165,7 +174,7 @@ namespace UE::Geometry::Frustum
             return Row * Index;
         }
 
-        // 旁面(非X轴面)获取顶点索引 // checked
+        // Side face (non X axis face) Get vertex index
         int GetVertexIndexOfSidePlane(EFrustumPlane Plane, int DepthCur, int Index) const
         {
             check(Plane >= 2);
@@ -179,7 +188,7 @@ namespace UE::Geometry::Frustum
             bool IsCorner = IsOnEdgeOfX && (IsOnNear || IsOnFar);
 
             /*
-            视锥不好画, 用一个立方体演示
+            The sight cone is not easy to draw. Use a cube to demonstrate.
                +z
                |
             +x 5---6
@@ -221,7 +230,7 @@ namespace UE::Geometry::Frustum
                 }
             }
 
-            // Near或Far上的边点, 交予GetVertexIndexOfFrontPlane处理
+            // EdgeVertices on the Near or Far plane are handled by GetVertexIndexOfFrontPlane.
             if (IsOnNear || IsOnFar)
             {
                 if (Plane == EFrustumPlane::Left)
@@ -246,7 +255,7 @@ namespace UE::Geometry::Frustum
                         IsOnNear ? NearVertices.X - Index - 1 : FarVertices.X - Index - 1);
             }
 
-            // 边点
+            // EdgeVertices
             if (IsOnEdgeOfX)
             {
                 int EdgeBase = -1;
@@ -265,7 +274,7 @@ namespace UE::Geometry::Frustum
                 return NumOfTypeVertices[0] + EdgeBase * (Depth - 1) + DepthCur - 1;
             }
 
-            // 面点
+            // PlaneVertices
             int PlaneBase = NumOfTypeVertices[0] + NumOfTypeVertices[1];
             for (int i = 0; i < Plane; ++i)
             {
@@ -278,7 +287,7 @@ namespace UE::Geometry::Frustum
             return PlaneBase + Index - 1;
         }
 
-        // X轴面获取顶点索引
+        // X axis face acquiring vertex index
         int GetVertexIndexOfFrontPlane(bool bIsNear, int Row, int Index) const
         {
             int RowMax = bIsNear ? NearVertices.Y : FarVertices.Y;
@@ -289,20 +298,20 @@ namespace UE::Geometry::Frustum
             bool IsOnEdgeOfY = Row == 0 || Row == RowMax - 1;
             bool IsOnEdgeOfZ = Index == 0 || Index == IndexMax - 1;
 
-            // 角点
+            // CornerVertex
             if (IsOnEdgeOfY && IsOnEdgeOfZ)
             {
-                if (Row == 0 && Index == 0) // 左下
+                if (Row == 0 && Index == 0) // Bottom left
                     return bIsNear ? 0 : 1;
-                else if (Row == 0 && Index == IndexMax - 1) // 右下
+                else if (Row == 0 && Index == IndexMax - 1) // Bottom right
                     return bIsNear ? 3 : 2;
-                else if (Row == RowMax - 1 && Index == 0) // 左上
+                else if (Row == RowMax - 1 && Index == 0) // Top left
                     return bIsNear ? 4 : 5;
-                else if (Row == RowMax - 1 && Index == IndexMax - 1) // 右上
+                else if (Row == RowMax - 1 && Index == IndexMax - 1) // Top Right
                     return bIsNear ? 7 : 6;
             }
 
-            // 水平(Y)边点, 近下, 远下, 远上, 近上
+            // Horizontal (Y) edge point, near bottom, far bottom, far top, near top
             if (IsOnEdgeOfY)
             {
                 int Offset = -1;
@@ -318,7 +327,7 @@ namespace UE::Geometry::Frustum
                 return NumOfTypeVertices[0] + 4 * (Depth - 1) + Offset + Index - 1;
             }
 
-            // 竖直(Z)边点, 近左, 近右, 远右, 远左
+            // Vertical (Z) edge point, near left, near right, far right, far left
             if (IsOnEdgeOfZ)
             {
                 int Offset = -1;
@@ -336,13 +345,13 @@ namespace UE::Geometry::Frustum
                        Offset + Row - 1;
             }
 
-            // 面点
+            // Plane vertices
             int Base = NumOfTypeVertices[0] + NumOfTypeVertices[1];
             Base += bIsNear ? 0 : NumOfPlaneVertices[0];
             return Base + (Row - 1) * (bIsNear ? NearVertices.X - 2 : FarVertices.X - 2) + Index - 1;
         }
 
-        // 顶点索引
+        // Vertex Index
         int GetVertexIndex(EFrustumPlane Plane, int DepthOrRow, int Index) const
         {
             return Plane > EFrustumPlane::Far
@@ -358,17 +367,17 @@ namespace UE::Geometry::Frustum
             for (int DepthCur = 1; DepthCur <= Depth; ++DepthCur)
             {
                 NumOfCur = GetVerticesNumOfRowOrDepth(Plane, DepthCur, true);
-                Res += NumOfLast + NumOfCur - 2; // 三角化后三角形数为顶点数-2
+                Res += NumOfLast + NumOfCur - 2; // Number of triangles after triangulation equals vertex count minus 2.
                 NumOfLast = NumOfCur;
             }
             return Res;
         }
 
-    private: // 生成函数
-        // 预分配
+    private:
+        // Preallocation
         void CalculateBufferSizes()
         {
-            // 不包含角点和边点
+            // Exclude corner vertices and edge vertices
             NumOfPlaneVertices.SetNum(6);
             NumOfPlaneVertices[0] = GetVerticesNumOfFrontPlane(true, false);
             NumOfPlaneVertices[1] = GetVerticesNumOfFrontPlane(false, false);
@@ -385,7 +394,7 @@ namespace UE::Geometry::Frustum
             NumOfPlaneTriangles[4] = GetTrisNumOfSidePlane(EFrustumPlane::Bottom);
             NumOfPlaneTriangles[5] = NumOfPlaneTriangles[4];
             {
-                // 角点 + 边点 + 面点
+                // corner vertices + edge vertices + plane vertices
                 int NumOfVerticesOnCorner = 8;
                 int NumOfVerticesOnEdge = 4 * (Depth - 1) +
                                           2 * (NearVertices.X - 2 + FarVertices.X - 2) +
@@ -410,8 +419,8 @@ namespace UE::Geometry::Frustum
         }
 
         /*
-        生成角点位置
-        视锥不好画, 用一个立方体演示
+        Generate Corner vertices
+        he sight cone is not easy to draw. Use a cube to demonstrate.
            +z
            |
         +x 5---6
@@ -433,10 +442,10 @@ namespace UE::Geometry::Frustum
             Vertices[7] = FVector(NearPlaneDis, NearWidthHalf, NearHeightHalf);
         }
 
-        // 生成边点位置, 不包括角点
+        // Generate edge vertices, Exclude corner vertices
         void GenerateEdgeVertex()
         {
-            // X轴, 零头放到视锥前端
+            // X-axis, place fractional values at the frustum front.
             {
                 float Rate = 0.f, WidthHalf = 0.f, HeightHalf = 0.f, Distance = 0.f;
                 int IndexOfLeftTop, IndexOfLeftBottom, IndexOfRightTop, IndexOfRightBottom;
@@ -457,7 +466,7 @@ namespace UE::Geometry::Frustum
                 }
             }
 
-            // Y轴, 轴对称, 零头挤到左右两边，不应当处理到角点
+            // Y-axis, symmetrically distributed, squeeze the fractional parts of the values to both left and right sides, and should not process corner points.
             {
                 auto Generate = [this](const bool &IsNear)
                 {
@@ -488,7 +497,7 @@ namespace UE::Geometry::Frustum
                 Generate(false);
             }
 
-            // Z轴, 轴对称, 零头挤到上下两边，不应当处理到角点
+            // Z-axis, symmetrically distributed, squeeze the fractional parts to the top and bottom sides, and should not affect corner points.
             {
                 auto Generate = [this](const bool &IsNear)
                 {
@@ -520,8 +529,8 @@ namespace UE::Geometry::Frustum
             }
         }
 
-        // 使用GetVertexIndex后, 点遍历已经与存储顺序无关了
-        // 不包括角点和边点
+        // After using GetVertexIndex, point traversal is no longer dependent on the storage order.
+        // Exclude corner vertices and edge vertices.
         void GenerateVerticesInFrontPlane(bool bIsNear)
         {
             int NumOFVerticesX = bIsNear ? NearVertices.X : FarVertices.X;
@@ -552,7 +561,7 @@ namespace UE::Geometry::Frustum
 
             float Offset = bIsNear ? NearPlaneDis : FarPlaneDis;
             // int IndexOfPlaneStart = NumOfTypeVertices[0] + NumOfTypeVertices[1];
-            // 不包含角点和边点
+            // Exclude corner vertices and edge vertices
             for (int i = 1; i < PlaneVertices.Y - 1; ++i)
             {
                 for (int j = 1; j < PlaneVertices.X - 1; ++j)
@@ -566,7 +575,7 @@ namespace UE::Geometry::Frustum
         }
 
         /*
-        生成面点, 对于四个侧面都按照此顺序
+        Generate face points, applying this same order to all four side faces.
                 Top
         Left   ----   Right 0
               /    \        1
@@ -673,9 +682,9 @@ namespace UE::Geometry::Frustum
                             else
                             {
                                 // TriangleNormals[IndexOfTri] = FIndex3i(LeftTop, LeftBottom, RightTop);
-                                Triangles[IndexOfTri++] = FIndex3i(LeftTop, RightTop, LeftBottom);
+                                Triangles[IndexOfTri++] = FIndex3i(LeftTop, LeftBottom, RightTop);
                                 // TriangleNormals[IndexOfTri] = FIndex3i(LeftBottom, RightBottom, RightTop);
-                                Triangles[IndexOfTri++] = FIndex3i(LeftBottom, RightTop, RightBottom);
+                                Triangles[IndexOfTri++] = FIndex3i(LeftBottom, RightBottom, RightTop);
                             }
                         }
                     }
@@ -683,9 +692,9 @@ namespace UE::Geometry::Frustum
             }
             {
                 /*
-                将长边的点映射到短边的点上. 这思路太棒了.
-                若长边的两点为同一组, 则它们应当共同构成一个三角形.
-                不为同一组, 则需要作为两组之间的桥梁, 四个点构成两个三角形.
+                Map vertices from the longer edge to the shorter edge. This approach is brilliant.
+                If two vertices on the longer edge belong to the same group, they should form a single triangle together.
+                If they are not in the same group, they need to act as a bridge between the two groups, forming two triangles with four vertices.
                 */
                 for (int PlaneIndex = EFrustumPlane::Left; PlaneIndex <= EFrustumPlane::Top; ++PlaneIndex)
                 {
