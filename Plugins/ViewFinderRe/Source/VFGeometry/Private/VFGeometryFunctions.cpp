@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFGeometryFunctions.h"
 
 #include "Engine/World.h"

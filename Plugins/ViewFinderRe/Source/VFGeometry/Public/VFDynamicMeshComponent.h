@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -5,7 +7,7 @@
 #include "VFPoolableInterface.h"
 #include "VFDynamicMeshComponent.generated.h"
 
-// 动态网格需要手动记录的属性
+// Properties of UVFDynamicMeshComponent that need to be manually recorded
 USTRUCT(BlueprintType)
 struct FVFDMCompRecordProps
 {
@@ -89,11 +91,11 @@ public: // SourceComponent
 	void RestoreSourceComponent();
 
 #if WITH_EDITOR
-	// 仅用于还原被替换的父组件
+	// Only used to restore the replaced parent component in editor
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")
 	void RestoreSourceComponentInEditor();
 
-	// 仅用于替换父组件
+	// Only used to replace the parent component in editor
 	UFUNCTION(CallInEditor, Category = "ViewFinder", meta = (DisplayName = "ReplaceMeshForComponent"))
 	void ReplaceMeshForComponentInEditor();
 #endif

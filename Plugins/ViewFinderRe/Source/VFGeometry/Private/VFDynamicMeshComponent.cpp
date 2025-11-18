@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFDynamicMeshComponent.h"
 
 #include "Engine/World.h"
@@ -34,7 +36,7 @@ void UVFDynamicMeshComponent::BeginPlay()
 
     if (UVFGeometryFunctions::IsEditorCreated(this))
     {
-        // 延迟一帧, 避免回溯时, 与其它地方BeginPlay的顺序问题
+        // Delay one frame to avoid order issues with BeginPlay in other locations during rewinding
         GetWorld()->GetTimerManager().SetTimerForNextTick(
             [this]()
             {
@@ -56,8 +58,8 @@ void UVFDynamicMeshComponent::Init(UPrimitiveComponent *Source)
     SourceComponent = Source;
 
     /*
-    在拍照流程的复制过程中, 组件会被拆卸(复制Actor), 然后重新组装.
-    若为根组件会出现错误. 详见UVFFunctions::CloneActorRuntime()
+    During the copying actors process in photo-taking workflow, UVFDynamicMeshComponents will be disassembled (Actor copying), then reassembled.
+    Errors will occur if it's a root component. See UVFFunctions::CloneActorRuntime() for details.
     */
     if (GetAttachParent() == nullptr)
     {
@@ -66,9 +68,7 @@ void UVFDynamicMeshComponent::Init(UPrimitiveComponent *Source)
                *GetName(), *GetOwner()->GetName());
     }
 
-    /*
-    从池中获取到的组件, 属性并不一致, 需要手动同步
-    */
+    // Components obtained from the pool have inconsistent properties and need manual synchronization
     if (auto DMComp = Cast<UVFDynamicMeshComponent>(Source))
     {
         bEnabled = DMComp->bEnabled;
@@ -87,16 +87,13 @@ void UVFDynamicMeshComponent::Clear()
 
 void UVFDynamicMeshComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
 {
-    // 复制网格
     UVFGeometryFunctions::CopyMeshFromComponent(
         Source,
         MeshObject,
         GetDefault<UVFGeometryDeveloperSettings>()->CopyMeshOption,
         false);
 
-    // 复制物理
-    // 复制碰撞预设, 类型等. 原静态网格体的简单碰撞可能与显示不一致
-    // 自动生成的碰撞并不完美, 碰撞的设置也是固定的.
+    // About Physics
     SetCollisionProfileName(Source->GetCollisionProfileName());
     if (auto SourceVFDMComp = GetSourceVFDMComp())
     {
@@ -119,8 +116,6 @@ void UVFDynamicMeshComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
 
     bRenderCustomDepth = Source->bRenderCustomDepth;
     CustomDepthStencilValue = Source->CustomDepthStencilValue;
-
-    // TODO: 传递事件. 暂使用Actor接口
 }
 
 void UVFDynamicMeshComponent::ReplaceMeshForComponent(UPrimitiveComponent *Source)

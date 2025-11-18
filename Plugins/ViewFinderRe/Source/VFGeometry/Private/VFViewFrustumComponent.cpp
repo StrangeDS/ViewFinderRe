@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFViewFrustumComponent.h"
 
 #include "Materials/MaterialInterface.h"
@@ -9,7 +11,10 @@ UVFViewFrustumComponent::UVFViewFrustumComponent()
 {
     CastShadow = false;
     SetComplexAsSimpleCollisionEnabled(false);
-    // 对比OverlapAll差异为: ViewFrustum物体与ViewFrustum物体为ignore
+    /*
+    Object Channel ViewFrustum: Compared to OverlapAll,
+    the difference is: ViewFrustum objects ignore each other
+    */
     SetCollisionProfileName(TEXT("ViewFrustum"));
 
     static ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialSelector(
@@ -59,7 +64,10 @@ void UVFViewFrustumComponent::RecordViewFrustum(UVFViewFrustumComponent *Other)
         MeshObject,
         FVF_GeometryScriptCopyMeshFromComponentOptions(),
         false);
-    UVFGeometryFunctions::SetDynamicMeshCollisionFromMesh(MeshObject, this, CollisionOptions);
+    UVFGeometryFunctions::SetDynamicMeshCollisionFromMesh(
+        MeshObject,
+        this,
+        GetDefault<UVFGeometryDeveloperSettings>()->ViewFrustumCollisionOption);
 }
 
 #if WITH_EDITOR

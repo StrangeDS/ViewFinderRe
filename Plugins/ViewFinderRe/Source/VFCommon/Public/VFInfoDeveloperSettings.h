@@ -1,10 +1,12 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
 #include "VFDeveloperSettingsCommon.h"
 #include "VFInfoDeveloperSettings.generated.h"
 
-// 信息展示
+// Display infomations
 UCLASS(Config = ViewFinderReSettings, defaultconfig,
 	   autoExpandCategories = ("Informations"))
 class VFCOMMON_API UVFInfoDeveloperSettings : public UVFDeveloperSettingsCommon
@@ -19,7 +21,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Informations")
 	FString Description;
 
-	// 以项目文档为准
+	// Subject to project DEADME.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Informations")
 	FString OpenSourceLicense = TEXT("MPL2.0");
 

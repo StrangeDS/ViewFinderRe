@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFGeometryDeveloperSettings.h"
 
 #include "VFGSNone.h"

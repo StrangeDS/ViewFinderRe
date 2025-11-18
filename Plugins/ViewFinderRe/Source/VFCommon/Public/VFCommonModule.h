@@ -4,9 +4,7 @@
 
 #include "Modules/ModuleManager.h"
 
-/*
-通用模块: 简化日志Channel使用, 统一的UDeveloperSettings位置
-*/
+// Common Module: Simplifies Log Channel usage, provides a unified base class for UDeveloperSettings..
 class FVFCommonModule : public IModuleInterface
 {
 public:

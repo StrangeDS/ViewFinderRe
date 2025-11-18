@@ -4,7 +4,7 @@
 
 #include "Modules/ModuleManager.h"
 
-// 几何模块中间层
+// Geometry Module Intermediate Layer
 class FVFGeometryModule : public IModuleInterface
 {
 public:

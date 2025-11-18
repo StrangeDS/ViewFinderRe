@@ -1,10 +1,12 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Engine/DeveloperSettings.h"
 #include "VFDeveloperSettingsCommon.generated.h"
 
-// 处于相同的Container和Category
+// Unified Container and Category, ensuring plugin's all UDeveloperSettings reside in a single file.
 UCLASS(Abstract)
 class VFCOMMON_API UVFDeveloperSettingsCommon : public UDeveloperSettings
 {

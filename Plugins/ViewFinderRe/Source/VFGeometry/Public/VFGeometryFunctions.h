@@ -1,13 +1,11 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "VFGeometryHeaders.h"
 #include "VFGeometryFunctions.generated.h"
-
-// 此处基本都是抄的GeometryScripting的代码.
-// GeometryScripting中有些函数不是完全符合需求, 无奈只能抄一份.
-// 干脆不依赖GeometryScripting.
 
 UCLASS(meta = (ScriptName = "VFGeometryFunctions"))
 class VFGEOMETRY_API UVFGeometryFunctions : public UBlueprintFunctionLibrary

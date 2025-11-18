@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -28,7 +30,7 @@ struct FVFLevelOfCollisionMapping
 	}
 };
 
-// 包括几何策略, 组件对象池, 生成碰撞的参数设置
+// Including GeometryStrategy/ComponentsPool/CollisionParameters settings
 UCLASS(Config = ViewFinderReSettings, defaultconfig,
 	   autoExpandCategories =
 		   ("Settings", "Settings|GeometryStrategy",
@@ -48,7 +50,7 @@ public:
 #endif
 
 public:
-	// 空值会默认使用UVFGeometryScriptNativeStrategy
+	// Invalid value or default: UVFGeometryScriptNativeStrategy
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,
 			  Category = "Settings|GeometryStrategy",
 			  meta = (MustImplement =
@@ -59,43 +61,42 @@ public:
 	bool IsGeometryStrategyNone() const;
 
 public:
-	// 使用对象池
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,
 			  Category = "Settings|CompsPool")
 	bool bUseVFDMCompsPool = true;
 
 	/*
-	组件对象池预生成数量
-	由于类归属的模块问题, 无法正常设置, 建议在关卡蓝图中手动获取子系统并设置
+	Specify the numbers of components pre-generated in the pool.
+	Due to the dependency of the module, it's better to set in levelscript.
 	*/
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,
 			  Category = "Settings|CompsPool",
 			  meta = (EditCondition = "bUseVFDMCompsPool"))
 	TMap<TSubclassOf<UVFDynamicMeshComponent>, int> CompPoolPrepareNum;
 
-public: // 布尔操作参数
-	// 网格交集参数
+public: // Mesh bool operation parameters
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,
 			  Category = "Settings|Boolean")
 	FVF_GeometryScriptMeshBooleanOptions IntersectOption;
 
-	// 网格差集参数
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,
 			  Category = "Settings|Boolean")
 	FVF_GeometryScriptMeshBooleanOptions SubtractOption;
 
-	// 网格并集参数
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,
 			  Category = "Settings|Boolean")
 	FVF_GeometryScriptMeshBooleanOptions UnionOption;
 
 public:
-	// 从(静态)网格复制到动态网格的参数
+	// Parameters from (Static)MeshComponent to DynamicMeshComponent
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,
 			  Category = "Settings|DynamicMesh")
 	FVF_GeometryScriptCopyMeshFromComponentOptions CopyMeshOption;
 
-	// 生产简单碰撞的参数, 依次匹配, 在前的优先级更高
+	/*
+	Parameter array for generating simple collision.
+	match sequentially, with earlier entries having higher priority.
+	*/
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,
 			  Category = "Settings|DynamicMesh")
 	TArray<FVFLevelOfCollisionMapping> CollisionLevels;
@@ -103,7 +104,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Settings|GeometryStrategy")
 	const FVF_GeometryScriptCollisionFromMeshOptions GetCollisionOption(int Level) const;
 
-public: // 视锥需要单独处理碰撞参数(省性能)
+public: // Separate parameters for frustum.(for performance)
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,
 			  Category = "Settings|ViewFrustum")
 	FVF_GeometryScriptPrimitiveOptions ViewFrustumPrimitiveOption;
