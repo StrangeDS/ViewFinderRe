@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -15,7 +17,6 @@ enum class UVFDMCompStepOperation : uint8
 	CopyMeshFromComponent,
 	RegisterToTransformRecorder,
 	ReplaceMeshForComponent,
-	// 交集, 差集, 并集需要保存网格体, 故在本地处理
 	IntersectMeshWithDMComp,
 	SubtractMeshWithDMComp,
 	UnionMeshWithDMComp

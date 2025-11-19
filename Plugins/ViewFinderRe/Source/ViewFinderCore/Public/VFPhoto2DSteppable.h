@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -23,7 +25,7 @@ struct FVFPhoto2DHierarchyInfo
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	USceneComponent *AttachParent;
 
-	// 缩放不由此管理, 无视
+	// Scaling is not managed by this and will be ignored.
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	FTransform RelativeTramsform;
 };

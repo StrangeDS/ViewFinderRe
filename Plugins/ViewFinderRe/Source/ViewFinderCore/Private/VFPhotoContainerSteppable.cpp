@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFPhotoContainerSteppable.h"
 
 #include "VFPhoto2D.h"

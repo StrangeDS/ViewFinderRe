@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -12,9 +14,7 @@ class UVFPhotoContainerInterface : public UInterface
 	GENERATED_BODY()
 };
 
-/**
- * 存放Photo2D的容器
- */
+// Container storing Photo2D.
 class VIEWFINDERCORE_API IVFPhotoContainerInterface
 {
 	GENERATED_BODY()

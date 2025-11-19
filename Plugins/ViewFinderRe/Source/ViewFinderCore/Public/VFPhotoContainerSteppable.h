@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -57,7 +59,6 @@ public:
 	virtual void SetEnabled(const bool &Enabled);
 
 public:
-	// 结束回溯时的一些处理
 	UFUNCTION()
 	void HandleEndRewinding(float Time);
 

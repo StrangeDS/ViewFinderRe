@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFPhotoContainerInterface.h"
 
 int IVFPhotoContainerInterface::GetPhoto2DNum_Implementation()

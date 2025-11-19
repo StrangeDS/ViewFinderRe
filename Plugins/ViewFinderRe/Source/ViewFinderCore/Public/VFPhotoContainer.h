@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -73,7 +75,7 @@ public:
 			  meta = (NoEditInline))
 	TObjectPtr<AVFPhoto2D> CurrentPhoto2D;
 
-	// UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder") // 不能修饰
+	// UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder") // Does not support UHT reflection.
 	TDeque<AVFPhoto2D *> Photo2Ds;
 
 public:
@@ -99,12 +101,12 @@ public:
 	float PrepareMoveInterval = 0.02f;
 
 protected:
-	// Photo2D的实际位置
+	// Actual position of Photo2D.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
 			  meta = (NoEditInline))
 	TObjectPtr<USceneComponent> Container;
 
-	// 预览Photo2D的位置
+	// Preview position of Photo2D.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
 			  meta = (NoEditInline))
 	TObjectPtr<USceneComponent> Preview;

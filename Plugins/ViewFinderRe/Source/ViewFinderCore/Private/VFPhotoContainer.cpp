@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFPhotoContainer.h"
 
 #include "TimerManager.h"
@@ -19,7 +21,7 @@ AVFPhotoContainer::AVFPhotoContainer()
 	Container->SetRelativeRotation(FRotator(-30.0f, -30.0f, 0.f));
 
 	Preview = CreateDefaultSubobject<USceneComponent>(TEXT("Preview"));
-	Preview->SetRelativeLocation(FVector(59.0f, 0.f, 0.f)); // 需对齐AVFPhotoCatcher_PickUp::PreviewTrans
+	Preview->SetRelativeLocation(FVector(59.0f, 0.f, 0.f)); // Need to align with AVFPhotoCatcher_PickUp::PreviewTrans
 	Preview->SetupAttachment(RootComponent);
 
 	Helper = CreateDefaultSubobject<UVFHelperComponent>(TEXT("Helper"));

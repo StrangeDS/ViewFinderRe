@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFDMSteppableComponent.h"
 
 #include "Engine/World.h"
@@ -48,7 +50,7 @@ void UVFDMSteppableComponent::Init(UPrimitiveComponent *Source)
 
 void UVFDMSteppableComponent::Clear()
 {
-    // 对于已经在池中的组件, GetWorld()是nullptr, 故需要这层保护.
+    // For already in the pool, GetWorld() returns nullptr, hence this layer of protection is necessary.
     if (auto World = GetWorld())
     {
         if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))

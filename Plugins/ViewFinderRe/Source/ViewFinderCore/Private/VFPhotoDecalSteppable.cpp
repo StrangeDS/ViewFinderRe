@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFPhotoDecalSteppable.h"
 
 #include "VFStepsRecorderWorldSubsystem.h"
