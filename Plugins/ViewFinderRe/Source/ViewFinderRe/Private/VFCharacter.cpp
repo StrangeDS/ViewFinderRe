@@ -1,3 +1,5 @@
+// Copyright StangeDS. All Rights Reserved.
+
 #include "VFCharacter.h"
 
 #include "Engine/World.h"
@@ -111,12 +113,12 @@ void AVFCharacter::PossessedBy(AController *NewController)
 	PlayerController = Cast<APlayerController>(Controller);
 	if (!IsValid(PlayerController))
 	{
-		VF_LOG(Warning, TEXT("%s: PlayerController 不存在"), __FUNCTIONW__);
+		VF_LOG(Warning, TEXT("%s: PlayerController is invalid."), __FUNCTIONW__);
 		return;
 	}
 	if (!IsValid(PlayerController->GetLocalPlayer()))
 	{
-		VF_LOG(Warning, TEXT("%s: GetLocalPlayer 不存在"), __FUNCTIONW__);
+		VF_LOG(Warning, TEXT("%s: GetLocalPlayer is invalid."), __FUNCTIONW__);
 		return;
 	}
 
@@ -247,9 +249,12 @@ void AVFCharacter::TickForward_Implementation(float Time)
 
 	if (Steps.Last() != Info)
 	{
-		// 对于瞬移采取以下解决方案:
-		// 连续运动时间差值应当 < Permitted,
-		// 瞬移则是长时间不动后的移动, 在瞬移前再重复给入一次信息.
+		/*
+		For teleportation, the following solution is adopted:
+		The time difference for continuous movement should be < PermittedValue.
+		Teleportation is treated as movement after prolonged inactivity,
+		requiring data to be resubmitted once more immediately before the teleport occurs.
+		*/
 		auto LastInfo = Steps.Last();
 		if (Time - LastInfo.Time > Permitted)
 		{
@@ -269,7 +274,6 @@ void AVFCharacter::TickBackward_Implementation(float Time)
 		if (StepInfo.Time < Time)
 			break;
 
-		// 对于瞬移, 节点需要手动进行一次复位
 		SetActorLocation(StepInfo.Location);
 		if (GetRootComponent() && GetRootComponent()->IsSimulatingPhysics())
 			GetRootComponent()->ComponentVelocity = StepInfo.Velocity;
@@ -388,7 +392,10 @@ bool AVFCharacter::SwitchEquipment_Implementation(const TScriptInterface<IVFActi
 
 void AVFCharacter::OnEndRewinding(float Time)
 {
-	// 设备自行回溯开启状态, 这里检查并更新EquipmentCurIndex
+	/*
+	The device automatically rewinds its enabled state.
+	Here we verify and update EquipmentCurIndex.
+	*/
 	for (auto Equipment : Equipments)
 	{
 		if (IVFActivatableInterface::Execute_IsActive(Equipment.GetObject()))

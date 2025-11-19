@@ -1,3 +1,5 @@
+// Copyright StangeDS. All Rights Reserved.
+
 #include "VFPhotoCatcher_Interact.h"
 
 #include "Blueprint/UserWidget.h"
@@ -19,7 +21,7 @@ bool AVFPhotoCatcher_Interact::StartAiming_Implementation(APlayerController *Con
 
 	if (IsValid(AimingMappingContext))
 	{
-		// 具体事件的BindAction放在蓝图中进行(图个方便)
+		// Specific key bindings (BindAction) are implemented in Blueprints (for convenience).
 		auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(Controller->GetLocalPlayer());
 		if (Subsystem)
 			Subsystem->AddMappingContext(AimingMappingContext, 1);

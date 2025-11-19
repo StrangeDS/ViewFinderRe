@@ -1,3 +1,5 @@
+// Copyright StangeDS. All Rights Reserved.
+
 #include "VFPhotoCatcher_PickUp.h"
 
 #include "EnhancedInputSubsystems.h"
@@ -17,7 +19,7 @@ bool AVFPhotoCatcher_PickUp::Interact_Implementation(APlayerController *Controll
     PlayerController = Controller;
     Pawn = PlayerController->GetPawn();
     ActorsToIgnore.AddUnique(Pawn);
-    // 需要根据角色重写
+    // Needs to be overridden based on the character.
     if (auto VFCharacter = Cast<AVFCharacter>(Pawn))
     {
         if (auto ToAttach = Pawn->GetComponentByClass<UCameraComponent>())
@@ -244,7 +246,7 @@ bool AVFPhotoCatcher_PickUp::StepBack_Implementation(FVFStepInfo &StepInfo)
     auto Option = StringToEnum<EVFPhotoCatcherPickUpOption>(StepInfo.Info);
     if (Option >= EVFPhotoCatcherPickUpOption::MAX)
     {
-        // AVFPhotoCatcherSteppable::TakeAPhoto_Implementation()中的提交, 无需处理
+        // No need to handle event by AVFPhotoCatcherSteppable::TakeAPhoto_Implementation().
         return true;
     }
 

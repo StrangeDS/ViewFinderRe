@@ -1,3 +1,5 @@
+// Copyright StangeDS. All Rights Reserved.
+
 #include "VFPhotoCatcher_VirtualRender.h"
 
 #include "Materials/MaterialParameterCollectionInstance.h"

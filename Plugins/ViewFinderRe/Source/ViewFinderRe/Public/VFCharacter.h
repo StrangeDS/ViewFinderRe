@@ -1,3 +1,5 @@
+// Copyright StangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -151,7 +153,7 @@ public: // IVFPhotoContainerInterface
 public: // IVFHelperInterface
 	virtual UVFHelperComponent *GetHelper_Implementation() override;
 
-public: // UVFActivatableInterface管理
+public: // Manage equipments of UVFActivatableInterface
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
 	void SwitchEquipmentNext();
 	virtual void SwitchEquipmentNext_Implementation();

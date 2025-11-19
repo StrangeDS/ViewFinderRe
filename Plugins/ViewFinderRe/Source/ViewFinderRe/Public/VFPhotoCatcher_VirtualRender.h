@@ -1,3 +1,5 @@
+// Copyright StangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -8,9 +10,10 @@ class UMaterialParameterCollection;
 class UMaterialParameterCollectionInstance;
 
 /*
-用于展示: 复刻星际拓荒太空站灯笼的后处理
-向材质参数集更新参数
-丢弃后加上后处理, 然后由Deactivate关闭
+Used for reproduce:
+the lantern in Outer Wilds Space Station, the Watermelon filter in ViewFinder.
+Updating parameters to the material parameter collection.
+The post-processing effect is not unloaded during odd-numbered dropdown operations.
 */
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERRE_API AVFPhotoCatcher_VirtualRender : public AVFPhotoCatcher_PickUp

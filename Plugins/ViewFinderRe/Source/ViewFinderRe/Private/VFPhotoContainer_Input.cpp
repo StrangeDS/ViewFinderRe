@@ -1,3 +1,5 @@
+// Copyright StangeDS. All Rights Reserved.
+
 #include "VFPhotoContainer_Input.h"
 
 #include "EnhancedInputSubsystems.h"

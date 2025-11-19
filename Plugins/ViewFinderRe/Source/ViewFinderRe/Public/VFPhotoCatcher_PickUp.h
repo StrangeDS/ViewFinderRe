@@ -1,3 +1,5 @@
+// Copyright StangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -27,7 +29,6 @@ struct FVFPhotoCatcherPickUpStepInfo
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	EVFPhotoCatcherPickUpOption Option = EVFPhotoCatcherPickUpOption::MAX;
 
-	// 根据类型显示对应字段
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
 			  meta = (EditCondition = "Option == EVFPhotoCatcherPickUpOption::PickedUp"))
 	FTransform Transform;

@@ -1,3 +1,5 @@
+// Copyright StangeDS. All Rights Reserved.
+
 #include "VFPhotoCatcher_Fixed.h"
 
 #include "TimerManager.h"

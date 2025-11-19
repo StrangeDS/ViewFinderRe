@@ -1,3 +1,5 @@
+// Copyright StangeDS. All Rights Reserved.
+
 #include "VFPhoto2D_Interact.h"
 
 #include "GameFramework/Pawn.h"
