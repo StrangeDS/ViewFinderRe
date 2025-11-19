@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -14,29 +16,29 @@ class VFPHOTOCOMMON_API UVFPCommonFunctions : public UBlueprintFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	// 生成替身用于替换
+	// Spawn StandIn for actor
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	static AActor *ReplaceWithStandIn(
 		AActor *OriginalActor,
 		TSubclassOf<AActor> StandInActorClass);
 
-	// 查找Components对应Actor下的UVFHelperComponent组件, 映射关系返回到Map中
+	// Find UVFHelperComponents under the Actors, return mapping
 	template <typename T = UPrimitiveComponent>
 	static void GetCompsToHelpersMapping(
 		TArray<T *> &Components,
 		TMap<UPrimitiveComponent *, UVFHelperComponent *> &Map);
 
-	// 查找Components对应Actor下的UVFHelperComponent组件, 映射关系返回到Map中, 蓝图支持
+	// Find UVFHelperComponents under the Actors, return mapping. Blueprint support.
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder", meta = (DisplayName = "GetCompsToHelpersMapping"))
 	static void K2_GetCompsToHelpersMapping(
 		UPARAM(ref) TArray<UPrimitiveComponent *> &Components,
 		UPARAM(ref) TMap<UPrimitiveComponent *, UVFHelperComponent *> &Map);
 
-	// FTransform的Lerp, 包括Scale
+	// FTransform Lerp including Scale
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	static FTransform TransformLerp(const FTransform &Original, const FTransform &Target, float delta);
 
-	// FTransform的Lerp, 不包括Scale
+	// FTransform Lerp excluding Scale
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	static FTransform TransformLerpNoScale(const FTransform &Original, const FTransform &Target, float delta);
 

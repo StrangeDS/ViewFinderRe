@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -53,35 +55,36 @@ public:
 
 public:
 	/*
-	默认被拍照的是生成的副本, 没有进入拍照流程的自然没有副本.
-	但又相对独立, 可以设置原本和副本的被捕获情况.
+	Configurable whether to be captured for originals and duplicates.
+	By default, the duplicates are captured.
+	Actors without Helpers are captured by default.
 	*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	FVFShowInPhotoRule ShowInPhotoRule = FVFShowInPhotoRule::CopyOnly;
 
-	// 能否被拍入照片(进入后续的复制等流程)
+	// whether to enter photo-taking process.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	bool bCanBeTakenInPhoto = true;
 
-	// 能否被放置的照片覆盖(进入后续的差集流程)
+	// whether to enter photo3d placing process.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	bool bCanBePlacedByPhoto = true;
 
-	// 是否在被拍照时使用替身
+	// whether to use StandIn in photo-taking process.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	bool bReplacedWithStandIn = false;
 
-	// 使用替身时, 子Actors是否也无视
+	// whether to ignore children actors when using StandIn.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	bool bIgnoreChildActors = true;
 
-	// 需具体实现的替身类
+	// StandIn class to use.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder",
 			  meta = (EditCondition = "bReplacedWithStandIn",
 					  MustImplement = "/Script/VFPhotoCommon.VFStandInInterface"))
 	TSubclassOf<AActor> StandInClass;
 
-	// 使用替身的Actor, 便于访问使用
+	// What Actor is standing for. Not available to Blueprint Class.
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder",
 			  meta = (EditCondition = "bReplacedWithStandIn", NoEditInline))
 	TObjectPtr<AActor> ActorStandInFor;

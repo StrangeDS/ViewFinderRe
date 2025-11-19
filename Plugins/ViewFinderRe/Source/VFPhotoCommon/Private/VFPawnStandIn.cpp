@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFPawnStandIn.h"
 
 #include "GameFramework/Pawn.h"
@@ -54,7 +56,13 @@ void AVFPawnStandIn::TeleportTargetPawn(UObject *Sender)
 	}
 
 	auto Rotator = RootComponent->GetComponentRotation();
-	Rotator.Roll = 0.f; // 不进行置零的话, 倒也是个新玩法. 但又得考虑跳跃方向和重力方向, 其它物体的重力也得一同改变才符合直觉.
+	/*
+	If we don't reset it to zero, it could actually enable a new gameplay mechanic.
+	But then we'd have to consider jump direction and gravity direction,
+	and intuitively,
+	the gravity for other objects would need to be adjusted accordingly as well.
+	*/
+	Rotator.Roll = 0.f;
 	TargetPawn->SetActorLocation(GetActorLocation());
 	TargetPawn->FaceRotation(Rotator);
 	if (auto Controller = TargetPawn->GetController())

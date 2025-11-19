@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -66,7 +68,7 @@ public:
 	void SetManagedActorsEnabled(bool Enabled);
 
 #if WITH_EDITOR
-	// 你可以用视锥收集后, 再手动删除不需要的Actor. 减少工作量.
+	// You can collect actors using the frustum, then manually delete unwanted Actors to reduce workload.
 	UFUNCTION(CallInEditor, Category = "ViewFinder")
 	void RecollectActorsWithFrustum();
 #endif
@@ -97,7 +99,7 @@ public:
 	TObjectPtr<UVFHelperComponent> Helper;
 
 public:
-	// ViewAngle应当尽可能的小, 贴花才更清晰
+	// ViewAngle should be kept as small as possible for clearer decals.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	float ViewAngle = 30.0f;
 
@@ -113,7 +115,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TArray<AActor *> ManagedActors;
 
-	// 使用此项将使用ShowOnlyActors, 注意: 将不会接收到其它物体的遮挡和阴影效果
+	/*
+	Enabling this option will utilize ShowOnlyActors.
+	Note: This will prevent (managed)Actors receiving occlusion and shadow effects from other actors.
+	*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	bool bOnlyCatchManagedActors = false;
 

@@ -21,8 +21,9 @@ void FVFPhotoDecalModule::CheckVSM()
 	const FEngineVersion &EngineVer = FEngineVersion::Current();
 
 	/*
-	场景捕捉与VSM存在冲突(<5.4), 捕获到的阴影存在缺失.
+	Scene capture conflicts with VSM (versions <5.4), resulting in missing shadows in captures.
 	https://dev.epicgames.com/documentation/en-us/unreal-engine/virtual-shadow-maps-in-unreal-engine#scene-capture
+	Refer to README.
 	*/
 	if (EngineVer.GetMajor() == 5 && EngineVer.GetMinor() < 4)
 	{

@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -12,9 +14,7 @@ class UVFHelperInterface : public UInterface
 	GENERATED_BODY()
 };
 
-/*
-接口: 携带Helper组件, 并返回Helper组件
-*/
+// Return the Helper component.
 class VFPHOTOCOMMON_API IVFHelperInterface
 {
 	GENERATED_BODY()

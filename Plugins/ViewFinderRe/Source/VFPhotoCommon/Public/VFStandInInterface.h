@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -10,30 +12,37 @@ class UVFStandInInterface : public UInterface
 	GENERATED_BODY()
 };
 
-/**
- * 在ViewFinder中, Pawn被拍到会显示扭曲身影.
- * 目前实现是: Helper中定义bReplacedWithStandIn, 并给定用于替换的(实现接口的)的替身AActor.
- * 拍照时生成替身, Pawn则被忽略, 不参与后续的处理.
- * 后续的操作都应用在替身上.
- * 例子可见VFPawnStandIn.
- */
+/*
+In ViewFinder, when a Pawn is captured in a photo, it may appear distorted.
+The current implementation is as follows:
+The Helper defines bReplacedWithStandIn and specifies a stand-in class(which implements the interface) for replacement.
+During photo-taking process, a StandIn instance is generated for subsequent processing,
+while the original Pawn is ignored, excluded from subsequent processing.
+For an example, refer to VFPawnStandIn.
+*/
 class VFPHOTOCOMMON_API IVFStandInInterface
 {
 	GENERATED_BODY()
 
 public:
-	// 参照UVFFunctions::ReplaceWithStandIn()
-	// 使用SetOriginalActor_Implementation()去触发相关操作
+	// Reference: UVFPCommonFunctions::ReplaceWithStandIn()  
+	// Use SetOriginalActor_Implementation() to trigger related operations.
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
 	void SetOriginalActor(AActor *Original);
 	virtual void SetOriginalActor_Implementation(AActor *Original);
 
-	// BeginPlay中可能访问为空值, 建议使用触发式
+	/*
+	Direct access in BeginPlay may return null values.
+	Triggered accessing is recommended.
+	*/
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
 	AActor *GetOriginalActor();
 	virtual AActor *GetOriginalActor_Implementation();
 
-	// 建议返回(一个无实际网格的)VFDMComp, 这样在后续处理中就不会制成对应的VFDMComp.
+	/*
+	It is advisable to return a VFDMComp (without an actual mesh),
+	so that no corresponding VFDMComp will be generated during subsequent processing.
+	*/
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
 	UPrimitiveComponent *GetPrimitiveComp();
 	virtual UPrimitiveComponent *GetPrimitiveComp_Implementation();

@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFStandInInterface.h"
 
 #include "VFHelperComponent.h"
@@ -18,8 +20,6 @@ AActor *IVFStandInInterface::GetOriginalActor_Implementation()
 
 UPrimitiveComponent *IVFStandInInterface::GetPrimitiveComp_Implementation()
 {
-    // 需要被重写. 不能返回空指针.
-    // 照片中应当有对应的显示, 无显示那为什么不直接设置bCanBeTakenInPhoto为false?
     unimplemented();
     return nullptr;
 }

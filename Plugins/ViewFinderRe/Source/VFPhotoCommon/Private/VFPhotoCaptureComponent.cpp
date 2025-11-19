@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFPhotoCaptureComponent.h"
 
 #include "TextureResource.h"
@@ -93,7 +95,7 @@ UTexture2D *UVFPhotoCaptureComponent::DrawATexture2D()
 		RTResource->ReadFloat16Pixels(PixelData);
 
 		Texture = UTexture2D::CreateTransient(Size.X, Size.Y, PF_FloatRGBA);
-		Texture->CompressionSettings = TC_HDR; // 贴花要求
+		Texture->CompressionSettings = TC_HDR; // PhotoDecal requirements.
 		FTexture2DMipMap &Mip = Texture->GetPlatformData()->Mips[0];
 		void *Data = Mip.BulkData.Lock(LOCK_READ_WRITE);
 		FMemory::Memcpy(Data, PixelData.GetData(), PixelData.Num() * sizeof(FFloat16Color));
@@ -136,25 +138,24 @@ void UVFPhotoCaptureComponent::DrawOnTexture2D(UTexture2D *Texture2D)
 		TArray<FColor> PixelData;
 		RTResource->ReadPixels(PixelData);
 
-		// 确保数据大小匹配
+		// Check data size matches
 		const int32 ExpectedSize = RTSize.X * RTSize.Y;
 		check(PixelData.Num() == ExpectedSize);
 		FTexture2DMipMap &Mip = Texture2D->GetPlatformData()->Mips[0];
 
-		// 检查Mip数据大小
+		// Ensure Mip data size
 		const int32 RequiredSize = ExpectedSize * sizeof(FColor);
 		if (Mip.BulkData.GetBulkDataSize() < RequiredSize)
 		{
 			VF_LOG(Warning, TEXT("Mip data too small, reallocating. Required: %d, Available: %d"),
 				   RequiredSize, Mip.BulkData.GetBulkDataSize());
 
-			// 重新分配Mip数据
+			// Reallocate Mip data
 			Mip.BulkData.Lock(LOCK_READ_WRITE);
 			Mip.BulkData.Realloc(RequiredSize);
 			Mip.BulkData.Unlock();
 		}
 
-		// FTexture2DMipMap &Mip = Texture2D->GetPlatformData()->Mips[0];
 		void *Data = Mip.BulkData.Lock(LOCK_READ_WRITE);
 		FMemory::Memcpy(Data, PixelData.GetData(), PixelData.Num() * sizeof(FColor));
 		Mip.BulkData.Unlock();
@@ -174,25 +175,24 @@ void UVFPhotoCaptureComponent::DrawOnTexture2D(UTexture2D *Texture2D)
 		TArray<FFloat16Color> PixelData;
 		RTResource->ReadFloat16Pixels(PixelData);
 
-		// 确保数据大小匹配
+		// Check data size matches
 		const int32 ExpectedSize = RTSize.X * RTSize.Y;
 		check(PixelData.Num() == ExpectedSize);
 		FTexture2DMipMap &Mip = Texture2D->GetPlatformData()->Mips[0];
 
-		// 检查Mip数据大小
+		// Ensure Mip data size
 		const int32 RequiredSize = ExpectedSize * sizeof(FFloat16Color);
 		if (Mip.BulkData.GetBulkDataSize() < RequiredSize)
 		{
 			VF_LOG(Warning, TEXT("Mip data too small, reallocating. Required: %d, Available: %d"),
 				   RequiredSize, Mip.BulkData.GetBulkDataSize());
 
-			// 重新分配Mip数据
+			// Reallocate Mip data
 			Mip.BulkData.Lock(LOCK_READ_WRITE);
 			Mip.BulkData.Realloc(RequiredSize);
 			Mip.BulkData.Unlock();
 		}
 
-		// FTexture2DMipMap &Mip = Texture2D->GetPlatformData()->Mips[0];
 		void *Data = Mip.BulkData.Lock(LOCK_READ_WRITE);
 		FMemory::Memcpy(Data, PixelData.GetData(), PixelData.Num() * sizeof(FFloat16Color));
 		Mip.BulkData.Unlock();

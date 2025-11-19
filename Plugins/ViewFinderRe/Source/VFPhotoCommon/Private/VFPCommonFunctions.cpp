@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFPCommonFunctions.h"
 
 #include "Engine/World.h"

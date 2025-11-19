@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -13,10 +15,10 @@ class VFPHOTODECAL_API UVFPhotoDecalDeveloperSettings : public UVFDeveloperSetti
 
 public:
 	UVFPhotoDecalDeveloperSettings(
-		const FObjectInitializer &ObjectInitializer =FObjectInitializer::Get()) {};
+		const FObjectInitializer &ObjectInitializer = FObjectInitializer::Get()) {};
 
 public:
-	// 通用贴花光照强度修正
+	// Universal Decal Light Intensity Correction
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,
 			  Category = "Settings|PhotoDecal",
 			  meta = (UIMin = 0.01f, UIMax = 2.0f))

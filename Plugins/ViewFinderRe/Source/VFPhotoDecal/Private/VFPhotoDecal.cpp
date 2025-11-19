@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFPhotoDecal.h"
 
 #include "Engine/TextureRenderTarget2D.h"

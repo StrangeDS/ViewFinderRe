@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -15,8 +17,8 @@ class UVFDynamicMeshComponent;
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VFPHOTOCOMMON_API AVFPawnStandIn : public AActor,
-										  public IVFStandInInterface,
-										  public IVFHelperInterface
+										 public IVFStandInInterface,
+										 public IVFHelperInterface
 {
 	GENERATED_BODY()
 

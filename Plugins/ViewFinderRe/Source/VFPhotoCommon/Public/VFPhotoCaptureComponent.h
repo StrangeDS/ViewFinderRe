@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -31,13 +33,13 @@ public:
 	void EndDraw();
 
 	/*
-	将当前画面生成到一个UTexture2D.
-	注意: 不会自动调用CaptureScene. 需管理其生命周期.
+	Generate the current RT to a UTexture2D.
+	Note: CaptureScene is not called automatically. And you must manage its lifecycle.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	UTexture2D *DrawATexture2D();
 
-	// 将当前画面输出到一个UTexture2D.
+	// Output the current frame to a UTexture2D.
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void DrawOnTexture2D(UTexture2D *Texutre2D);
 
