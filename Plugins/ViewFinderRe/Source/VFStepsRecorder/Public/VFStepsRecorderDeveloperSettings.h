@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -16,27 +18,27 @@ public:
 		const FObjectInitializer &ObjectInitializer = FObjectInitializer::Get()) {};
 
 public:
-	// 回溯系统的自定义Tick间隔
+	// Custom tick interval.
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,
 			  Category = "Settings|StepsRecorder",
 			  meta = (UIMin = 0.001f, UIMax = 1.0f))
 	float StepsRecorderTickInterval = 0.05f;
 
-	// 回溯系统回溯时的时间倍率
+	// Rewind time Factor.
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,
 			  Category = "Settings|StepsRecorder",
 			  meta = (UIMin = 1.0f, UIMax = 10.0f))
 	float StepsRecorderRewindFactor = 3.0f;
 
-	// 回溯系统回溯到上个关键点的, 计划的时间
+	// Scheduled time to rewind to the last key event.
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,
 			  Category = "Settings|StepsRecorder",
 			  meta = (UIMin = 0.1f, UIMax = 5.0f))
 	float StepsRecorderTimeOfRewindToLastKey = 3.0f;
 
 	/*
-	回溯系统建议的数组预分配数量
-	更好的做法是写一个内存分配器: 直接给定10分, 1小时, 1天等阶梯式的内存大小.
+	Recommended pre-allocation size for the backtracking system's array.
+	A better approach is to implement a memory allocator: directly allocate tiered memory sizes (e.g., 10 minutes, 1 hour, 1 day).
 	*/
 	UPROPERTY(Config, EditAnywhere, BlueprintReadOnly,
 			  Category = "Settings|StepsRecorder",

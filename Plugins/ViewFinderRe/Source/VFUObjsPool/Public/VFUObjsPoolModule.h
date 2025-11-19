@@ -4,7 +4,7 @@
 
 #include "Modules/ModuleManager.h"
 
-// UObject对象池模块, 要求实现VFPoolableInterface
+// UObject pool module, requiring implementation of VFPoolableInterface
 class FVFUObjsPoolModule : public IModuleInterface
 {
 public:

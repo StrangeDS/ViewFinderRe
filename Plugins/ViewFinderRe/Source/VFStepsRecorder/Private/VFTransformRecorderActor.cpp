@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFTransformRecorderActor.h"
 
 #include "Components/PrimitiveComponent.h"
@@ -152,7 +154,7 @@ void AVFTransformRecorderActor::TickForward_Implementation(float Time)
 		auto Comp = *It;
 		if (!IsValid(Comp))
 		{
-			VF_LOG(Warning, TEXT("%s: Comp销毁"), __FUNCTIONW__);
+			VF_LOG(Warning, TEXT("%s: Comp is invalid."), __FUNCTIONW__);
 			It.RemoveCurrent();
 			continue;
 		}
@@ -185,7 +187,7 @@ void AVFTransformRecorderActor::TickBackward_Implementation(float Time)
 			auto Comp = Info.Component;
 			if (!CompInfoMap.Contains(Comp))
 			{
-				VF_LOG(Warning, TEXT("%s: Comp未找到"), __FUNCTIONW__);
+				VF_LOG(Warning, TEXT("%s: fail to find Comp."), __FUNCTIONW__);
 				continue;
 			}
 			CompInfoMap[Comp] = Info;
@@ -201,7 +203,7 @@ void AVFTransformRecorderActor::TickBackward_Implementation(float Time)
 		auto &[Comp, Info] = *It;
 		if (!IsValid(Comp))
 		{
-			VF_LOG(Warning, TEXT("%s: Comp销毁"), __FUNCTIONW__);
+			VF_LOG(Warning, TEXT("%s: Comp is invalid."), __FUNCTIONW__);
 			It.RemoveCurrent();
 			continue;
 		}

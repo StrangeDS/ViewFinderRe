@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -10,7 +12,7 @@ class UVFPoolableInterface : public UInterface
 	GENERATED_BODY()
 };
 
-// UVFUObjsPoolWorldSubsystem接受的类型接口
+// Interface types accepted by UVFUObjsPoolWorldSubsystem
 class VFUOBJSPOOL_API IVFPoolableInterface
 {
 	GENERATED_BODY()

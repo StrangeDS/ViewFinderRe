@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -23,10 +25,10 @@ struct FVFRegisterChannel
 };
 
 /*
-一个用于UObject注册的, 通用的世界子系统.
-内部实现为TMap<UClass*, TArray<UObject*>>,
-注意: 不接管生命周期, 要求手动反注册.
-不保证顺序， 使用RemoveSwap
+A generic World Subsystem for UObject registration.
+Internally implemented as TMap<UClass*, TArray<UObject*>>.
+Note: Does not manage lifecycle; manual unregistration is required.
+Order is not guaranteed; uses RemoveSwap.
 */
 UCLASS(ClassGroup = (ViewFinder))
 class VFUOBJSREGISTAR_API UVFUObjsRegistarWorldSubsystem : public UWorldSubsystem

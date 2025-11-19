@@ -4,7 +4,7 @@
 
 #include "Modules/ModuleManager.h"
 
-// 用于UObject衍生类的注册世界子系统模块
+// A World Subsystem module for registering UObject-derived classes
 class FVFUObjsRegistarModule : public IModuleInterface
 {
 public:

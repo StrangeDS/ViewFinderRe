@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFUObjsRegistarWorldSubsystem.h"
 
 UVFUObjsRegistarWorldSubsystem::UVFUObjsRegistarWorldSubsystem()
@@ -38,7 +40,7 @@ bool UVFUObjsRegistarWorldSubsystem::Unregister(UObject *Obj,
                                                 const FString &Channel,
                                                 TSubclassOf<UObject> ObjClass)
 {
-    // 也理应在生命周期结束前反注册
+    // Should unregister before the lifecycle ends
     check(IsValid(Obj));
 
     if (!ObjClass)

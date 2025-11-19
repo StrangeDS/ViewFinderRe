@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFUObjsPoolWorldSubsystem.h"
 
 #include "Engine/Engine.h"
@@ -24,7 +26,7 @@ UObject *UVFUObjsPoolWorldSubsystem::GetOrCreateAsUObject(
     UObject *Outer,
     const TSubclassOf<UObject> &ObjClass)
 {
-	check(Outer && ObjClass);
+    check(Outer && ObjClass);
 
     UObject *ObjRes = nullptr;
     if (PoolsOfAvailable.FindOrAdd(ObjClass).Objs.Num() > 0)

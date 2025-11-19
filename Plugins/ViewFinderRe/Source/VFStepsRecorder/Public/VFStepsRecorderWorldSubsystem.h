@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -13,8 +15,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FVFStepsRecorderDelegate, float, Tim
 UENUM(BlueprintType)
 enum class EVFStepsRecorderSubsystemCheckMode : uint8
 {
-	RequireRewinding, // 必须处于回放状态
-	IgnoreRewinding,  // 不检查回放状态
+	RequireRewinding, // Must be in rewind state
+	IgnoreRewinding,  // Don't check rewind state
 };
 
 UCLASS(ClassGroup = (ViewFinder))
@@ -38,12 +40,12 @@ public:
 	UFUNCTION(BlueprintPure, Category = "ViewFinder")
 	FORCEINLINE float GetDeltaTime() { return TickInterval; }
 
-	// 稳定插入维护顺序
+	// Stable insert for maintains order
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder",
 			  meta = (DefaultToSelf = "Sender"))
 	void SubmitStep(UObject *Sender, FVFStepInfo Info);
 
-	// 有序数组
+	// Ordered array
 	UPROPERTY(VisibleAnywhere, Category = "ViewFinder")
 	TArray<FVFStepInfo> Infos;
 
@@ -107,7 +109,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	float Time = TIME_MIN;
 
-	// 自定义tick间隔, 默认为20帧/秒
+	// Custom tick interval, default is 20 frames per second
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	float TickInterval = 0.05f;
 
@@ -115,36 +117,35 @@ public:
 	float TimeSinceLastTick = 0.f;
 
 public:
-	// <0将使用当前时间
+	// Use current time when it < 0.
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void SetTimeOfStart(float Start = -1.0f);
 
-	// <0将使用TIME_MAX
+	// Use TIME_MAX when it < 0.
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void SetTimeOfEnd(float End = -1.0f);
 
 	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
 	FVFStepsRecorderDelegate OnSetTimeOfStart;
 
-	// 计时器回溯的最小值(开始时间)
+	// Timer rewind minimum value (start time)
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	float TimeOfStart = TIME_MIN;
 
-	// 计时器回溯记录的最大值(结束时间)
+	// Timer rewind maximum value (end time)
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	float TimeOfEnd = TIME_MAX;
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	static float GetTimeOfMin();
 
-	// <0将使用TIME_MAX
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	static float GetTimeOfMax();
 
-	// 计时器时间的最小值(建议开始时间)
+	// Timer minimum time value (recommended start time)
 	static inline const float TIME_MIN = 1e-6;
 
-	// 计时器时间的最大值(建议最大时间)
+	// Timer maximum time value (recommended max time)
 	static inline const float TIME_MAX = 1e6;
 
 public:
@@ -160,7 +161,10 @@ public:
 	FTimerHandle RewindHandle;
 
 public:
-	// 静态函数获取, 默认非回溯状态下才能获取
+	/*
+	Static function to get.
+	By default, can only get when not in rewind state.
+	*/
 	UFUNCTION(BlueprintPure, Category = "ViewFinder",
 			  meta = (WorldContext = "WorldContext"))
 	static UVFStepsRecorderWorldSubsystem *GetStepsRecorder(
@@ -168,15 +172,17 @@ public:
 		const EVFStepsRecorderSubsystemCheckMode Mode = EVFStepsRecorderSubsystemCheckMode::RequireRewinding);
 };
 
-// 使用成员变量的方式, 需要头文件
-// 成员变量缓存, 适合高频率访问
-// VarName为成员变量名
+/*
+Using member variable approach, requires header file.
+Member variable cache, suitable for high-frequency access.
+VarName is the member variable name.
+*/
 #define DECLARE_STEPSRECORDER_SUBSYSTEM_ACCESSOR(VarName)                         \
 private:                                                                          \
 	mutable TObjectPtr<UVFStepsRecorderWorldSubsystem> VarName = nullptr;         \
                                                                                   \
 public:                                                                           \
-	/* 主访问器：返回指针并自动验证条件 */                                        \
+	/* Main accessor: return pointer and automatically verify conditions */       \
 	FORCEINLINE UVFStepsRecorderWorldSubsystem *GetStepsRecorder() const          \
 	{                                                                             \
 		if (!VarName && IsAtRuntime())                                            \
@@ -187,7 +193,7 @@ public:                                                                         
 	}                                                                             \
                                                                                   \
 private:                                                                          \
-	/* 初始化条件封装 */                                                          \
+	/* Initialization condition wrapper */                                        \
 	FORCEINLINE bool IsAtRuntime() const                                          \
 	{                                                                             \
 		const UWorld *World = GetWorld();                                         \

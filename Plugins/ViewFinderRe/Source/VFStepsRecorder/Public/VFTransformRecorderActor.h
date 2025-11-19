@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -54,8 +56,12 @@ struct FVFTransStepInfo
 		  Infos(InfosIn) {};
 };
 
-// 对Actor瞬移(SetActorLocation())的回退, 效果不佳, 会认为是从不动后到瞬移后的长时间位移.
-// VFCharacter对瞬移的回退效果较好, 可以考虑进行改进. (懒得改了)
+/*
+Rewinding for Actor teleportation (via SetActorLocation()) produces poor results.
+This is because the tansform is not resubmitted before teleportation.
+It is Considered as a long-distance transition from the last stationary position directly to the teleported location.
+VFCharacter handles teleportation rewinding more effectively and can be referenced for improvements.
+*/
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VFSTEPSRECORDER_API AVFTransformRecorderActor : public AActor, public IVFStepsRecordInterface
 {
@@ -96,8 +102,8 @@ public:
 
 protected:
 	/*
-	考虑存在有USceneComponent作为根节点的Actor
-	所以这里依然使用USceneComponent作为基本元素
+	Considering Actors with USceneComponent as root nodes:
+	USceneComponent is still used as the fundamental element here.
 	*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	TArray<TObjectPtr<USceneComponent>> Components;

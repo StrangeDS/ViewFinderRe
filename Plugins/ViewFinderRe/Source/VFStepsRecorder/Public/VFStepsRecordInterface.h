@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -17,20 +19,21 @@ public:
 	bool bIsKeyFrame = false;
 
 	/*
-	默认-1, <0会由UVFStepsRecorderWorldSubsystem填入,
-	允许自行填入, 保留更多的可能性.
+	Default value is -1.
+	If the value is less than 0, it will be populated by UVFStepsRecorderWorldSubsystem.
+	Manual input is allowed to retain greater flexibility.
 	*/
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	float Time = -1.0f;
 
-	// 由UVFStepsRecorderWorldSubsystem填入
+	// Populated by UVFStepsRecorderWorldSubsystem
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<UObject> Sender;
 
-	bool operator<(const FVFStepInfo& Other) const
-    {
-        return Time < Other.Time;
-    }
+	bool operator<(const FVFStepInfo &Other) const
+	{
+		return Time < Other.Time;
+	}
 };
 
 UINTERFACE(MinimalAPI)
@@ -44,8 +47,10 @@ class VFSTEPSRECORDER_API IVFStepsRecordInterface
 	GENERATED_BODY()
 
 public:
-	// 访问者模式
-	// 由UVFStepsRecorderWorldSubsystem进行tick(forward/backword), 需要手动注册
+	/*
+	Visitor pattern implementation.
+	Ticked (forward/backward) by UVFStepsRecorderWorldSubsystem, after manual registration.
+	*/
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
 	void TickForward(float Time);
 	virtual void TickForward_Implementation(float Time) {};
@@ -54,7 +59,7 @@ public:
 	void TickBackward(float Time);
 	virtual void TickBackward_Implementation(float Time) {};
 
-	// 向UVFStepsRecorderWorldSubsystem::SubmitChanges()的, 在此退回,
+	// Waht submitted by UVFStepsRecorderWorldSubsystem::SubmitChanges() are reverted here.
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
 	bool StepBack(UPARAM(ref) FVFStepInfo &StepInfo);
 	virtual bool StepBack_Implementation(FVFStepInfo &StepInfo) { return false; };

@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -15,7 +17,7 @@ struct FVFPoolableUObjs
 	TArray<TScriptInterface<IVFPoolableInterface>> Objs;
 };
 
-// 要求实现VFPoolableInterface
+// requires implementation of VFPoolableInterface
 UCLASS(ClassGroup = (ViewFinder))
 class VFUOBJSPOOL_API UVFUObjsPoolWorldSubsystem : public UWorldSubsystem
 {
@@ -29,7 +31,6 @@ public:
 	virtual void Deinitialize() override;
 
 public:
-	// 获取组件
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder|DMCompPool")
 	UObject *GetOrCreateAsUObject(
 		UObject *Outer,
@@ -40,15 +41,13 @@ public:
 		UObject *Outer,
 		const TSubclassOf<UObject> &ObjClass);
 
-	// 归还组件
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder|DMCompPool")
 	bool Return(UObject *Obj);
 
-	// 预生成池
+	// Nums of various classes for Pre-generated
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder|DMCompPool")
 	void PreparePools(const TMap<TSubclassOf<UObject>, int> &PrepareNum);
 
-	// 清理地址
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder|DMCompPool")
 	void ClearPools(bool bForceGarbage = true);
 

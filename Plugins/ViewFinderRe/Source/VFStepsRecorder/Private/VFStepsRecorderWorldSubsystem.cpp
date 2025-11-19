@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFStepsRecorderWorldSubsystem.h"
 
 #include "TimerManager.h"
@@ -27,7 +29,7 @@ void UVFStepsRecorderWorldSubsystem::OnWorldBeginPlay(UWorld &InWorld)
 
 void UVFStepsRecorderWorldSubsystem::Tick(float DeltaTime)
 {
-    // 优先处理TickTargets变动
+    // Prioritize processing changes to TickTargets.
     if (TargetsNeedToAdd.Num() > 0)
     {
         TickTargets.Append(TargetsNeedToAdd);
@@ -42,7 +44,7 @@ void UVFStepsRecorderWorldSubsystem::Tick(float DeltaTime)
         TargetsNeedToRemove.Reset();
     }
 
-    // 正向/反向tick
+    // Forward/Reverse tick.
     TimeSinceLastTick += bIsRewinding ? DeltaTime * RewindCurFactor : DeltaTime;
     while (TimeSinceLastTick > TickInterval)
     {
@@ -98,7 +100,7 @@ void UVFStepsRecorderWorldSubsystem::SubmitStep(UObject *Sender, FVFStepInfo Inf
     }
     else
     {
-        // 插入排序, 二分查找
+        // Insertion sort, binary search.
         int32 Index = Algo::UpperBound(Infos, Info);
         Infos.Insert(Info, Index);
     }
