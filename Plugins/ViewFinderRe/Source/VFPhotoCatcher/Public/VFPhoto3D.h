@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -58,7 +60,7 @@ protected:
 			  meta = (NoEditInline))
 	TObjectPtr<UStaticMeshComponent> StaticMesh;
 
-public: // 记录属性
+public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void RecordProperty(
 		UVFViewFrustumComponent *ViewFrustum,
@@ -76,7 +78,6 @@ public: // 记录属性
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypesToOverlap;
 
-	// 一般情况下都为空
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	TArray<TObjectPtr<AActor>> ActorsToIgnore;
 };

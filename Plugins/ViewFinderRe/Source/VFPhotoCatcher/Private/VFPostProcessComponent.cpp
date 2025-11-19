@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFPostProcessComponent.h"
 
 #include "Camera/CameraComponent.h"

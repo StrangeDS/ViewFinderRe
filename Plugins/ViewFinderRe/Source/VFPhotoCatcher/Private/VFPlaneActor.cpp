@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFPlaneActor.h"
 
 #if WITH_EDITOR

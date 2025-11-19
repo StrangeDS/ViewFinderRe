@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFPCatcherFunctions.h"
 
 #include "Engine/World.h"
@@ -19,9 +21,10 @@ static USceneComponent *GetComponentByName(AActor *Actor, const FName &Name)
 	return nullptr;
 }
 
-// 非递归拷贝Actor, Actor会在UVFDynamicMeshComponent被卸载后才进行复制, 而后组件又被装回.
-// 这意味着, UVFDynamicMeshComponent上不能有复制的层级关系. 若有, 请考虑根据层级还原.
-// 注意: 这也要求UVFDynamicMeshComponent不能是根组件, 是根组件会出现错误!
+/*
+Non-recursive duplication of Actors: The Actor will be duplicated only after the UVFDynamicMeshComponent is unloaded, after which the component is then reattached.
+Note: This also requires that the UVFDynamicMeshComponent cannot be the root component, which will cause errors!
+*/
 AActor *UVFPCatcherFunctions::CloneActorRuntime(
 	AActor *Original,
 	TArray<UVFDynamicMeshComponent *> &CopiedComps)
@@ -30,7 +33,7 @@ AActor *UVFPCatcherFunctions::CloneActorRuntime(
 		return nullptr;
 	UWorld *World = Original->GetWorld();
 
-	// 卸载VFDynamicComps
+	// Unload VFDynamicComps.
 	TMap<UVFDynamicMeshComponent *, USceneComponent *> Parents;
 	TArray<UVFDynamicMeshComponent *> DMComps;
 	TMap<UVFDynamicMeshComponent *, bool> EnableMap;
@@ -39,13 +42,13 @@ AActor *UVFPCatcherFunctions::CloneActorRuntime(
 	{
 		EnableMap.Emplace(DMComp, DMComp->IsEnabled());
 		DMComp->SetEnabled(false);
-		Parents.Add(DMComp, DMComp->GetAttachParent()); // 模拟物理的物体获得的是无效的.
+		Parents.Add(DMComp, DMComp->GetAttachParent()); // The GetAttachParent() is invalid for simulating physics components.
 		DMComp->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 		DMComp->UnregisterComponent();
 		Original->RemoveInstanceComponent(DMComp);
 	}
 
-	// 复制Actor
+	// Duplication Actor.
 	FActorSpawnParameters Parameters;
 	Parameters.Template = Original;
 	Parameters.CustomPreSpawnInitalization = [](AActor *Actor)
@@ -53,13 +56,16 @@ AActor *UVFPCatcherFunctions::CloneActorRuntime(
 		Actor->GetRootComponent()->SetMobility(EComponentMobility::Movable);
 	};
 	AActor *Copy = World->SpawnActor<AActor>(Original->GetClass(), Parameters);
-	// 手动设置transform是必要的.
-	// 否则会将Original相对于其父Actor(Photo3D)的相对Transform视为绝对Transform.
+
+	/*
+	Manually setting the transform is necessary.
+	Otherwise, the Original Actor's relative transform(relative to Photo3D) will be treated as an absolute transform.
+	*/
 	Copy->SetActorTransform(Original->GetActorTransform());
 
 	for (auto &DMComp : DMComps)
 	{
-		// 还原组件
+		// Restore the hierarchy of VFDynamicComps.
 		auto Parent = Parents[DMComp];
 		Original->AddInstanceComponent(DMComp);
 		if (IsValid(Parent))
@@ -75,9 +81,9 @@ AActor *UVFPCatcherFunctions::CloneActorRuntime(
 			UVFGeometryFunctions::GetVFDMComp(Copy, DMComp->GetClass());
 		CopiedComps.Add(CopiedComp);
 
-		// 同步层级
+		// Synchronize the hierarchy of VFDynamicComps.
 		Copy->AddInstanceComponent(CopiedComp);
-		CopiedComp->SetComponentToWorld(DMComp->GetComponentToWorld()); // 对于模拟物理的物体, 需要手动同步位置.
+		CopiedComp->SetComponentToWorld(DMComp->GetComponentToWorld()); // For components simulating physics, the position must be manually synchronized.
 		if (IsValid(Parent))
 		{
 			CopiedComp->AttachToComponent(
@@ -98,12 +104,19 @@ AActor *UVFPCatcherFunctions::K2_CloneActorRuntimeRecursive(AActor *Original)
 	return CloneActorRuntimeRecursive<AActor>(Original);
 }
 
-// 对于已有VFDMComp的, 其实很简单, 它们其余的静态网格体在上次就已经被筛掉,
-// 并不会参与后续的处理, 它们仅有的VFDMComp就是用于视锥处理的部分.
-// 对于没有VFDMComp的, 它们第一次参与处理, 仅需处理与视锥overlap的基元组件.
-// 每一个基元组件都对应一个VFDMComp(是否就挂载到对应组件上?)。
-// 但并非挂载到源Actor上, 而是在新复制出来的Actor对应的基元组件上(如何映射?使用反射?).
-// VFDMComp应当与对应基元组件拥有相同的响应函数(调用动态委托?功能都做到Actor接口上?).	暂使用Actor接口
+/*
+For actors with existing VFDMComps:
+These are not undergoing processing for the first time.
+Other static mesh components have already been filtered out earlier and will not participate in subsequent processing.
+Only their existing VFDMComps need to be handled(for frustum bool) .
+
+For actors without VFDMComps:
+These are undergoing processing for the first time.
+PrimitiveComponents overlapping with the frustum need to be processed.
+Each primitive component is replaced with a corresponding VFDMComp, which is attached to the respective component.
+Instead of attaching to the source Actor and then duplicating, the VFDMComp is attached (using an object pool) to the corresponding primitive component on the newly duplicated Actor.
+The VFDMComp should have the same response functions as the corresponding primitive component. The Actor interface is temporarily used for this purpose.
+*/
 TArray<UVFDynamicMeshComponent *> UVFPCatcherFunctions::CheckVFDMComps(
 	const TArray<UPrimitiveComponent *> &Components,
 	TSubclassOf<UVFDynamicMeshComponent> VFDMCompClass)
@@ -119,18 +132,18 @@ TArray<UVFDynamicMeshComponent *> UVFPCatcherFunctions::CheckVFDMComps(
 		auto hasVFDMComp = Actor->GetComponentByClass<UVFDynamicMeshComponent>();
 		if (IsValid(hasVFDMComp))
 		{
-			// 存在意味着处理过, 只会是VFDMComp
+			// Presence indicates it has been processed and can only be VFDMComp.
 			if (auto VFDMComp = Cast<UVFDynamicMeshComponent>(Component))
 				Result.Add(VFDMComp);
 		}
 		else
 		{
-			// 第一次参与的Actor: 挂载VFDComp, 隐藏所有基元组件.
+			// Actors participating for the first time: Mount VFDComp and use it as a replacement.
 			TArray<UPrimitiveComponent *> PrimComps;
 			Actor->GetComponents<UPrimitiveComponent>(PrimComps);
 			for (auto PrimComp : PrimComps)
 			{
-				// 只挂载被包含的组件
+				// Add to components only included.
 				if (Components.Contains(PrimComp))
 				{
 					UWorld *World = Actor->GetWorld();
@@ -170,7 +183,7 @@ TArray<AActor *> UVFPCatcherFunctions::CopyActorsFromVFDMComps(
 	for (UVFDynamicMeshComponent *Component : Components)
 	{
 		AActor *Original = Component->GetOwner();
-		// Actor的拷贝份, 纳入映射.
+		// Duplicate of the Actor, incorporated into the mapping.
 		if (!ActorsMap.Contains(Original))
 		{
 			AActor *Copy = CloneActorRuntime(Original, CopiedComps);
@@ -185,7 +198,7 @@ TArray<AActor *> UVFPCatcherFunctions::CopyActorsFromVFDMComps(
 		Result.Emplace(Copied);
 	}
 
-	// 修复层级关系
+	// Repair hierarchical relationships between Actors.
 	if (bRetainHierarchy)
 	{
 		for (auto &[Original, Copy] : ActorsMap)

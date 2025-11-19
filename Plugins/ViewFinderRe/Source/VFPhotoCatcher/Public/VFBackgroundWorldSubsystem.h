@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -6,9 +8,10 @@
 
 class UVFUObjsRegistarWorldSubsystem;
 
-/**
-背景的世界子系统, 现仅用于UVFBackgroundCaptureComponent提供ShowOnlyList
- */
+/*
+Background world subsystem,
+currently only used by UVFBackgroundCaptureComponent to provide ShowOnlyList.
+*/
 UCLASS(ClassGroup = (ViewFinder))
 class VFPHOTOCATCHER_API UVFBackgroundWorldSubsystem : public UWorldSubsystem
 {

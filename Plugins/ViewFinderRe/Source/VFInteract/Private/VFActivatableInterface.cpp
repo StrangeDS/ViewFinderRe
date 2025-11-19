@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFActivatableInterface.h"
 
 void IVFActivatableInterface::Activate_Implementation()

@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -10,9 +12,6 @@ class UVFActivatableInterface : public UInterface
 	GENERATED_BODY()
 };
 
-/**
- * (动态装卸的)设备接口
- */
 class VFINTERACT_API IVFActivatableInterface
 {
 	GENERATED_BODY()

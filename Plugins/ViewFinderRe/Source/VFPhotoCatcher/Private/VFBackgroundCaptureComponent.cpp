@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFBackgroundCaptureComponent.h"
 
 #include "Engine/World.h"
@@ -49,7 +51,7 @@ UPrimitiveComponent *UVFBackgroundCaptureComponent::DrawABackgroundWithSize(
     }
 #endif
 
-    // 需要开启后才会有后处理效果.
+    // It must be temporarily enabled to achieve post-processing effects.
     bAlwaysPersistRenderingState = true;
     CaptureScene();
     bAlwaysPersistRenderingState = false;

@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -17,27 +19,27 @@ public:
 		AActor *Original,
 		TArray<UVFDynamicMeshComponent *> &CopiedComps);
 
-	/// @brief 复制Original, 底层使用CloneActorRuntime, 返回对应类型
+	/// @brief Duplicate Original Actors, using CloneActorRuntime, returning the corresponding type.
 	template <typename T = AActor>
 	static T *CloneActorRuntimeRecursive(AActor *Original);
 
-	/// @brief 复制Original, 底层使用CloneActorRuntime
+	/// @brief Duplicate Original Actors, using CloneActorRuntime
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder", meta = (DisplayName = "CloneActorRuntimeRecursive"))
 	static AActor *K2_CloneActorRuntimeRecursive(AActor *Original);
 
-	/// @brief 检验未处理过的的Actor, 处理为: 将其相关基元替换为VFDMComp, 关闭隐藏其它基元组件.
+	/// @brief Check Comps: Replace their related primitives with VFDMComp.
 	/// @param OverlapsComps
-	/// @return (复制)替换后的, 全为VFDMComp的列表.
+	/// @return VFDMComp array, the copied component for OverlapsComps
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	static TArray<UVFDynamicMeshComponent *> CheckVFDMComps(
 		const TArray<UPrimitiveComponent *> &Components,
 		TSubclassOf<UVFDynamicMeshComponent> VFDMCompClass);
 
-	/// @brief 复制VFDMComp列表的Actors
-	/// @param Components VFDMComp列表
-	/// @param CopiedComps VFDMComp对应的复制组件
-	/// @param bRetainHierarchy 是否需要保持Actor之间的层级关系
-	/// @return 复制出的Actors
+	/// @brief Duplicate Actors of VFDMComps
+	/// @param Components VFDMComp array
+	/// @param CopiedComps the result copied VFDMComps
+	/// @param bRetainHierarchy Whether keep the hierarchical of Actors
+	/// @return Actors duplicated
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	static TArray<AActor *> CopyActorsFromVFDMComps(
 		UWorld *World,
@@ -49,10 +51,10 @@ public:
 template <typename T>
 inline T *UVFPCatcherFunctions::CloneActorRuntimeRecursive(AActor *Original)
 {
-	TArray<UVFDynamicMeshComponent *> _CopiedComps; // 无用, 仅占位
+	TArray<UVFDynamicMeshComponent *> _CopiedComps; // Unused, placeholder only.
 	auto Res = UVFPCatcherFunctions::CloneActorRuntime(Original, _CopiedComps);
 
-	// 递归子Actors
+	// Recursively process child Actors. DFS.
 	TArray<AActor *> ChildActors;
 	Original->GetAttachedActors(ChildActors);
 	for (auto &ChildActor : ChildActors)

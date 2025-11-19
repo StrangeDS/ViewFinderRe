@@ -4,7 +4,7 @@
 
 #include "Modules/ModuleManager.h"
 
-// PhototCatcher的编辑器工具类
+// Editor utility class for PhototCatcher.
 class FVFPhotoCatcherEditorModule : public IModuleInterface
 {
 public:

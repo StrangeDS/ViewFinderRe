@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFPhoto3D.h"
 
 #include "Components/StaticMeshComponent.h"
@@ -70,7 +72,7 @@ void AVFPhoto3D::PlaceDown()
 		return;
 	State = EVFPhoto3DState::Placed;
 
-	// 重叠检测
+	// Overlap Detection
 	TArray<UPrimitiveComponent *> OverlapComps;
 	UKismetSystemLibrary::ComponentOverlapComponents(
 		ViewFrustumRecorder,
@@ -80,17 +82,17 @@ void AVFPhoto3D::PlaceDown()
 		ActorsToIgnore,
 		OverlapComps);
 
-	// 查找外部场景的Helpers
+	// Find Helpers of VFDynamicComps of external scene
 	TArray<UVFHelperComponent *> HelpersPlaced;
 	{
 		TMap<UPrimitiveComponent *, UVFHelperComponent *> HelperMap;
 		UVFPCatcherFunctions::GetCompsToHelpersMapping(OverlapComps, HelperMap);
 
-		// 处理Helper相关设置
+		// Handle configuration related to Helpers
 		for (auto It = OverlapComps.CreateIterator(); It; It++)
 		{
 			auto Comp = *It;
-			auto Helper = HelperMap.Find(Comp); // 可能为nullptr
+			auto Helper = HelperMap.Find(Comp); // May be nullptr
 			if (bOnlyOverlapWithHelper && !Helper)
 				It.RemoveCurrent();
 			else if (Helper && !HelperMap[Comp]->bCanBePlacedByPhoto)
@@ -104,7 +106,7 @@ void AVFPhoto3D::PlaceDown()
 		}
 	}
 
-	// 外部场景切割
+	// Cutting VFDynamicComps of External Scene
 	if (bCuttingOthers)
 	{
 		auto VFDMComps = UVFPCatcherFunctions::CheckVFDMComps(OverlapComps, VFDMCompClass);
@@ -118,7 +120,7 @@ void AVFPhoto3D::PlaceDown()
 		}
 	}
 
-	// 查找Photo3D内的Actors和Helpers
+	// Find Actors and Helpers within Photo3D.
 	TArray<UVFHelperComponent *> HelpersInPhoto3D;
 	TArray<AActor *> ActorsInPhoto3D;
 	{
@@ -130,7 +132,7 @@ void AVFPhoto3D::PlaceDown()
 		}
 	}
 
-	// 启用Photo3D内的Actors
+	// Enable Actors within Photo3D.
 	{
 		for (auto &Helper : HelpersInPhoto3D)
 		{

@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -6,7 +8,7 @@
 
 class AVFPlaneActor;
 
-// 专用于背景天空颜色的场景捕捉
+// Dedicated for background
 UCLASS(Blueprintable, ClassGroup = (ViewFinder), meta = (BlueprintSpawnableComponent))
 class VFPHOTOCATCHER_API UVFBackgroundCaptureComponent : public UVFPhotoCaptureComponent
 {
@@ -16,7 +18,7 @@ public:
 	UVFBackgroundCaptureComponent();
 
 #if WITH_EDITOR
-	virtual EDataValidationResult IsDataValid(class FDataValidationContext& Context) const override;
+	virtual EDataValidationResult IsDataValid(class FDataValidationContext &Context) const override;
 #endif
 
 public:
@@ -34,6 +36,6 @@ public:
 	float AspectRatio = 1.666667f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder",
-	meta = (UIMin = 0.001f, UIMax = 1.0f))
+			  meta = (UIMin = 0.001f, UIMax = 1.0f))
 	float DistanceRate = 0.8f;
 };

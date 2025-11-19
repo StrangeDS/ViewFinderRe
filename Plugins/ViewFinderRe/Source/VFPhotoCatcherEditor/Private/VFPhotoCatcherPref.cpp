@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFPhotoCatcherPref.h"
 
 #include "Materials/MaterialInstanceConstant.h"
@@ -142,7 +144,7 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
         BackgroundCapture->Init();
     }
 
-    // 临时数据
+    // Temporary Data
     TArray<UPrimitiveComponent *> CompsOverlapped = GetOverlapComps();
     TArray<AActor *> ActorsToMove;
     UTexture2D *Texture2D = nullptr;
@@ -150,7 +152,7 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
     UMaterialInstanceConstant *MIConstant = nullptr;
     UMaterialInstanceConstant *BgMIConstant = nullptr;
 
-    // 清理临时数据
+    // Cleanup temporary data
     auto ClearTemporary = [this,
                            &CompsOverlapped,
                            Texture2D,
@@ -160,20 +162,19 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
                            &bPhotoCaptureTempRT,
                            &bBgPhotoCaptureTempRT]()
     {
-        // 移除原场景用于替换的VFDMComps
-        // TArray<UVFDynamicMeshComponent *> VFDMComps;
+        // Remove VFDMComps used for replacement in the original ULevel
         TArray<USceneComponent *> Children;
         for (auto &Comp : CompsOverlapped)
         {
-            // 重叠检测到的动态网格说明本身就存在
+            // Overlap-detected dynamic meshes indicate pre-existence.
             if (Cast<UVFDynamicMeshComponent>(Comp))
             {
                 continue;
             }
 
             /*
-            遍历下面的组件, 找到是UVFDynamicMeshComponent,
-            且SourceComponent对应的, 进行删除.
+            Iterate through child components, locate and delete those VFDMComps
+            to restore their matching SourceComponent.
             */
             Comp->GetChildrenComponents(false, Children);
             for (auto &Child : Children)
@@ -222,12 +223,12 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
         }
     };
 
-    // 失败资源回收
+    // Resource recycling upon failure
     auto AfterFailure = [this,
                          &ActorsToMove,
                          &ClearTemporary](const FString &Reason)
     {
-        // 移除复制出来的Actor
+        // Remove duplicated Actors
         for (auto Actor : ActorsToMove)
         {
             GetWorld()->EditorDestroyActor(Actor, false);
@@ -240,11 +241,11 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
         ClearTemporary();
     };
 
-    // 拍照生成
+    // Generate Photo.
     auto Photo2DRoot = TakeAPhoto();
     auto Photo3DRoot = Photo2DRoot->GetPhoto3D();
 
-    // 纹理和常量材质实例生成
+    // Generate texture and constant material instance.
     {
         PhotoCapture->CaptureScene();
         Texture2D = PhotoCapture->DrawATexture2D();
@@ -279,7 +280,7 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
         BgTexture2D->SetFlags(RF_Public | RF_Standalone);
     }
     {
-        // 查找PlaneActor, 只会有一个, 且没有VFDMComp.
+        // Find PlaneActor (typically only one exists, without VFDMComp)
         AVFPlaneActor *PlaneActor = nullptr;
         TArray<AActor *> Actors;
         Photo3DRoot->GetAttachedActors(Actors, true, false);
@@ -303,7 +304,7 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
         BgMIConstant->SetTextureParameterValueEditorOnly(TextureName, BgTexture2D);
     }
 
-    // Photo2D的收集和处理
+    // Photo2D collection and processing
     {
         TArray<AActor *> Actors;
         TArray<AVFPhoto2D *> Photo2DsInSame;
@@ -339,13 +340,16 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
         }
     }
 
-    // 迁移前准备
+    // Pre-migration preparation
     ActorsToMove.AddUnique(Photo2DRoot);
     ActorsToMove.AddUnique(Photo3DRoot);
     Photo3DRoot->GetAttachedActors(ActorsToMove, false, true);
 
-    // 在移动到新的关卡实例后, Photo2D对Photo3D的引用关系会消失, 需要修复.
-    // 使用Tags来修复引用关系, 配对的Photo2D和Photo3D给一组guid.
+    /*
+    After moving to a new level instance,
+    reference relationships between Photo2D and Photo3D are lost and need repair.
+    Use Tags to restore references, assigning a shared GUID to paired Photo2D and Photo3D.
+    */
     TArray<FName> Guids;
     for (auto &Actor : ActorsToMove)
     {
@@ -363,7 +367,7 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
         }
     }
 
-    // 迁移到关卡实例
+    // Migrate to a new ULevel
     FNewLevelInstanceParams Params;
     Params.Type = ELevelInstanceCreationType::LevelInstance;
     Params.PivotType = ELevelInstancePivotType::Actor;
@@ -377,16 +381,16 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
     }
 
     ActorsToMove.Reset();
-    // 编辑关卡实例
+    // Edit the level instance
     LevelInstance->EnterEdit();
 
-    // 需要的数据
+    // Required preparation
     AVFPhoto2D *Photo2DRootInLevel = nullptr;
     TArray<AVFPhoto2D *> Photo2DsInSame;
 
     ULevel *Level = LevelInstance->GetLoadedLevel();
     {
-        // 修复Photo2D对Photo3D的引用关系
+        // Restore reference relationships from Photo2D to Photo3D
         TMap<FName, AVFPhoto2D *> Photo2DMap;
         TMap<FName, AVFPhoto3D *> Photo3DMap;
         for (auto &Actor : Level->Actors)
@@ -403,13 +407,13 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
                     }
                 }
 
-                // 最外层Photo2D
+                // Outermost Photo2D
                 if (Photo2D->MaterialInstance && !Photo2D->bIsRecursive)
                 {
                     Photo2DRootInLevel = Photo2D;
                 }
 
-                // 内层递归Photo2D
+                // Inner recursive Photo2D
                 if (Photo2D->bIsRecursive)
                 {
                     Photo2DsInSame.Add(Photo2D);
@@ -444,7 +448,7 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
         return;
     }
 
-    // 固定为资产
+    // Assetization
     UTexture2D *TextureAsset = nullptr;
     UTexture2D *BgTextureAsset = nullptr;
     UMaterialInstanceConstant *MICAsset = nullptr;
@@ -504,9 +508,9 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
         BgMICAsset->SetTextureParameterValueEditorOnly(TextureName, BgTextureAsset);
     }
 
-    // 替换成常量材质资产
+    // Convert to constant material assets
     {
-        // Photo2D替换, 包括递归照片
+        // Replace photo2D reference (including recursive photos)
         Photo2DsInSame.Add(Photo2DRootInLevel);
         FVector RelativeScale3D = Photo2DRootInLevel->GetActorRelativeScale3D();
         for (auto &Photo2D : Photo2DsInSame)
@@ -529,7 +533,7 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
             Photo2D->MarkPackageDirty();
         }
 
-        // PlaneActor替换, 理论上这里只会出现一个PlaneActor.
+        // Replace planeActor reference (theoretically only one PlaneActor should appear here)
         {
             auto Photo3D = Photo2DRootInLevel->GetPhoto3D();
             AVFPlaneActor *PlaneActorInLevel = nullptr;
@@ -550,7 +554,7 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
 
     LevelInstance->ExitEdit();
 
-    // 原场景拍照
+    // Manually invoke CaptureScene again in the original ULevel to update the texture.
     {
         TArray<AVFPhoto2D *> Photo2DsOrigial;
         for (auto &Comp : CompsOverlapped)

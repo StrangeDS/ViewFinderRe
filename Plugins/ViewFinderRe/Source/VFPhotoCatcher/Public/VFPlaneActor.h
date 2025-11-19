@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -9,10 +11,7 @@
 class UMaterialInstanceDynamic;
 #endif
 
-/*
-背景映射在AVFPlaneActor的Plane上
-请注意, 由于视锥分段, 导致布尔得到的面布线很烂, 生成的碰撞是没有的.
-*/
+// Draw the background to the plane of the AVFPlaneActor.
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VFPHOTOCATCHER_API AVFPlaneActor : public AActor,
 										 public IVFHelperInterface

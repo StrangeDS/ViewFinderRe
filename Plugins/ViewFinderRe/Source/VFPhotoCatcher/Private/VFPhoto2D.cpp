@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFPhoto2D.h"
 
 #include "Engine/Texture2D.h"
@@ -178,7 +180,7 @@ void AVFPhoto2D::PostProcessPhoto2D(AVFPhotoCatcher *Catcher, AVFPhoto2D *Photo2
 		}
 	}
 
-	TArray<UPrimitiveComponent *> Comps; // GetComponents内部会自动Reset
+	TArray<UPrimitiveComponent *> Comps;
 	Photo3D->GetAttachedActors(Actors, true, true);
 	for (auto Actor : Actors)
 	{

@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -79,7 +81,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	float ViewAngle = 60.0f;
 
-	// 宽高比, 但设置了渲染目标后会以渲染目标为准.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	float AspectRatio = 16.0f / 9;
 
@@ -98,22 +99,28 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder|ClassSetting")
 	TSubclassOf<AVFPhoto3D> VFPhoto3DClass;
 
-	// 只与携带了Helper组件的Actor进行交互. 对于插入已有场景来说会很方便.
+	/*
+	Only process Actors that have Helper component.
+	It's convenient for using in existing scenes.
+	*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	bool bOnlyOverlapWithHelper = false;
 
-	// 拍照是否切割原物体. 开启后则不是复制, 而是剪切.
+	/*
+	Whether to cut the original object when taking a photo.
+	When enabled, it's not copying but cutting.
+	*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	bool bCuttingOrignal = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	TArray<TObjectPtr<AActor>> ActorsToIgnore;
 
-	// 最好指定层级. 不指定将会overlap所有物体类型, 包括角色本身.
+	// If not specified, it will overlap all object types. For future use.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypesToOverlap;
 
-	// 与UVFPhotoCatcherDeveloperSettings::bGeneratePlaneActor共同作用
+	// Works together with UVFPhotoCatcherDeveloperSettings::bGeneratePlaneActor
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	bool bGenerateAPlaneActor = true;
 

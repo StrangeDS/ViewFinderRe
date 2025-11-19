@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #include "VFInteractInterface.h"
 
 bool IVFInteractInterface::StartAiming_Implementation(APlayerController *Controller)

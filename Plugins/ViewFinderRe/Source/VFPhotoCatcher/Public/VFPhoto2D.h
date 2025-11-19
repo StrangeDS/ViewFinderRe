@@ -1,3 +1,5 @@
+// Copyright StrangeDS. All Rights Reserved.
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -58,12 +60,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void CopyPhoto3D(UObject *Sender);
 
-	// 递归对Photo2D进行后处理
+	// Recursive post-processing for Photo2D
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	static void PostProcessPhoto2D(AVFPhotoCatcher *Catcher, AVFPhoto2D *Photo2D,
 								   bool Recursively = false);
 
-protected: // 组件
+protected: // Components
 	UPROPERTY()
 	TObjectPtr<UStaticMesh> StaticMeshObject;
 
@@ -75,7 +77,7 @@ protected: // 组件
 			  meta = (NoEditInline))
 	TObjectPtr<UVFHelperComponent> Helper;
 
-protected: // 状态, 数据
+protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	EVFPhoto2DState State = EVFPhoto2DState::None;
 
@@ -83,8 +85,8 @@ protected: // 状态, 数据
 			  meta = (NoEditInline))
 	TObjectPtr<AVFPhoto3D> Photo3D;
 
-public: // 动态材质实例相关
-	// 懒加载, 也便于重写
+public: // About dynamic material instance
+	// Lazy initialization, also facilitates overrides
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
 	UMaterialInstanceDynamic *GetMaterialInstance();
 	virtual UMaterialInstanceDynamic *GetMaterialInstance_Implementation();
@@ -102,13 +104,13 @@ public: // 动态材质实例相关
 	TObjectPtr<UTexture2D> Texture2D;
 
 public:
-	/// @brief AttachToActor()和DetachFromActor()的整合, 方便子类重写(插入逻辑)
-	/// @param Target 为空表示DetachFromActor
-	/// @return false表示没有变动
+	/// @brief Designed for easy subclass overrides (enabling logic insertion) to AttachToActor() and DetachFromActor()
+	/// @param Target Nullptr means DetachFromActor
+	/// @return A false return value indicates no changes were made
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	virtual bool ReattachToComponent(USceneComponent *Target = nullptr);
 
-public: // 迭代相关
+public: // Recursive-related
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void CopyRecursivePhoto3D(UObject *Sender);
 
