@@ -29,7 +29,7 @@ UVFDynamicMeshComponent *UVFGeometryFunctions::GetVFDMComp(
 	check(World);
 
 	UVFDynamicMeshComponent *Comp = nullptr;
-	if (GetDefault<UVFGeometryDeveloperSettings>()->bUseVFDMCompsPool)
+	if (World->IsGameWorld() && GetDefault<UVFGeometryDeveloperSettings>()->bUseVFDMCompsPool)
 	{
 		if (auto PoolSystem = World->GetSubsystem<UVFUObjsPoolWorldSubsystem>();
 			ensureMsgf(PoolSystem, TEXT("%s invalid PoolSystem."), __FUNCTIONW__))
