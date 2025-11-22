@@ -544,7 +544,7 @@ Derived classes handle specific behaviors. Triggers could be Actors or component
 ### *Dynamic Mesh*
 Now let's consider the implementation of the photo-taking functionality.  
 - Situation (S):  
-A camera takes a photo of the scene. The resulting `Photo2D` can be placed in the world, and the objects within it are restored as physical entities in the scene.  
+A camera takes a photo of the scene. The resulting `Photo2D` can be placed in the world, and the objects within it are restored as physics-enabled entities in the scene.  
 - Task (T):  
 An intuitive solution is to use Scene Capture to obtain an image, which is linked to a hidden set of objects. When the photo is placed, this hidden object group becomes visible.  
 The meshes require real-time Boolean operations and the ability to compute collisions dynamically.  
@@ -1479,7 +1479,7 @@ Chapter 2 Main Scene
 2.2.2 Fixed camera; Terrain, duplicate battery  
 2.2.3 Two fixed cameras; Move camera to photograph, pull portal closer  
 
-2.3.1 Sequential logic puzzle: Projection/Photo & Physical Battery  
+2.3.1 Sequential logic puzzle: Projection/Photo & Physics-enabled Battery  
 2.3.2 Sequential logic puzzle: Switch, Projection destruction, Fixed camera, Battery  
 
 Challenge Level  
