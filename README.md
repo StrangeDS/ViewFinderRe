@@ -505,7 +505,6 @@ A ViewFinder-specific level streaming system was not implemented. For details, s
 The view frustum occasionally fails to detect overlapping objects. Changing the angle/position, or simply retrying, often resolves the issue. The root cause remains undetermined.  
 Through view frustum segmentation (commits: [6423631](https://github.com/StrangeDS/ViewFinderRe/commit/6423631), [7794c81](https://github.com/StrangeDS/ViewFinderRe/commit/7794c81)), the possibility of **overlap detection failing due to excessively elongated triangles** has been ruled out.  
 The cause might lie within the physics engine's low-level system. Practical tests show that when an elongated object overlaps another and passes through two faces without overlapping any edges, overlap detection can fail.  
-Another possibility is incorrect normals on the view frustum mesh, which is supported by the visibly incorrect lighting on many of its slicing planes.  
 
 ## Technical Details
 This section contains no code, focusing instead on design considerations and implementation approaches.  
@@ -856,7 +855,6 @@ Use a Dynamic Mesh to generate the view frustum.
 The standard approach for generating a shape with a Dynamic Mesh is to create a class inheriting from `FMeshShapeGenerator` to define the custom shape.  
 - Result (R):  
 The `FFrustumGenerator` class supports configuring the FOV, aspect ratio, and near/far planes.  
-Note: The current normal vectors might be incorrect.  
 The view frustum implementation in `VFGSGeometryScript` works by moving the vertices of a base cube to the calculated positions defining the frustum volume.  
 
 ## Others
@@ -1577,6 +1575,5 @@ Advanced Levels:
 
 ### *ToDoList*
 Potential Future Directions (Unlikely to be implemented)  
-1. Verify and fix FrustumGenerator normals. (Tedious)
-2. Experiment with custom shading model for lighting/shadows. (Requires engine source code access)
-3. Investigate custom blending timing for decals, possibility of blending after lighting. (Insufficient knowledge)
+1. Experiment with custom shading model for lighting/shadows. (Requires engine source code access)
+2. Investigate custom blending timing for decals, possibility of blending after lighting. (Insufficient knowledge)

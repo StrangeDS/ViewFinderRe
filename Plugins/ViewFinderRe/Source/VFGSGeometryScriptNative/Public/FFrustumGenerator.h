@@ -408,9 +408,14 @@ namespace UE::Geometry::Frustum
             }
 
             int NumOfVertices = NumOfTypeVertices[0] + NumOfTypeVertices[1] + NumOfTypeVertices[2];
-            int NumUVsAndNormals = NumOfPlaneVertices[0] + NumOfPlaneVertices[1] +
-                                   NumOfPlaneVertices[2] + NumOfPlaneVertices[3] +
-                                   NumOfPlaneVertices[4] + NumOfPlaneVertices[5];
+            /*
+            It's hard to calculate the exact quantity, simply use * 5 * 2.
+            Called Shrink() at the end.
+            */
+            int NumUVsAndNormals = GetVerticesNumOfFrontPlane(true, true) +
+                                   GetVerticesNumOfFrontPlane(false, true) +
+                                   GetVerticesNumOfSidePlane(EFrustumPlane::Left, true) * 10 +
+                                   GetVerticesNumOfSidePlane(EFrustumPlane::Bottom, true) * 10;
             int NumTriangles = NumOfPlaneTriangles[0] + NumOfPlaneTriangles[1] +
                                NumOfPlaneTriangles[2] + NumOfPlaneTriangles[3] +
                                NumOfPlaneTriangles[4] + NumOfPlaneTriangles[5];
@@ -560,7 +565,6 @@ namespace UE::Geometry::Frustum
             }
 
             float Offset = bIsNear ? NearPlaneDis : FarPlaneDis;
-            // int IndexOfPlaneStart = NumOfTypeVertices[0] + NumOfTypeVertices[1];
             // Exclude corner vertices and edge vertices
             for (int i = 1; i < PlaneVertices.Y - 1; ++i)
             {
@@ -568,8 +572,6 @@ namespace UE::Geometry::Frustum
                 {
                     int Index = GetVertexIndexOfFrontPlane(bIsNear, i, j);
                     Vertices[Index] = FVector(Offset, Ys[j], Zs[i]);
-                    // Normals[Index - IndexOfPlaneStart] = bIsNear ? PlaneNormals[0] : PlaneNormals[1];
-                    // NormalParentVertex[Index - IndexOfPlaneStart] = Index;
                 }
             }
         }
@@ -589,7 +591,6 @@ namespace UE::Geometry::Frustum
         {
             int VertexIndex = -1, VerticesNum = -1;
             float Rate = 0.f, WidthHalf = 0.f, HeightHalf = 0.f, Distance = 0.f, Value = 0.f;
-            int IndexOfPlaneStart = NumOfTypeVertices[0] + NumOfTypeVertices[1], IndexOfNormals = -1;
             for (int DepthCur = 1; DepthCur < Depth; ++DepthCur)
             {
                 Rate = 1 - (Depth - DepthCur) * SegmentSize.X / FarPlaneDis;
@@ -655,10 +656,11 @@ namespace UE::Geometry::Frustum
 
         void GenerateTris()
         {
-            int IndexOfTri = 0;
+            int IndexOfTri = 0, IndexOfNormal = 0;
 
             {
                 int LeftTop, LeftBottom, RightTop, RightBottom;
+                int LeftTopInNormals, LeftBottomInNormals, RightTopInNormals, RightBottomInNormals;
                 for (int PlaneIndex = EFrustumPlane::Near; PlaneIndex <= EFrustumPlane::Far; ++PlaneIndex)
                 {
                     auto Plane = (EFrustumPlane)PlaneIndex;
@@ -669,22 +671,38 @@ namespace UE::Geometry::Frustum
                         for (int Index = 0; Index < PlaneVertices.X - 1; ++Index)
                         {
                             LeftBottom = GetVertexIndex(Plane, Row, Index);
+                            LeftBottomInNormals = IndexOfNormal++;
+                            Normals[LeftBottomInNormals] = PlaneNormals[PlaneIndex];
+                            NormalParentVertex[LeftBottomInNormals] = LeftBottom;
+
                             LeftTop = GetVertexIndex(Plane, Row + 1, Index);
+                            LeftTopInNormals = IndexOfNormal++;
+                            Normals[LeftTopInNormals] = PlaneNormals[PlaneIndex];
+                            NormalParentVertex[LeftTopInNormals] = LeftTop;
+
                             RightTop = GetVertexIndex(Plane, Row + 1, Index + 1);
+                            RightTopInNormals = IndexOfNormal++;
+                            Normals[RightTopInNormals] = PlaneNormals[PlaneIndex];
+                            NormalParentVertex[RightTopInNormals] = RightTop;
+
                             RightBottom = GetVertexIndex(Plane, Row, Index + 1);
+                            RightBottomInNormals = IndexOfNormal++;
+                            Normals[RightBottomInNormals] = PlaneNormals[PlaneIndex];
+                            NormalParentVertex[RightBottomInNormals] = RightBottom;
+
                             if (IsNear)
                             {
-                                // TriangleNormals[IndexOfTri] = FIndex3i(LeftTop, LeftBottom, RightTop);
-                                Triangles[IndexOfTri++] = FIndex3i(LeftTop, LeftBottom, RightTop);
-                                // TriangleNormals[IndexOfTri] = FIndex3i(LeftBottom, RightBottom, RightTop);
-                                Triangles[IndexOfTri++] = FIndex3i(LeftBottom, RightBottom, RightTop);
+                                Triangles[IndexOfTri] = FIndex3i(LeftTop, LeftBottom, RightTop);
+                                TriangleNormals[IndexOfTri++] = FIndex3i(LeftTopInNormals, LeftBottomInNormals, RightTopInNormals);
+                                Triangles[IndexOfTri] = FIndex3i(LeftBottom, RightBottom, RightTop);
+                                TriangleNormals[IndexOfTri++] = FIndex3i(LeftBottomInNormals, RightBottomInNormals, RightTopInNormals);
                             }
                             else
                             {
-                                // TriangleNormals[IndexOfTri] = FIndex3i(LeftTop, LeftBottom, RightTop);
-                                Triangles[IndexOfTri++] = FIndex3i(LeftTop, LeftBottom, RightTop);
-                                // TriangleNormals[IndexOfTri] = FIndex3i(LeftBottom, RightBottom, RightTop);
-                                Triangles[IndexOfTri++] = FIndex3i(LeftBottom, RightBottom, RightTop);
+                                Triangles[IndexOfTri] = FIndex3i(LeftTop, RightTop, LeftBottom);
+                                TriangleNormals[IndexOfTri++] = FIndex3i(LeftTopInNormals, RightTopInNormals, LeftBottomInNormals);
+                                Triangles[IndexOfTri] = FIndex3i(LeftBottom, RightTop, RightBottom);
+                                TriangleNormals[IndexOfTri++] = FIndex3i(LeftBottomInNormals, RightTopInNormals, RightBottomInNormals);
                             }
                         }
                     }
@@ -696,6 +714,10 @@ namespace UE::Geometry::Frustum
                 If two vertices on the longer edge belong to the same group, they should form a single triangle together.
                 If they are not in the same group, they need to act as a bridge between the two groups, forming two triangles with four vertices.
                 */
+                int LeftTop, LeftBottom, RightTop, RightBottom;
+                int LeftTopIndex, LeftBottomIndex, RightTopIndex, RightBottomIndex;
+                int LeftTopInNormals, LeftBottomInNormals, RightTopInNormals, RightBottomInNormals;
+
                 for (int PlaneIndex = EFrustumPlane::Left; PlaneIndex <= EFrustumPlane::Top; ++PlaneIndex)
                 {
                     auto Plane = (EFrustumPlane)PlaneIndex;
@@ -705,29 +727,60 @@ namespace UE::Geometry::Frustum
                         int Shorter = GetVerticesNumOfRowOrDepth(Plane, DepthCur, true);
                         int Longer = GetVerticesNumOfRowOrDepth(Plane, DepthNext, true);
                         float GrounpLength = float(Longer) / Shorter;
-                        int LeftTop = 0, RightTop = 0, LeftBottom = 0, RightBottom = 1;
+                        LeftBottom = 0, RightBottom = 1;
 
                         while (RightBottom <= Longer - 1)
                         {
                             LeftTop = LeftBottom / GrounpLength;
                             RightTop = RightBottom / GrounpLength;
+                            LeftTopIndex = GetVertexIndex(Plane, DepthCur, LeftTop);
+                            LeftBottomIndex = GetVertexIndex(Plane, DepthNext, LeftBottom);
+                            RightBottomIndex = GetVertexIndex(Plane, DepthNext, RightBottom);
+
+                            LeftTopInNormals = IndexOfNormal++;
+                            LeftBottomInNormals = IndexOfNormal++;
+                            RightBottomInNormals = IndexOfNormal++;
+                            Normals[LeftTopInNormals] = PlaneNormals[PlaneIndex];
+                            Normals[LeftBottomInNormals] = PlaneNormals[PlaneIndex];
+                            Normals[RightBottomInNormals] = PlaneNormals[PlaneIndex];
+                            NormalParentVertex[LeftTopInNormals] = LeftTopIndex;
+                            NormalParentVertex[LeftBottomInNormals] = LeftBottomIndex;
+                            NormalParentVertex[RightBottomInNormals] = RightBottomIndex;
                             if (LeftTop == RightTop)
                             {
-                                Triangles[IndexOfTri++] = FIndex3i(
-                                    GetVertexIndex(Plane, DepthCur, LeftTop),
-                                    GetVertexIndex(Plane, DepthNext, LeftBottom),
-                                    GetVertexIndex(Plane, DepthNext, RightBottom));
+                                Triangles[IndexOfTri] = FIndex3i(
+                                    LeftTopIndex,
+                                    LeftBottomIndex,
+                                    RightBottomIndex);
+                                TriangleNormals[IndexOfTri++] = FIndex3i(
+                                    LeftTopInNormals,
+                                    LeftBottomInNormals,
+                                    RightBottomInNormals);
                             }
                             else
                             {
-                                Triangles[IndexOfTri++] = FIndex3i(
-                                    GetVertexIndex(Plane, DepthCur, LeftTop),
-                                    GetVertexIndex(Plane, DepthNext, LeftBottom),
-                                    GetVertexIndex(Plane, DepthCur, RightTop));
-                                Triangles[IndexOfTri++] = FIndex3i(
-                                    GetVertexIndex(Plane, DepthNext, LeftBottom),
-                                    GetVertexIndex(Plane, DepthNext, RightBottom),
-                                    GetVertexIndex(Plane, DepthCur, RightTop));
+                                RightTopIndex = GetVertexIndex(Plane, DepthCur, RightTop);
+                                RightTopInNormals = IndexOfNormal++;
+                                Normals[RightTopInNormals] = PlaneNormals[PlaneIndex];
+                                NormalParentVertex[RightTopInNormals] = RightTopIndex;
+
+                                Triangles[IndexOfTri] = FIndex3i(
+                                    LeftTopIndex,
+                                    LeftBottomIndex,
+                                    RightTopIndex);
+                                TriangleNormals[IndexOfTri++] = FIndex3i(
+                                    LeftTopInNormals,
+                                    LeftBottomInNormals,
+                                    RightTopInNormals);
+
+                                Triangles[IndexOfTri] = FIndex3i(
+                                    LeftBottomIndex,
+                                    RightBottomIndex,
+                                    RightTopIndex);
+                                TriangleNormals[IndexOfTri++] = FIndex3i(
+                                    LeftBottomInNormals,
+                                    RightBottomInNormals,
+                                    RightTopInNormals);
                             }
                             LeftBottom++;
                             RightBottom++;
@@ -735,6 +788,9 @@ namespace UE::Geometry::Frustum
                     }
                 }
             }
+
+            Normals.Shrink();
+            NormalParentVertex.Shrink();
         }
     };
 } // namespace UE::Geometry
