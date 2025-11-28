@@ -112,6 +112,9 @@ void AVFPhotoCatcher_PickUp::DropDown_Implementation()
     if (!bPickedUp)
         return;
 
+    if (!Pawn->InputEnabled())
+        return;
+
     auto PC = PlayerController;
 
     ActorsToIgnore.AddUnique(GetAttachParentActor());
