@@ -94,6 +94,9 @@ void AVFPhotoContainer::ChangeCurrentPhoto(const bool Next)
 	if (Photo2Ds.Num() <= 1)
 		return;
 
+	if (GetWorldTimerManager().IsTimerActive(PrepareTimeHandle))
+		return;
+
 	if (bFocusOn)
 		return;
 

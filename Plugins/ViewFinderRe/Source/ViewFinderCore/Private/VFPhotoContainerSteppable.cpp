@@ -71,6 +71,9 @@ void AVFPhotoContainerSteppable::GiveUpPreparing()
 {
     Super::GiveUpPreparing();
 
+    if (!IsValid(CurrentPhoto2D))
+        return;
+
     if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
         Steps.Add(FVFPhotoContainerStepInfo{
@@ -111,55 +114,17 @@ void AVFPhotoContainerSteppable::SetEnabled(const bool &Enabled)
 bool AVFPhotoContainerSteppable::StepBack_Implementation(FVFStepInfo &StepInfo)
 {
     auto Step = StringToEnum<EVFPhotoContainerSteppableOperation>(StepInfo.Info);
-    switch (Step)
-    {
-    case EVFPhotoContainerSteppableOperation::Prepare:
-    {
-        GiveUpPreparing();
-        break;
-    }
-    case EVFPhotoContainerSteppableOperation::GiveUpPreparing:
-    {
-        PrepareCurrentPhoto();
-        break;
-    }
-    case EVFPhotoContainerSteppableOperation::ChangeNext:
-    {
-        ChangeCurrentPhoto(false);
-        break;
-    }
-    case EVFPhotoContainerSteppableOperation::ChangeLast:
-    {
-        ChangeCurrentPhoto(true);
-        break;
-    }
-    case EVFPhotoContainerSteppableOperation::Enabled:
-    {
-        SetEnabled(false);
-        break;
-    }
-    case EVFPhotoContainerSteppableOperation::Disabled:
-    {
-        SetEnabled(true);
-        break;
-    }
-    default:
-    {
-        if (StepInfo.Info == TEXT("PlaceCurrentPhoto"))
-        {
-            // Nothing to do.
-            return true;
-        }
-        return false;
-    }
-    }
-
-    return true;
+    return StepInfo.Info == TEXT("PlaceCurrentPhoto");
 }
 
 void AVFPhotoContainerSteppable::HandleEndRewinding(float Time)
 {
-    if (bFocusOn)
+    /*
+    if player rewind to last key, to the moment of "PlaceCurrentPhoto",
+    container is preparing current photo while not holding right mouse key.
+    So need to manually call GiveUpPreparing().
+    */
+    if (bEnabled)
         GiveUpPreparing();
 }
 
