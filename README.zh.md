@@ -173,6 +173,7 @@
   - [*未实现猜测*](#未实现猜测)
   - [*ViewFinder流程拆解*](#viewfinder流程拆解)
   - [*Demo流程设计*](#demo流程设计)
+  - [*资产列表*](#资产列表)
   - [*ToDoList*](#todolist)
 </details>
 
@@ -1556,14 +1557,14 @@ Actor失效: 使用Helper就完事了
 
 ### *Demo流程设计*
 基础实现:  
-0. 物理方块回溯(未重置速度).  初步熟悉时间回溯.
-1. 物理物体位于高处, 需旋转/放置头顶. 相片内的物理方块支持回溯. 不同的天空盒.
-2. 透视图案生成地形. 透视图案只会出现在第一个面. 不同的天空盒. 支持回溯.
-3. 相片内可以有相机. 拍照复制物体/照片. 回溯到上个关键时间节点.
-4. 手持相机. 勾选仅Helper. 较小FOV. 较近触发投影图案, 需较远拍照取出.
-5. 手持相机. 不限仅Helper, 多个不同Helper配置. 可多持相机.
-6. 手持相机. 裁剪物理物体. 放下相机. 近背景面. 相机持有和放下都支持回溯.
-7. 四种后处理相机, 不同滤镜和Stencil规则. 
+1. 物理方块回溯(未重置速度).  初步熟悉时间回溯.
+2. 物理物体位于高处, 需旋转/放置头顶. 相片内的物理方块支持回溯. 不同的天空盒.
+3. 透视图案生成地形. 透视图案只会出现在第一个面. 不同的天空盒. 支持回溯.
+4. 相片内可以有相机. 拍照复制物体/照片. 回溯到上个关键时间节点.
+5. 手持相机. 勾选仅Helper. 较小FOV. 较近触发投影图案, 需较远拍照取出.
+6. 手持相机. 不限仅Helper, 多个不同Helper配置. 可多持相机.
+7. 手持相机. 裁剪物理物体. 放下相机. 近背景面. 相机持有和放下都支持回溯.
+8. 四种后处理相机, 不同滤镜和Stencil规则. 
 
 进阶实现:  
 1. 物理方块的替身. 自己的替身. 支持回溯.
@@ -1574,6 +1575,20 @@ Actor失效: 使用Helper就完事了
 6. 西瓜滤镜. 虚拟渲染: 星际拓荒DLC文物复刻.
 7. 递归投影图案生成(裁剪过的)场景. 复杂使用/回溯例子. 
 8. 插件的项目级参数设置.
+
+### *资产列表*
+- 大多模型和贴图都源自引擎, 出于依赖性考虑, 单独复制到插件的Content中
+- 材质参考多个教程. 部分材质蓝图中有给出相关链接. 此外还有:
+  - 各种滤镜思路: https://www.bilibili.com/video/BV1YS4y1k7Pj/
+  - 贴花投影: https://www.bilibili.com/video/BV1uj411a78F/
+  - 描边&自定义模板值相关: https://www.bilibili.com/video/BV1DUbPeoEMd/
+  - 仿星际拓荒: https://www.bilibili.com/video/BV1sw411t7oa/
+- 天空盒HDR取自**Poly Haven**:
+  - https://polyhaven.com/a/autumn_field_puresky
+  - https://polyhaven.com/a/kloppenheim_05_puresky
+  - https://polyhaven.com/a/kloofendal_misty_morning_puresky
+  - https://polyhaven.com/a/citrus_orchard_puresky
+- 可能还有没提到的, 忘了哈哈
 
 ### *ToDoList*
 完善方向, 但极可能不会做  

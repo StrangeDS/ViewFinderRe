@@ -171,6 +171,7 @@ Maintained in Chinese and translated into English with the assistance of AI.
   - [*Implementation Speculation*](#implementation-speculation)
   - [*ViewFinder Walkthrough*](#viewfinder-walkthrough)
   - [*Demo Walkthrough Design*](#demo-walkthrough-design)
+  - [*Asset List*](#asset-list)
   - [*ToDoList*](#todolist)
 </details>
 
@@ -1561,14 +1562,14 @@ Chapter 5 Main Scene
 
 ### *Demo Walkthrough Design*
 Basic Levels:  
-0. Physics cube rewinding (velocity not reset). Introduces time rewinding.
-1. Physics object placed high up, requires rotation/placement overhead. Physics cubes inside photos support rewinding. Different skyboxes.
-2. Perspective projection creates Level. Projection only appears on the first surface hit. Different skyboxes. Supports rewinding.
-3. Photos can contain PhotoCatcher. Taking photos duplicates objects/photos. Rewind to the previous keyframe.
-4. Holdable PhotoCatcher. `Only Overlap with Helper` enabled. Smaller FOV. Projection triggers when close, requires photographing from further away to retrieve object.
-5. Holdable PhotoCatcher. `Only Overlap with Helper` disabled, multiple different Helper configurations. Can carry multiple cameras.
-6. Holdable PhotoCatcher. Cut physics objects. Place down PhotoCatchers. Close background plane. Both picking up and putting down cameras support rewinding.
-7. Four post-process camera types, different filters and Stencil rules.
+1. Physics cube rewinding (velocity not reset). Introduces time rewinding.
+2. Physics object placed high up, requires rotation/placement overhead. Physics cubes inside photos support rewinding. Different skyboxes.
+3. Perspective projection creates Level. Projection only appears on the first surface hit. Different skyboxes. Supports rewinding.
+4. Photos can contain PhotoCatcher. Taking photos duplicates objects/photos. Rewind to the previous keyframe.
+5. Holdable PhotoCatcher. `Only Overlap with Helper` enabled. Smaller FOV. Projection triggers when close, requires photographing from further away to retrieve object.
+6. Holdable PhotoCatcher. `Only Overlap with Helper` disabled, multiple different Helper configurations. Can carry multiple cameras.
+7. Holdable PhotoCatcher. Cut physics objects. Place down PhotoCatchers. Close background plane. Both picking up and putting down cameras support rewinding.
+8. Four post-process camera types, different filters and Stencil rules.
 
 Advanced Levels:  
 1. Stand-In for physics cube. Stand-In for the player character. Supports rewinding.
@@ -1579,6 +1580,20 @@ Advanced Levels:
 6. Watermelon filter. Virtual Rendering: Reproduce of Outer Wilds DLC artifact.
 7. Recursive projection generates (cut) scene. Example of complex usage/rewinding.
 8. Project-level parameter settings for the plugin.
+
+### *Asset List*
+- Most models and textures are originally from the engine. To address dependency considerations, they have been individually copied into the plugin's Content directory.
+- Material creation referenced multiple tutorials. Relevant links are provided within some Material Blueprints. Additionally, refer to:
+  - Various filter techniques: https://www.bilibili.com/video/BV1YS4y1k7Pj/
+  - Decal projection: https://www.bilibili.com/video/BV1uj411a78F/
+  - Outlines & custom stencil values: https://www.bilibili.com/video/BV1DUbPeoEMd/
+  - Like Outer Wilds & Watermelon Filter: https://www.bilibili.com/video/BV1sw411t7oa/
+- The HDR environment textures used for Sky Spheres are sourced from **Poly Haven**:
+  - https://polyhaven.com/zh/a/autumn_field_puresky
+  - https://polyhaven.com/a/kloppenheim_05_puresky
+  - https://polyhaven.com/a/kloofendal_misty_morning_puresky
+  - https://polyhaven.com/a/citrus_orchard_puresky
+- There might be some unmentioned assets... forgot, haha.
 
 ### *ToDoList*
 Potential Future Directions (Unlikely to be implemented)  
