@@ -1,22 +1,26 @@
-# :video_game: ViewFinderRe - Unreal Engine 5.3.2 Plugin
+# :video_game: ViewFinderRe - Unreal Engine 5 Plugin
 
 <a id="information_sourcepreface"></a>
 ## :information_source:Preface
 
-`A learning project with no commercial intent, Kindly use for study only.`  
-`Respect to`
+**A learning project with no commercial intent, Kindly use for study only.**  
+Respect to
 [ViewFinder](https://img.shields.io/badge/ViewFinder制作组-SOSGames-Green.svg)
 :sparkling_heart:
 
-`Developed with UE5.3.2 released.`  
-`The project is empty, with all code and contents in the plugin.`  
-`5.3.2 only(May work with future versions), Windows-only, Standalone only.`  
-`Is Based on DynamicMeshComponent, with an optional dependency on the Plugin`
-[GeometryScript](https://img.shields.io/badge/Plugin-GeometryScript-Green.svg).
+Developed with UE5.3.2 released.  
+The project is empty, with all code and contents in the plugin.  
+**Tested only on Windows. Standalone only.**  
+Is Based on DynamicMeshComponent, with an optional dependency on the Plugin
+[GeometryScript](https://img.shields.io/badge/Plugin-GeometryScript-Green.svg).  
+Maintenance is volunteer-based and does not guarantee updates.
 
 [![License](https://img.shields.io/badge/license-MPL2.0-blue.svg)](LICENSE)
+[![Contact](https://img.shields.io/badge/Contact-Bilibili-green.svg)](https://space.bilibili.com/239325439)
+[![FAB Store Page](https://img.shields.io/badge/FAB_store_Page-yellow.svg)]()
 
-:book: [**中文**](README.zh.md) | [**English**](README.md)
+:book: [**中文**](README.zh.md) | [**English**](README.md)  
+Maintained in Chinese and translated into English with the assistance of AI.  
 
 <a id="sparkles-features"></a>
 ## :sparkles: Features
@@ -70,8 +74,11 @@
 - Component-based non-intrusive architecture, a potential solution for "how to integrate into existing projects".
 - Some technical solutions and lessons learned, and unimplemented technical hypotheses.
 
-<a id="clipboardtable-of-contents"></a>
-## :clipboard:Table of Contents
+<details>
+  <summary style="font-weight: bold; font-size: 1.3em;">
+    &#x1F4CB;Table of Contents
+  </summary>
+
 - [:information\_source:Preface](#information_sourcepreface)
 - [:sparkles: Features](#sparkles-features)
   - [:video\_game: Reproduce gameplay mechanics](#video_game-reproduce-gameplay-mechanics)
@@ -79,7 +86,6 @@
   - [:dart: Demo Content](#dart-demo-content)
   - [:warning: Known Issues](#warning-known-issues)
   - [:rocket: For Different Audiences](#rocket-for-different-audiences)
-- [:clipboard:Table of Contents](#clipboardtable-of-contents)
 - [Showcase](#showcase)
   - [:camera: Photo ⇄ Objects](#camera-photo--objects)
   - [:art: Projection ⇄ Objects](#art-projection--objects)
@@ -166,6 +172,7 @@
   - [*ViewFinder Walkthrough*](#viewfinder-walkthrough)
   - [*Demo Walkthrough Design*](#demo-walkthrough-design)
   - [*ToDoList*](#todolist)
+</details>
 
 ## Showcase
 Display with GIFs, but they load slowly.
@@ -807,9 +814,9 @@ Use abstract interfaces: `IVFInteractInterface` for line trace interactions, and
 Operations like equipping/activating devices are implemented within the devices themselves. Their rewinding logic is also self-managed.  
 
 ### *Plugin Dependencies and Their Handling*
-Boolean operations for dynamic meshes utilize the `GeometryScripting` plugin.  
+Boolean operations for dynamic meshes utilize the `GeometryScript` plugin.  
 To maintain the plugin's intended independence, necessary code was ported locally.  
-Considering the future maintenance and upgrades of the `GeometryScripting` plugin, usage of external plugin APIs should be optional, i.e., choosing between "Use Plugin API" / "Use Local Code".  
+Considering the future maintenance and upgrades of the `GeometryScript` plugin, usage of external plugin APIs should be optional, i.e., choosing between "Use Plugin API" / "Use Local Code".  
 - Conditional Compilation within a Single File: Use preprocessor macros
   - The method is simple and easy to understand, but has poor readability. 
   - Switching is relatively convenient: manually enable/disable the plugin and synchronize the macro. Otherwise, a compilation error occurs.
@@ -820,7 +827,7 @@ Considering the future maintenance and upgrades of the `GeometryScripting` plugi
   - The `VFGeometryBase` module defines the strategy interface. The `VFGSGeometryScriptNative` module is the local code implementation, while the `VFGSGeometryScript` module depends on the plugin API.
   - To avoid compilation errors:
     - Strategy implementation modules are not enabled automatically.
-    - In `FVFGeometryBaseModule::StartupModule()`, strategy implementation modules are enabled automatically based on the availability of the `GeometryScripting` plugin.
+    - In `FVFGeometryBaseModule::StartupModule()`, strategy implementation modules are enabled automatically based on the availability of the `GeometryScript` plugin.
   - Packaging will still include unused strategy implementation modules, but won't trigger errors.
     - Module resolution depends on the plugin description file (.uplugin). To remove them completely, this file must be modified.
 

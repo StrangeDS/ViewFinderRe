@@ -1,22 +1,26 @@
-# :video_game: ViewFinderRe - Unreal Engine 5.3.2 插件
+# :video_game: ViewFinderRe - Unreal Engine 5 插件
 
 <a id="information_source前置声明"></a>
 ## :information_source:前置声明
 
-`学习项目, 无商业目的, 请仅作为学习用途. 这是对`
+**学习项目, 无商业目的, 请仅作为学习用途.**  
+这是对
 [ViewFinder](https://img.shields.io/badge/ViewFinder制作组-SOSGames-Green.svg)
-`的尊重`:sparkling_heart:
+的尊重:sparkling_heart:
 
-`使用UE5.3.2发行版开发, 包装成插件, 项目是一个空壳`  
-`目前只有5.3.2的版本, 仅支持Windows, 单机不支持网络`  
-`基于动态网格体组件. 依赖插件`
+使用UE5.3.2发行版开发, 包装成插件, 项目是一个空壳  
+**仅测试Windows, 单机不支持网络**  
+基于动态网格体组件. 依赖插件
 [GeometryScript](https://img.shields.io/badge/Plugin-GeometryScript-Green.svg)
-`(可选), 可独立使用`  
+(可选), 可独立使用  
+随缘更新和维护, 也可能不再更新  
 
 [![License](https://img.shields.io/badge/license-MPL2.0-blue.svg)](LICENSE)
+[![Contact](https://img.shields.io/badge/Contact-Bilibili-green.svg)](https://space.bilibili.com/239325439)
+[![FAB Store Page](https://img.shields.io/badge/FAB_store_Page-yellow.svg)]()
 
-:book: [**中文**](README.zh.md) | [**English**](README.md)
-维护中文文档, 使用AI辅助翻译其它版本
+:book: [**中文**](README.zh.md) | [**English**](README.md)  
+维护中文文档, 使用AI辅助翻译其它版本  
 
 <a id="sparkles-特性"></a>
 ## :sparkles: 特性
@@ -70,7 +74,11 @@
 - 组件化的非侵入式架构, 一个关于"如何集成到现有项目", 可能的解决方案
 - 一些踩过的坑, 已实现的技术方案, 未实现的技术猜想
 
-<a id="clipboard目录"></a>
+<details>
+  <summary style="font-weight: bold; font-size: 1.3em;">
+    &#x1F4CB;目录
+  </summary>
+
 ## :clipboard:目录
 - [:information\_source:前置声明](#information_source前置声明)
 - [:sparkles: 特性](#sparkles-特性)
@@ -166,6 +174,7 @@
   - [*ViewFinder流程拆解*](#viewfinder流程拆解)
   - [*Demo流程设计*](#demo流程设计)
   - [*ToDoList*](#todolist)
+</details>
 
 ## 效果展示
 使用GIF进行展示, 但刷新很慢
@@ -801,9 +810,9 @@ ViewFinder中: 可以对一些物体进行交互; 可以切换相机, 相片组,
 设备的启用等操作自行实现, 回溯也是  
 
 ### *插件依赖及处理*
-动态网格的布尔运算, 使用了插件`GeometryScripting`  
+动态网格的布尔运算, 使用了插件`GeometryScript`  
 考虑插件本应该的独立性, 便将需要的代码剥离到本地  
-考虑插件`GeometryScripting`未来的维护升级, 应当可选对外部插件的使用, 即可选"使用插件API/本地代码"
+考虑插件`GeometryScript`未来的维护升级, 应当可选对外部插件的使用, 即可选"使用插件API/本地代码"
 - 在一个文件内, 使用条件编译宏来控制
   - 方法简单易懂, 但可读性差
   - 切换较为方便: 手动开关插件, 同步宏. 否则编译错误
@@ -814,7 +823,7 @@ ViewFinder中: 可以对一些物体进行交互; 可以切换相机, 相片组,
   - 模块VFGeometryBase定义策略接口, 模块`VFGSGeometryScriptNative`为本地代码实现, 模块`VFGSGeometryScript`则是依赖接口API
   - 避免编译错误: 
     - 策略实现模块不自动启用
-    - 在`FVFGeometryBaseModule::StartupModule()`中根据插件`GeometryScripting`的使用情况自动启用策略实现模块
+    - 在`FVFGeometryBaseModule::StartupModule()`中根据插件`GeometryScript`的使用情况自动启用策略实现模块
   - 打包依然会将未使用的策略实现模块放入, 但也不会触发错误
     - 模块解析依赖插件描述(.uplugin), 要彻底删除只能改动此文件
 
