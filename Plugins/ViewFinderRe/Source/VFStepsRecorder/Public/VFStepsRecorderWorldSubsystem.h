@@ -58,6 +58,10 @@ public:
 	void UnrecordTransform(USceneComponent *Component,
 						   const FString &Channel = TEXT(""));
 
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	bool IsTransformRecorded(USceneComponent *Component,
+							 const FString &Channel = TEXT(""));
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TMap<FString, TObjectPtr<AVFTransformRecorderActor>> TransformRecorderMap;
 
@@ -107,7 +111,7 @@ public:
 	float RewindCurFactor = 3.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	float Time = TIME_MIN;
+	float Time = TickInterval;
 
 	// Custom tick interval, default is 20 frames per second
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")

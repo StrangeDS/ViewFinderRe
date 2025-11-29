@@ -3,7 +3,6 @@
 #include "VFDMSteppableComponent.h"
 
 #include "Engine/World.h"
-#include "TimerManager.h"
 
 #include "VFLog.h"
 #include "VFStepsRecorderWorldSubsystem.h"
@@ -35,16 +34,6 @@ void UVFDMSteppableComponent::Init(UPrimitiveComponent *Source)
                 ? StepsRecorder->GetTimeOfMin()
                 : StepsRecorder->GetTime()});
         StepsRecorder->RegisterTickable(this);
-
-        if (Props.bSimulatePhysicsRecorder)
-        {
-            StepsRecorder->RecordTransform(this, StaticClass()->GetName());
-
-            Steps.Add(FVFDMCompStep{
-                UVFDMCompStepOperation::RegisterToTransformRecorder,
-                nullptr,
-                StepsRecorder->Time});
-        }
     }
 }
 
@@ -63,6 +52,30 @@ void UVFDMSteppableComponent::Clear()
     LocalPool->ReturnAllMeshes();
 
     Super::Clear();
+}
+
+void UVFDMSteppableComponent::SetEnabled(bool Enabled)
+{
+    Super::SetEnabled(Enabled);
+
+    if (!Props.bSimulatePhysicsRecorder)
+        return;
+
+    auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(
+        this,
+        EVFStepsRecorderSubsystemCheckMode::IgnoreRewinding);
+    if (!IsValid(StepsRecorder))
+        return;
+
+    if (Enabled)
+    {
+        StepsRecorder->RecordTransform(this, StaticClass()->GetName());
+    }
+    else
+    {
+        if (StepsRecorder->IsTransformRecorded(this, StaticClass()->GetName()))
+            StepsRecorder->UnrecordTransform(this, StaticClass()->GetName());
+    }
 }
 
 UDynamicMesh *UVFDMSteppableComponent::RequestACopiedMesh()
@@ -183,17 +196,6 @@ void UVFDMSteppableComponent::TickBackward_Implementation(float Time)
         }
         case UVFDMCompStepOperation::CopyMeshFromComponent:
         {
-            break;
-        }
-        case UVFDMCompStepOperation::RegisterToTransformRecorder:
-        {
-            auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(
-                this,
-                EVFStepsRecorderSubsystemCheckMode::IgnoreRewinding);
-            if (ensure(IsValid(StepsRecorder)))
-            {
-                StepsRecorder->UnrecordTransform(this, StaticClass()->GetName());
-            }
             break;
         }
         case UVFDMCompStepOperation::ReplaceMeshForComponent:

@@ -106,7 +106,7 @@ public: // SourceComponent
 
 public: // Enabled
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void SetEnabled(bool Enabled);
+	virtual void SetEnabled(bool Enabled);
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	bool IsEnabled();

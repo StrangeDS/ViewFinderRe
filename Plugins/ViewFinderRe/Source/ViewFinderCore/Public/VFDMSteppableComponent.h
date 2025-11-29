@@ -15,7 +15,6 @@ enum class UVFDMCompStepOperation : uint8
 	None = 0,
 	Init,
 	CopyMeshFromComponent,
-	RegisterToTransformRecorder,
 	ReplaceMeshForComponent,
 	IntersectMeshWithDMComp,
 	SubtractMeshWithDMComp,
@@ -50,6 +49,8 @@ public:
 	virtual void Init(UPrimitiveComponent *Source) override;
 
 	virtual void Clear() override;
+
+	virtual void SetEnabled(bool Enabled) override;
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	UDynamicMesh *RequestACopiedMesh();

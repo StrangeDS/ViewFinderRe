@@ -212,6 +212,14 @@ void UVFStepsRecorderWorldSubsystem::UnrecordTransform(
     TransformRecorderMap[Channel]->RemoveFromRecord(Component);
 }
 
+bool UVFStepsRecorderWorldSubsystem::IsTransformRecorded(USceneComponent *Component, const FString &Channel)
+{
+    check(IsValid(Component));
+
+    return TransformRecorderMap.Contains(Channel) &&
+           TransformRecorderMap[Channel]->IsBegingRecorded(Component);
+}
+
 void UVFStepsRecorderWorldSubsystem::RegisterTickable(const TScriptInterface<IVFStepsRecordInterface> &Target)
 {
     if (IsValid(Target.GetObject()))

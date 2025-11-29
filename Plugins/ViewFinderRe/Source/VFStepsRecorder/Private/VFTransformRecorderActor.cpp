@@ -78,6 +78,7 @@ void AVFTransformRecorderActor::AddToRecord(USceneComponent *Component)
 void AVFTransformRecorderActor::RemoveFromRecord(USceneComponent *Component)
 {
 	Components.RemoveSwap(Component);
+	CompInfoMap.Remove(Component);
 }
 
 bool AVFTransformRecorderActor::IsBegingRecorded(USceneComponent *Component)
@@ -130,7 +131,7 @@ void AVFTransformRecorderActor::ReCollectComponents_Implementation()
 		CompInfoMap.Add(Comp, Info);
 		Infos.Add(Info);
 	}
-	FVFTransStepInfo StepInfo(UVFStepsRecorderWorldSubsystem::TIME_MIN, Infos);
+	FVFTransStepInfo StepInfo(StepsRecorder->GetTime(), Infos);
 	Steps.Add(StepInfo);
 
 	SetActorEnableCollision(false);
