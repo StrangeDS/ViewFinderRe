@@ -409,13 +409,13 @@ namespace UE::Geometry::Frustum
 
             int NumOfVertices = NumOfTypeVertices[0] + NumOfTypeVertices[1] + NumOfTypeVertices[2];
             /*
-            It's hard to calculate the exact quantity, simply use * 5 * 2.
+            It's hard to calculate the exact quantity, simply use * 5 * 2 * 5.
             Called Shrink() at the end.
             */
             int NumUVsAndNormals = GetVerticesNumOfFrontPlane(true, true) +
                                    GetVerticesNumOfFrontPlane(false, true) +
-                                   GetVerticesNumOfSidePlane(EFrustumPlane::Left, true) * 10 +
-                                   GetVerticesNumOfSidePlane(EFrustumPlane::Bottom, true) * 10;
+                                   GetVerticesNumOfSidePlane(EFrustumPlane::Left, true) * 50 +
+                                   GetVerticesNumOfSidePlane(EFrustumPlane::Bottom, true) * 50;
             int NumTriangles = NumOfPlaneTriangles[0] + NumOfPlaneTriangles[1] +
                                NumOfPlaneTriangles[2] + NumOfPlaneTriangles[3] +
                                NumOfPlaneTriangles[4] + NumOfPlaneTriangles[5];
