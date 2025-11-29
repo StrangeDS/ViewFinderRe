@@ -175,6 +175,7 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
             /*
             Iterate through child components, locate and delete those VFDMComps
             to restore their matching SourceComponent.
+            Note: Components with bSimulatePhysics set to true are being omitted.
             */
             Comp->GetChildrenComponents(false, Children);
             for (auto &Child : Children)

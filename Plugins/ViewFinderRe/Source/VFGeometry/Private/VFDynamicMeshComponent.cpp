@@ -343,13 +343,18 @@ void UVFDynamicMeshComponent::ReplaceMeshForComponentInEditor()
 void UVFDynamicMeshComponent::RestoreSourceComponentInEditor()
 {
     const FScopedTransaction Transaction(FText::FromString("RestoreSourceComponentInEditor"));
-
-    auto Source = Cast<UPrimitiveComponent>(GetAttachParent());
-    if (!IsValid(Source))
-        VF_LOG(Error, TEXT("%s GetAttachParent() is not a UPrimitiveComponent."), __FUNCTIONW__);
-
     Modify();
-    SourceComponent = Source;
+
+    if (!Props.bSimulatePhysicsRecorder)
+    {
+        auto Source = Cast<UPrimitiveComponent>(GetAttachParent());
+        if (!IsValid(Source))
+        {
+            VF_LOG(Error, TEXT("%s GetAttachParent() is not a UPrimitiveComponent."), __FUNCTIONW__);
+            return;
+        }
+        SourceComponent = Source;
+    }
     RestoreSourceComponent();
     SourceComponent = nullptr;
     VF_LOG(Log, TEXT("%s has Restored parent Component."), *GetName());
