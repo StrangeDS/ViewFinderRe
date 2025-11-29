@@ -101,13 +101,11 @@ void UVFDynamicMeshComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
     }
     else
     {
-        bool UseSimpleCollision = Source->BodyInstance.bSimulatePhysics;
-        UseSimpleCollision |= !Source->BodyInstance.GetBodySetup() ||
-                              Source->BodyInstance.GetBodySetup()->GetCollisionTraceFlag() == ECollisionTraceFlag::CTF_UseSimpleAsComplex;
-        SetComplexAsSimpleCollisionEnabled(!UseSimpleCollision, true);
-        Props.bSimulatePhysicsRecorder = Source->BodyInstance.bSimulatePhysics;
+        Props.bSimulatePhysicsRecorder = Source->IsSimulatingPhysics();
         Props.bEnableGravityRecorder = Source->IsGravityEnabled();
         Props.bCastShadowRecorder = Source->CastShadow;
+        bool UseSimpleCollision = Props.bUseSimpleCollision || Props.bSimulatePhysicsRecorder;
+        SetComplexAsSimpleCollisionEnabled(!UseSimpleCollision, true);
     }
     UpdateSimlpeCollision();
     SetCollisionEnabled(Source->GetCollisionEnabled());
@@ -321,7 +319,7 @@ void UVFDynamicMeshComponent::RestoreSourceComponent()
     SourceComponent->SetCollisionProfileName(GetCollisionProfileName());
     SourceComponent->SetCollisionEnabled(GetCollisionEnabled());
     SourceComponent->SetSimulatePhysics(Props.bSimulatePhysicsRecorder);
-    SourceComponent->BodyInstance.bEnableGravity = Props.bEnableGravityRecorder;
+    SourceComponent->SetEnableGravity(Props.bEnableGravityRecorder);
 }
 
 #if WITH_EDITOR

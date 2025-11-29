@@ -604,7 +604,7 @@ Perform Boolean operations between the DynamicMeshComponent and the view frustum
 Interact with other smaller mechanics and ensure extensibility.  
 - Action (A):  
 Capture the photo2D's image after all operations are complete, not before any operation, due to constraints imposed by the [Filter](#filter) effects.  
-The view frustum can only use simple collision for overlap detection; other objects prioritize simple collision as well.  
+The view frustum can only use simple collision for overlap detection; other objects prioritize complex collision as well.  
 Utilize the Helper component for process control and as a method for custom logic extension.  
 Generate the `Photo2D` (the held photo) and the `Photo3D` (the entity managing the photo's contents).  
 - Result (R):  

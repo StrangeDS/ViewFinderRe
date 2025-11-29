@@ -328,21 +328,19 @@ UVFStepsRecorderWorldSubsystem *UVFStepsRecorderWorldSubsystem::GetStepsRecorder
     const EVFStepsRecorderSubsystemCheckMode Mode)
 {
     const UWorld *World = WorldContext->GetWorld();
-    bool IsRuntime = World && (World->WorldType == EWorldType::Game ||
-                               World->WorldType == EWorldType::PIE);
-    if (!IsRuntime)
+    if (IsValid(World) && World->IsGameWorld())
     {
-        VF_LOG(Warning, TEXT("%s should only be called in runtime."), __FUNCTIONW__);
-        return nullptr;
+        auto System = World->GetSubsystem<UVFStepsRecorderWorldSubsystem>();
+        switch (Mode)
+        {
+        case EVFStepsRecorderSubsystemCheckMode::RequireRewinding:
+            return System->bIsRewinding ? nullptr : System;
+        case EVFStepsRecorderSubsystemCheckMode::IgnoreRewinding:
+        default:
+            return System;
+        }
     }
 
-    auto System = World->GetSubsystem<UVFStepsRecorderWorldSubsystem>();
-    switch (Mode)
-    {
-    case EVFStepsRecorderSubsystemCheckMode::RequireRewinding:
-        return System->bIsRewinding ? nullptr : System;
-    case EVFStepsRecorderSubsystemCheckMode::IgnoreRewinding:
-    default:
-        return System;
-    }
+    VF_LOG(Warning, TEXT("%s should only be called in runtime."), __FUNCTIONW__);
+    return nullptr;
 }

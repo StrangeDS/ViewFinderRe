@@ -23,6 +23,9 @@ struct FVFDMCompRecordProps
 	bool bCastShadowRecorder = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	bool bUseSimpleCollision = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	uint8 LevelOfCollision = 0;
 
 	FVFDMCompRecordProps GenerateNew();
