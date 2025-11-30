@@ -176,35 +176,35 @@ Maintained in Chinese and translated into English with the assistance of AI.
 </details>
 
 ## Showcase
-Display with GIFs, but they load slowly.
+Use GIFs for demonstrations with *Imgur* for image hosting.
 
 <a id="camera-photo--objects"></a>
 ### :camera: Photo ⇄ Objects
-|                                                                            |                                                                        |
-| :------------------------------------------------------------------------: | :--------------------------------------------------------------------: |
-| ![](Plugins/ViewFinderRe/Resources/README/Display_CapturePhysicsCubes.gif) | ![](Plugins/ViewFinderRe/Resources/README/Display_DiffViewFrustum.gif) |
-|               Take a photo of objects of simulating physics                |               Holds view frustum of different parameters               |
-|    ![](Plugins/ViewFinderRe/Resources/README/Display_DiffBehavior.gif)     |       ![](Plugins/ViewFinderRe/Resources/README/Display_Cut.gif)       |
-|    Actors behave differently based on their helper(component)'s config.    |                          Cut rather than copy                          |
-|       ![](Plugins/ViewFinderRe/Resources/README/Display_Filter.gif)        |    ![](Plugins/ViewFinderRe/Resources/README/Display_Recursion.gif)    |
-|                               Filter effects                               |                            Recursive photos                            |
-|                                                                            |                                                                        |
+|                                                                                                        |                                                                                                |
+| :----------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------: |
+| ![Display CapturePhysicsCubes](https://www.imgur.la/images/2025/11/30/Display_CapturePhysicsCubes.gif) | ![Display DiffViewFrustum](https://www.imgur.la/images/2025/11/30/Display_DiffViewFrustum.gif) |
+|                             Take a photo of objects of simulating physics                              |                           Holds view frustum of different parameters                           |
+|        ![Display DiffBehavior](https://www.imgur.la/images/2025/11/30/Display_DiffBehavior.gif)        |             ![Display Cut](https://www.imgur.la/images/2025/11/30/Display_Cut.gif)             |
+|                  Actors behave differently based on their helper(component)'s config.                  |                                      Cut rather than copy                                      |
+|              ![Display Filter](https://www.imgur.la/images/2025/11/30/Display_Filter.gif)              |       ![Display Recursion](https://www.imgur.la/images/2025/11/30/Display_Recursion.gif)       |
+|                                             Filter effects                                             |                                        Recursive photos                                        |
+|                                                                                                        |                                                                                                |
 
 <a id="art-projection--objects"></a>
 ### :art: Projection ⇄ Objects
-|                                                                    |                                                                    |
-| :----------------------------------------------------------------: | :----------------------------------------------------------------: |
-| ![](Plugins/ViewFinderRe/Resources/README/Display_DecalToObjs.gif) | ![](Plugins/ViewFinderRe/Resources/README/Display_ObjsToDecal.gif) |
-|                       projection -> objects                        |                       objects -> Projection                        |
-|                                                                    |                                                                    |
+|                                                                                        |                                                                                        |
+| :------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------: |
+| ![Display DecalToObjs](https://www.imgur.la/images/2025/11/30/Display_DecalToObjs.gif) | ![Display ObjsToDecal](https://www.imgur.la/images/2025/11/30/Display_ObjsToDecal.gif) |
+|                                 projection -> objects                                  |                                 objects -> Projection                                  |
+|                                                                                        |                                                                                        |
 
 <a id="previous_track_button-time-rewind"></a>
 ### :previous_track_button: Time Rewind
-|                                                               |                                                                              |
-| :-----------------------------------------------------------: | :--------------------------------------------------------------------------: |
-| ![](Plugins/ViewFinderRe/Resources/README/Display_Rewind.gif) | ![](Plugins/ViewFinderRe/Resources/README/Display_RewindAndTriggerAgain.gif) |
-|                    Time rewind for photos                     |       Rewind the Object-Projection transformation and trigger it again       |
-|                                                               |                                                                              |
+|                                                                              |                                                                                                            |
+| :--------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------: |
+| ![Display Rewind](https://www.imgur.la/images/2025/11/30/Display_Rewind.gif) | ![Display RewindAndTriggerAgain](https://www.imgur.la/images/2025/11/30/Display_RewindAndTriggerAgain.gif) |
+|                            Time rewind for photos                            |                      Rewind the Object-Projection transformation and trigger it again                      |
+|                                                                              |                                                                                                            |
 
 ## Hands-On Experience
 
@@ -240,9 +240,9 @@ This section defines project-specific terms and clarifies potential ambiguities.
 #### Prerequisites
 1. Open the editor
 2. Ensure the ViewFrustum Object Channel exists. If not, create it and configure it as shown below:    
-![](Plugins/ViewFinderRe/Resources/README/ObjectChannels.png)
+![ObjectChannels](https://www.imgur.la/images/2025/11/30/ObjectChannels.png)
 3. Ensure the ViewFrustum Collision Preset exists. If not, create it and configure it as shown below:  
-![](Plugins/ViewFinderRe/Resources/README/CollisionPreset.png)
+![CollisionPreset](https://www.imgur.la/images/2025/11/30/CollisionPreset.png)
 4. Navigate to `ProjectSettings > Engine > Render`:
    1. Set `Shadow Map Method` to `ShadowMaps`
       1. `Note`: SceneCanpture2D conflicts with VSM. See [Disabling VSM](#disabling-vsm) for details.

@@ -178,35 +178,35 @@
 </details>
 
 ## 效果展示
-使用GIF进行展示, 但刷新很慢
+使用GIF进行展示, 使用图片托管: *imgur*
 
 <a id="camera-照片物体"></a>
 ### :camera: 照片⇄物体
-|                                                                            |                                                                        |
-| :------------------------------------------------------------------------: | :--------------------------------------------------------------------: |
-| ![](Plugins/ViewFinderRe/Resources/README/Display_CapturePhysicsCubes.gif) | ![](Plugins/ViewFinderRe/Resources/README/Display_DiffViewFrustum.gif) |
-|                          对模拟物理的物体进行拍照                          |                                不同视锥                                |
-|    ![](Plugins/ViewFinderRe/Resources/README/Display_DiffBehavior.gif)     |       ![](Plugins/ViewFinderRe/Resources/README/Display_Cut.gif)       |
-|                         不同配置的Actor有不同响应                          |                              剪切而非复制                              |
-|       ![](Plugins/ViewFinderRe/Resources/README/Display_Filter.gif)        |    ![](Plugins/ViewFinderRe/Resources/README/Display_Recursion.gif)    |
-|                                  滤镜效果                                  |                                递归照片                                |
-|                                                                            |                                                                        |
+|                                                                                                        |                                                                                                |
+| :----------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------: |
+| ![Display CapturePhysicsCubes](https://www.imgur.la/images/2025/11/30/Display_CapturePhysicsCubes.gif) | ![Display DiffViewFrustum](https://www.imgur.la/images/2025/11/30/Display_DiffViewFrustum.gif) |
+|                                        对模拟物理的物体进行拍照                                        |                                            不同视锥                                            |
+|        ![Display DiffBehavior](https://www.imgur.la/images/2025/11/30/Display_DiffBehavior.gif)        |             ![Display Cut](https://www.imgur.la/images/2025/11/30/Display_Cut.gif)             |
+|                                       不同配置的Actor有不同响应                                        |                                          剪切而非复制                                          |
+|              ![Display Filter](https://www.imgur.la/images/2025/11/30/Display_Filter.gif)              |       ![Display Recursion](https://www.imgur.la/images/2025/11/30/Display_Recursion.gif)       |
+|                                                滤镜效果                                                |                                            递归照片                                            |
+|                                                                                                        |                                                                                                |
 
 <a id="art-图案物体"></a>
 ### :art: 图案⇄物体
-|                                                                    |                                                                    |
-| :----------------------------------------------------------------: | :----------------------------------------------------------------: |
-| ![](Plugins/ViewFinderRe/Resources/README/Display_DecalToObjs.gif) | ![](Plugins/ViewFinderRe/Resources/README/Display_ObjsToDecal.gif) |
-|                             图案->物体                             |                             物体->图案                             |
-|                                                                    |                                                                    |
+|                                                                                        |                                                                                        |
+| :------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------: |
+| ![Display DecalToObjs](https://www.imgur.la/images/2025/11/30/Display_DecalToObjs.gif) | ![Display ObjsToDecal](https://www.imgur.la/images/2025/11/30/Display_ObjsToDecal.gif) |
+|                                       图案->物体                                       |                                       物体->图案                                       |
+|                                                                                        |                                                                                        |
 
 <a id="previous_track_button-时间回溯"></a>
 ### :previous_track_button: 时间回溯
-|                                                               |                                                                              |
-| :-----------------------------------------------------------: | :--------------------------------------------------------------------------: |
-| ![](Plugins/ViewFinderRe/Resources/README/Display_Rewind.gif) | ![](Plugins/ViewFinderRe/Resources/README/Display_RewindAndTriggerAgain.gif) |
-|                           相片回溯                            |                           图案->场景回溯和再次触发                           |
-|                                                               |                                                                              |
+|                                                                              |                                                                                                            |
+| :--------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------------------: |
+| ![Display Rewind](https://www.imgur.la/images/2025/11/30/Display_Rewind.gif) | ![Display RewindAndTriggerAgain](https://www.imgur.la/images/2025/11/30/Display_RewindAndTriggerAgain.gif) |
+|                                   相片回溯                                   |                                          图案->场景回溯和再次触发                                          |
+|                                                                              |                                                                                                            |
 
 ## 体验和使用
 
@@ -241,9 +241,9 @@
 #### 前置准备
 1. 打开编辑器
 2. 确保碰撞通道(Object Channels)存在`ViewFrustum`, 无则新建, 设置如图:   
-![](Plugins/ViewFinderRe/Resources/README/ObjectChannels.png)
+![ObjectChannels](https://www.imgur.la/images/2025/11/30/ObjectChannels.png)
 3. 确保碰撞预设(Preset)存在`ViewFrustum`, 无则新建, 设置如图:  
-![](Plugins/ViewFinderRe/Resources/README/CollisionPreset.png)
+![CollisionPreset](https://www.imgur.la/images/2025/11/30/CollisionPreset.png)
 4. `ProjectSettings > Engine > Render`进行配置
    1. `Shadow Map Method`改为`ShadowMaps`
       1. 场景捕捉与VSM有冲突, 参看[关闭VSM](#关闭VSM)
