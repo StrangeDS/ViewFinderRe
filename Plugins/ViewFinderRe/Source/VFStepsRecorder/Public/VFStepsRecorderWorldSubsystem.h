@@ -15,8 +15,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FVFStepsRecorderDelegate, float, Tim
 UENUM(BlueprintType)
 enum class EVFStepsRecorderSubsystemCheckMode : uint8
 {
-	RequireRewinding, // Must be in rewind state, in game world.
-	IgnoreRewinding,  // Don't check rewind state, in game world.
+	NotRewinding, // Must be in rewind state, in game world.
+	InGameWorld,  // Don't check rewind state, in game world.
 };
 
 UCLASS(ClassGroup = (ViewFinder))
@@ -173,7 +173,8 @@ public:
 			  meta = (WorldContext = "WorldContext"))
 	static UVFStepsRecorderWorldSubsystem *GetStepsRecorder(
 		const UObject *WorldContext,
-		const EVFStepsRecorderSubsystemCheckMode Mode = EVFStepsRecorderSubsystemCheckMode::RequireRewinding);
+		const EVFStepsRecorderSubsystemCheckMode Mode =
+			EVFStepsRecorderSubsystemCheckMode::NotRewinding);
 };
 
 /*

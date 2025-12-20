@@ -63,7 +63,7 @@ void UVFDMSteppableComponent::SetEnabled(bool Enabled)
 
     auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(
         this,
-        EVFStepsRecorderSubsystemCheckMode::IgnoreRewinding);
+        EVFStepsRecorderSubsystemCheckMode::InGameWorld);
     if (!IsValid(StepsRecorder))
         return;
 

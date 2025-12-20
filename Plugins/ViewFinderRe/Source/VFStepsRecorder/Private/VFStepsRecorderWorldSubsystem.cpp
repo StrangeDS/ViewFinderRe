@@ -333,9 +333,9 @@ UVFStepsRecorderWorldSubsystem *UVFStepsRecorderWorldSubsystem::GetStepsRecorder
         auto System = World->GetSubsystem<UVFStepsRecorderWorldSubsystem>();
         switch (Mode)
         {
-        case EVFStepsRecorderSubsystemCheckMode::RequireRewinding:
+        case EVFStepsRecorderSubsystemCheckMode::NotRewinding:
             return System->bIsRewinding ? nullptr : System;
-        case EVFStepsRecorderSubsystemCheckMode::IgnoreRewinding:
+        case EVFStepsRecorderSubsystemCheckMode::InGameWorld:
         default:
             return System;
         }

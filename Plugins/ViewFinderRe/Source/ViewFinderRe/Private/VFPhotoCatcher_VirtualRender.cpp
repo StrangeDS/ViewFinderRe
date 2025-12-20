@@ -31,7 +31,7 @@ void AVFPhotoCatcher_VirtualRender::DropDown_Implementation()
 {
     if (auto StepsRecorder =
             UVFStepsRecorderWorldSubsystem::GetStepsRecorder(
-                this, EVFStepsRecorderSubsystemCheckMode::IgnoreRewinding);
+                this, EVFStepsRecorderSubsystemCheckMode::InGameWorld);
         StepsRecorder->bIsRewinding)
     {
         Super::DropDown_Implementation();
