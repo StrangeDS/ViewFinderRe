@@ -205,7 +205,7 @@ void UVFDMSteppableComponent::TickBackward_Implementation(float Time)
         case UVFDMCompStepOperation::UnionMeshWithDMComp:
         {
             MeshObject->SetMesh(StepInfo.Mesh->GetMeshRef());
-            UpdateSimlpeCollision();
+            UpdateSimpleCollision();
             break;
         }
         default:

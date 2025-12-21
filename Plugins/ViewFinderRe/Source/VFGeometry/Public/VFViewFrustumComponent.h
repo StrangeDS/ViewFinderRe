@@ -35,5 +35,5 @@ public:
 #endif
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
-	TObjectPtr<UMaterialInterface> Matirial;
+	TObjectPtr<UMaterialInterface> Material;
 };

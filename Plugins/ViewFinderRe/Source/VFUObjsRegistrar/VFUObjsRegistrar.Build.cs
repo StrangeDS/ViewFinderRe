@@ -1,10 +1,10 @@
-// Copyright StangeDS. All Rights Reserved.
+// Copyright StrangeDS. All Rights Reserved.
 
 using UnrealBuildTool;
 
-public class VFUObjsRegistar : ModuleRules
+public class VFUObjsRegistrar : ModuleRules
 {
-	public VFUObjsRegistar(ReadOnlyTargetRules Target) : base(Target)
+	public VFUObjsRegistrar(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 

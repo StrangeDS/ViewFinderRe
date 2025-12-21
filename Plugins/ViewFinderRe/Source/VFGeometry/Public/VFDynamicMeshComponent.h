@@ -70,7 +70,7 @@ public: // Mesh
 	virtual void UnionMeshWithDMComp(UDynamicMeshComponent *Tool);
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void UpdateSimlpeCollision();
+	void UpdateSimpleCollision();
 
 #if WITH_EDITOR
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")

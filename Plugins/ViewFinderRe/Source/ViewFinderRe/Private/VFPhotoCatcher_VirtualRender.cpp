@@ -1,4 +1,4 @@
-// Copyright StangeDS. All Rights Reserved.
+// Copyright StrangeDS. All Rights Reserved.
 
 #include "VFPhotoCatcher_VirtualRender.h"
 

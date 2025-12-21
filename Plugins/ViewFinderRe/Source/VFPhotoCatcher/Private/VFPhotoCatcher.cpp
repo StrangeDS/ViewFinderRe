@@ -296,7 +296,7 @@ AVFPhoto2D *AVFPhotoCatcher::TakeAPhoto_Implementation()
 	}
 
 	// Original VFDynamicMeshComponent do subtract operation.
-	if (bCuttingOrignal)
+	if (bCuttingOriginal)
 	{
 		for (auto &HelperComp : HelpersRecorder)
 		{

@@ -1,24 +1,24 @@
 // Copyright StrangeDS. All Rights Reserved.
 
-#include "VFUObjsRegistarWorldSubsystem.h"
+#include "VFUObjsRegistrarWorldSubsystem.h"
 
-UVFUObjsRegistarWorldSubsystem::UVFUObjsRegistarWorldSubsystem()
+UVFUObjsRegistrarWorldSubsystem::UVFUObjsRegistrarWorldSubsystem()
 {
 }
 
-void UVFUObjsRegistarWorldSubsystem::Initialize(FSubsystemCollectionBase &Collection)
+void UVFUObjsRegistrarWorldSubsystem::Initialize(FSubsystemCollectionBase &Collection)
 {
     Super::Initialize(Collection);
 }
 
-void UVFUObjsRegistarWorldSubsystem::Deinitialize()
+void UVFUObjsRegistrarWorldSubsystem::Deinitialize()
 {
     ClearAll();
 
     Super::Deinitialize();
 }
 
-bool UVFUObjsRegistarWorldSubsystem::Register(UObject *Obj,
+bool UVFUObjsRegistrarWorldSubsystem::Register(UObject *Obj,
                                               const FString &Channel,
                                               TSubclassOf<UObject> ObjClass)
 {
@@ -27,7 +27,7 @@ bool UVFUObjsRegistarWorldSubsystem::Register(UObject *Obj,
     if (!ObjClass)
         ObjClass = Obj->GetClass();
 
-    auto &Table = ChannelsRegisted.FindOrAdd(Channel).Table;
+    auto &Table = ChannelsRegistered.FindOrAdd(Channel).Table;
     auto &Objs = Table.FindOrAdd(ObjClass).Objs;
     if (Objs.Contains(Obj))
         return false;
@@ -36,7 +36,7 @@ bool UVFUObjsRegistarWorldSubsystem::Register(UObject *Obj,
     return true;
 }
 
-bool UVFUObjsRegistarWorldSubsystem::Unregister(UObject *Obj,
+bool UVFUObjsRegistrarWorldSubsystem::Unregister(UObject *Obj,
                                                 const FString &Channel,
                                                 TSubclassOf<UObject> ObjClass)
 {
@@ -46,10 +46,10 @@ bool UVFUObjsRegistarWorldSubsystem::Unregister(UObject *Obj,
     if (!ObjClass)
         ObjClass = Obj->GetClass();
 
-    if (!ChannelsRegisted.Contains(Channel))
+    if (!ChannelsRegistered.Contains(Channel))
         return false;
 
-    auto &Table = ChannelsRegisted[Channel].Table;
+    auto &Table = ChannelsRegistered[Channel].Table;
     if (!Table.Contains(ObjClass))
         return false;
 
@@ -57,14 +57,14 @@ bool UVFUObjsRegistarWorldSubsystem::Unregister(UObject *Obj,
     return true;
 }
 
-void UVFUObjsRegistarWorldSubsystem::ClearInvalidInChannel(
+void UVFUObjsRegistrarWorldSubsystem::ClearInvalidInChannel(
     const FString &Channel,
     bool bShrink)
 {
-    if (!ChannelsRegisted.Contains(Channel))
+    if (!ChannelsRegistered.Contains(Channel))
         return;
 
-    for (auto &[ObjClass, UObjs] : ChannelsRegisted[Channel].Table)
+    for (auto &[ObjClass, UObjs] : ChannelsRegistered[Channel].Table)
     {
         auto &Objs = UObjs.Objs;
         for (auto It = Objs.CreateIterator(); It; ++It)
@@ -77,28 +77,28 @@ void UVFUObjsRegistarWorldSubsystem::ClearInvalidInChannel(
     }
 }
 
-void UVFUObjsRegistarWorldSubsystem::ClearAllInChannel(
+void UVFUObjsRegistrarWorldSubsystem::ClearAllInChannel(
     const FString &Channel,
     bool bShrink)
 {
-    if (!ChannelsRegisted.Contains(Channel))
+    if (!ChannelsRegistered.Contains(Channel))
         return;
 
-    auto &Table = ChannelsRegisted[Channel].Table;
+    auto &Table = ChannelsRegistered[Channel].Table;
     if (bShrink)
         Table.Empty();
     else
         Table.Reset();
 }
 
-TArray<UObject *> UVFUObjsRegistarWorldSubsystem::K2_GetUObjs(
+TArray<UObject *> UVFUObjsRegistrarWorldSubsystem::K2_GetUObjs(
     const FString &Channel,
     TSubclassOf<UObject> ObjClass)
 {
     return GetUObjs<UObject>(Channel, ObjClass);
 }
 
-void UVFUObjsRegistarWorldSubsystem::ClearAll(bool bShrink)
+void UVFUObjsRegistrarWorldSubsystem::ClearAll(bool bShrink)
 {
-    ChannelsRegisted.Reset();
+    ChannelsRegistered.Reset();
 }

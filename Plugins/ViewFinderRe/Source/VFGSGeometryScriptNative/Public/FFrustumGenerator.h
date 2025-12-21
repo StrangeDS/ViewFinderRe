@@ -46,7 +46,7 @@ namespace UE::Geometry::Frustum
     Starting from the edge at corner point 0, following the direction of the right-hand rule.
     EdgeVertices order:: Values along x/y/z axes from small to large.
     Plane order(EFrustumPlane): 0 -> near, 1 -> far, 2 -> left, 3 -> right, 4 -> bottom, 5 -> top.
-    PlaneVertices oorder:
+    PlaneVertices order:
     X-axis planes: -x -> +x, -y -> +y.
     Other side planes: facing the plane directly (narrower at top, wider at bottom), left to right, top to bottom.
     */
@@ -129,8 +129,8 @@ namespace UE::Geometry::Frustum
             case EFrustumPlane::Right:
             {
                 float Rate = 1 - (Depth - DepthOrRow) * SegmentSize.X / FarPlaneDis;
-                float Heigh = FMath::Max(FarHeightHalf * Rate * 2, NearHeightHalf * 2);
-                Res = FloatFloor(Heigh / SegmentSize.Z) + 2;
+                float Height = FMath::Max(FarHeightHalf * Rate * 2, NearHeightHalf * 2);
+                Res = FloatFloor(Height / SegmentSize.Z) + 2;
                 break;
             }
             case EFrustumPlane::Bottom:

@@ -59,7 +59,7 @@ public:
 	void TickBackward(float Time);
 	virtual void TickBackward_Implementation(float Time) {};
 
-	// Waht submitted by UVFStepsRecorderWorldSubsystem::SubmitChanges() are reverted here.
+	// What submitted by UVFStepsRecorderWorldSubsystem::SubmitChanges() are reverted here.
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
 	bool StepBack(UPARAM(ref) FVFStepInfo &StepInfo);
 	virtual bool StepBack_Implementation(FVFStepInfo &StepInfo) { return false; };

@@ -69,7 +69,7 @@ public:
 	FQuat GetFrustumQuat();
 
 	UFUNCTION(BlueprintPure, Category = "ViewFinder")
-	FORCEINLINE bool IsCuttingOrignal() { return bCuttingOrignal; };
+	FORCEINLINE bool IsCuttingOriginal() { return bCuttingOriginal; };
 
 	UFUNCTION(BlueprintPure, Category = "ViewFinder")
 	bool HasAnyLens();
@@ -111,7 +111,7 @@ protected:
 	When enabled, it's not copying but cutting.
 	*/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	bool bCuttingOrignal = false;
+	bool bCuttingOriginal = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	TArray<TObjectPtr<AActor>> ActorsToIgnore;

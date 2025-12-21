@@ -42,7 +42,7 @@ public class VFPhotoCatcher : ModuleRules
 
 				"VFCommon",
 				"VFGeometry",
-				"VFUObjsRegistar",
+				"VFUObjsRegistrar",
 			}
 			);
 

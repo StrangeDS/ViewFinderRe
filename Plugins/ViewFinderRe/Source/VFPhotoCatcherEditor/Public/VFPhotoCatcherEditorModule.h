@@ -4,7 +4,7 @@
 
 #include "Modules/ModuleManager.h"
 
-// Editor utility class for PhototCatcher.
+// Editor utility class for PhotoCatcher.
 class FVFPhotoCatcherEditorModule : public IModuleInterface
 {
 public:

@@ -5,7 +5,7 @@
 #include "Modules/ModuleManager.h"
 
 // A World Subsystem module for registering UObject-derived classes
-class FVFUObjsRegistarModule : public IModuleInterface
+class FVFUObjsRegistrarModule : public IModuleInterface
 {
 public:
 	virtual void StartupModule() override;

@@ -145,7 +145,7 @@ Maintained in Chinese and translated into English with the assistance of AI.
     - [Module Breakdown](#module-breakdown)
     - [VFCommon](#vfcommon)
     - [VFUObjsPool](#vfuobjspool)
-    - [VFUObjsRegistar](#vfuobjsregistar)
+    - [VFUObjsRegistrar](#vfuobjsregistrar)
     - [VFStepsRecorder](#vfstepsrecorder)
     - [VFGeometryBase](#vfgeometrybase)
     - [VFGSGeometryScript (Depends on VFGeometryBase)](#vfgsgeometryscript-depends-on-vfgeometrybase)
@@ -242,7 +242,7 @@ This section defines project-specific terms and clarifies potential ambiguities.
 2. Ensure the ViewFrustum Object Channel exists. If not, create it and configure it as shown below:    
 ![ObjectChannels](https://www.imgur.la/images/2025/11/30/ObjectChannels.png)
 3. Ensure the ViewFrustum Collision Preset exists. If not, create it and configure it as shown below:  
-![CollisionPreset](https://www.imgur.la/images/2025/11/30/CollisionPreset.png)
+![CollisionPreset](https://www.imgur.la/images/2025/12/21/CollisionPreset.png)
 4. Navigate to `ProjectSettings > Engine > Render`:
    1. Set `Shadow Map Method` to `ShadowMaps`
       1. `Note`: SceneCanpture2D conflicts with VSM. See [Disabling VSM](#disabling-vsm) for details.
@@ -878,7 +878,7 @@ graph TD
     %% Service/Utility Modules
     subgraph ServiceModules [Service Modules]
         VFUObjsPool[VFUObjsPool<br/>Object Pool World Subsystem]
-        VFUObjsRegistar[VFUObjsRegistar<br/>Object Registry World Subsystem]
+        VFUObjsRegistrar[VFUObjsRegistrar<br/>Object Registry World Subsystem]
         VFStepsRecorder[VFStepsRecorder<br/>Steps Recorder World Subsystem]
     end
 
@@ -928,7 +928,7 @@ graph TD
     VFGeometry --> VFPhotoCommon
 
     VFPhotoCommon --> VFPhotoCatcher
-    VFUObjsRegistar --> VFPhotoCatcher
+    VFUObjsRegistrar --> VFPhotoCatcher
 
     VFPhotoCommon --> VFPhotoDecal
 
@@ -958,8 +958,8 @@ Subsystem: VFUObjsPoolWorldSubsystem
 Interface: VFPoolableInterface  
 An independent UObject Object Pool World Subsystem.  
 
-#### VFUObjsRegistar
-Subsystem: VFUObjsRegistarWorldSubsystem  
+#### VFUObjsRegistrar
+Subsystem: VFUObjsRegistrarWorldSubsystem  
 An independent UObject registration system (does not manage lifecycle).  
 
 #### VFStepsRecorder
@@ -998,7 +998,7 @@ DeveloperSettings: Provides configuration for the Helper search strategy.
 Common components shared between VFPhotoCatcher and VFPhotoDecal.  
 
 #### VFPhotoCatcher
-Dependency: VFPhotoCommon, VFUObjsRegistar  
+Dependency: VFPhotoCommon, VFUObjsRegistrar  
 Components: VFBackgroundCaptureComponent, VFPostProcessComponent  
 Actor: PhotoCathcer, Photo2D, Photo3D, VFPlaneActor  
 Subsystem: VFBackgroundWorldSubsystem  
@@ -1104,7 +1104,7 @@ classDiagram
       +virtual void IntersectMeshWithDMComp()
       +virtual void SubtractMeshWithDMComp()
       +virtual void UnionMeshWithDMComp()
-      +void UpdateSimlpeCollision()
+      +void UpdateSimpleCollision()
     }
 
     class IVFStepsRecordInterface {
@@ -1158,7 +1158,7 @@ classDiagram
 
       +virtual void FoldUp()
       +virtual void PlaceDown()
-      +void SetViewFrustumVisible(const bool &Visiblity)
+      +void SetViewFrustumVisible(const bool &Visibility)
     }
 
     class AVFPhoto3DSteppable {

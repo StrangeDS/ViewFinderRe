@@ -107,7 +107,7 @@ void UVFDynamicMeshComponent::CopyMeshFromComponent(UPrimitiveComponent *Source)
         bool UseSimpleCollision = Props.bUseSimpleCollision || Props.bSimulatePhysicsRecorder;
         SetComplexAsSimpleCollisionEnabled(!UseSimpleCollision, true);
     }
-    UpdateSimlpeCollision();
+    UpdateSimpleCollision();
     SetCollisionEnabled(Source->GetCollisionEnabled());
 
     UpdateMaterials();
@@ -144,7 +144,7 @@ void UVFDynamicMeshComponent::IntersectMeshWithDMComp(UDynamicMeshComponent *Too
         Tool->GetComponentToWorld(),
         Operation,
         Options);
-    UpdateSimlpeCollision();
+    UpdateSimpleCollision();
 }
 
 void UVFDynamicMeshComponent::SubtractMeshWithDMComp(UDynamicMeshComponent *Tool)
@@ -161,7 +161,7 @@ void UVFDynamicMeshComponent::SubtractMeshWithDMComp(UDynamicMeshComponent *Tool
         Tool->GetComponentToWorld(),
         Operation,
         Options);
-    UpdateSimlpeCollision();
+    UpdateSimpleCollision();
 }
 
 void UVFDynamicMeshComponent::UnionMeshWithDMComp(UDynamicMeshComponent *Tool)
@@ -178,10 +178,10 @@ void UVFDynamicMeshComponent::UnionMeshWithDMComp(UDynamicMeshComponent *Tool)
         Tool->GetComponentToWorld(),
         Operation,
         Options);
-    UpdateSimlpeCollision();
+    UpdateSimpleCollision();
 }
 
-void UVFDynamicMeshComponent::UpdateSimlpeCollision()
+void UVFDynamicMeshComponent::UpdateSimpleCollision()
 {
     if (bEnableComplexCollision)
         return;

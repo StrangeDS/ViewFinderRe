@@ -151,9 +151,9 @@ void AVFPhoto3D::PlaceDown()
 	}
 }
 
-void AVFPhoto3D::SetViewFrustumVisible(const bool &Visiblity)
+void AVFPhoto3D::SetViewFrustumVisible(const bool &Visibility)
 {
-	ViewFrustumRecorder->SetHiddenInGame(!Visiblity);
+	ViewFrustumRecorder->SetHiddenInGame(!Visibility);
 }
 
 void AVFPhoto3D::SetVFDMCompsEnabled(const bool &Enabled, const bool IncludingActor)

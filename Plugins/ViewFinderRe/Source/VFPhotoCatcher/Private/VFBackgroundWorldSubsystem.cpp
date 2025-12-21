@@ -1,24 +1,24 @@
 // Copyright StrangeDS. All Rights Reserved.
 
 #include "VFBackgroundWorldSubsystem.h"
-#include "VFUObjsRegistarWorldSubsystem.h"
+#include "VFUObjsRegistrarWorldSubsystem.h"
 
 bool UVFBackgroundWorldSubsystem::Register(AActor *Background)
 {
     check(IsValid(Background));
-    auto Registar = GetWorld()->GetSubsystem<UVFUObjsRegistarWorldSubsystem>();
-    return Registar->Register(Background, ChannelName, AActor::StaticClass());
+    auto Registrar = GetWorld()->GetSubsystem<UVFUObjsRegistrarWorldSubsystem>();
+    return Registrar->Register(Background, ChannelName, AActor::StaticClass());
 }
 
 bool UVFBackgroundWorldSubsystem::Unregister(AActor *Background)
 {
     check(IsValid(Background));
-    auto Registar = GetWorld()->GetSubsystem<UVFUObjsRegistarWorldSubsystem>();
-    return Registar->Unregister(Background, ChannelName, AActor::StaticClass());
+    auto Registrar = GetWorld()->GetSubsystem<UVFUObjsRegistrarWorldSubsystem>();
+    return Registrar->Unregister(Background, ChannelName, AActor::StaticClass());
 }
 
 TArray<AActor *> UVFBackgroundWorldSubsystem::GetBackgrounds()
 {
-    auto Registar = GetWorld()->GetSubsystem<UVFUObjsRegistarWorldSubsystem>();
-    return Registar->GetUObjs<AActor>(ChannelName, AActor::StaticClass());
+    auto Registrar = GetWorld()->GetSubsystem<UVFUObjsRegistrarWorldSubsystem>();
+    return Registrar->GetUObjs<AActor>(ChannelName, AActor::StaticClass());
 }

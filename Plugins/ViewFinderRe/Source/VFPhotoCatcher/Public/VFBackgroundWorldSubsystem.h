@@ -6,7 +6,7 @@
 #include "Subsystems/WorldSubsystem.h"
 #include "VFBackgroundWorldSubsystem.generated.h"
 
-class UVFUObjsRegistarWorldSubsystem;
+class UVFUObjsRegistrarWorldSubsystem;
 
 /*
 Background world subsystem,

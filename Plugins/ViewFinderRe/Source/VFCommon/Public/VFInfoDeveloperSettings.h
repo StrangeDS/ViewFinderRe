@@ -6,7 +6,7 @@
 #include "VFDeveloperSettingsCommon.h"
 #include "VFInfoDeveloperSettings.generated.h"
 
-// Display infomations
+// Display information
 UCLASS(Config = ViewFinderReSettings, defaultconfig,
 	   autoExpandCategories = ("Informations"))
 class VFCOMMON_API UVFInfoDeveloperSettings : public UVFDeveloperSettingsCommon
@@ -21,7 +21,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Informations")
 	FString Description;
 
-	// Subject to project DEADME.
+	// Subject to project README.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Informations")
 	FString OpenSourceLicense = TEXT("MPL2.0");
 

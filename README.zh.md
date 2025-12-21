@@ -147,7 +147,7 @@
     - [模块拆解](#模块拆解)
     - [VFCommon](#vfcommon)
     - [VFUObjsPool](#vfuobjspool)
-    - [VFUObjsRegistar](#vfuobjsregistar)
+    - [VFUObjsRegistrar](#vfuobjsregistrar)
     - [VFStepsRecorder](#vfstepsrecorder)
     - [VFGeometryBase](#vfgeometrybase)
     - [VFGSGeometryScript: 依赖VFGeometryBase](#vfgsgeometryscript-依赖vfgeometrybase)
@@ -243,7 +243,7 @@
 2. 确保碰撞通道(Object Channels)存在`ViewFrustum`, 无则新建, 设置如图:   
 ![ObjectChannels](https://www.imgur.la/images/2025/11/30/ObjectChannels.png)
 3. 确保碰撞预设(Preset)存在`ViewFrustum`, 无则新建, 设置如图:  
-![CollisionPreset](https://www.imgur.la/images/2025/11/30/CollisionPreset.png)
+![CollisionPreset](https://www.imgur.la/images/2025/12/21/CollisionPreset.png)
 4. `ProjectSettings > Engine > Render`进行配置
    1. `Shadow Map Method`改为`ShadowMaps`
       1. 场景捕捉与VSM有冲突, 参看[关闭VSM](#关闭VSM)
@@ -294,7 +294,7 @@
    1. 设置`Show in Photo Rule`为`Neither`
    2. 可选, 取消勾选`Can be Placed by Photo`
 4. Helper组件事件中, 在`On Original End Taking Photo`上点击创建, 连出节点`Print`, 打印你需要的信息
-5. Actor实现接口`VFHelperInteface`, 重写函数`GetHelper`, 将Helper组件通过这个函数返回
+5. Actor实现接口`VFHelperInterface`, 重写函数`GetHelper`, 将Helper组件通过这个函数返回
 6. 将它放入场景进行测试. 它会被拍照, 打印信息, 但不会在`Photo2D`中显示. (可选, 不会被Photo3D覆盖)
 
 `VFHelper`组件的动态多播事件, 其意义和顺序请参看[通用拍照流程](#通用拍照流程)和[Helper组件定义Actor行为](#helper组件定义actor行为)
@@ -384,7 +384,7 @@
    2. 将`StandInClass`设为`BP_CubeStandIn`
 
 接下来是如何创建一个替身Actor, 请参照`BP_CubeStandIn`
-1. 创建一个Actor, 实现`VFStandInIterface`接口
+1. 创建一个Actor, 实现`VFStandInInterface`接口
 2. 重写`GetPrimitiveComp`函数, 返回你想要在相片中显示的网格体组件
 3. 添加`Helper`组件, 并配置这个替身在拍照流程中的表现
 
@@ -873,7 +873,7 @@ graph TD
     %% 功能服务模块
     subgraph ServiceModules [功能服务模块]
         VFUObjsPool[VFUObjsPool<br/>对象池世界子系统]
-        VFUObjsRegistar[VFUObjsRegistar<br/>对象注册系统]
+        VFUObjsRegistrar[VFUObjsRegistrar<br/>对象注册系统]
         VFStepsRecorder[VFStepsRecorder<br/>步骤记录系统]
     end
 
@@ -923,7 +923,7 @@ graph TD
     VFGeometry --> VFPhotoCommon
     
     VFPhotoCommon --> VFPhotoCatcher
-    VFUObjsRegistar --> VFPhotoCatcher
+    VFUObjsRegistrar --> VFPhotoCatcher
     
     VFPhotoCommon --> VFPhotoDecal
 
@@ -953,8 +953,8 @@ graph TD
 接口: VFPoolableInterface  
 独立的UObject对象池世界子系统  
 
-#### VFUObjsRegistar
-世界子系统: VFUObjsRegistarWorldSubsystem  
+#### VFUObjsRegistrar
+世界子系统: VFUObjsRegistrarWorldSubsystem  
 独立的UObject注册系统(不管理生命周期)  
 
 #### VFStepsRecorder
@@ -993,7 +993,7 @@ FunctionsLib: VFPCommonFunctions提供Helper查找映射, 替身相关函数
 VFPhotoCatcher和VFPhotoDecal的公用部分  
 
 #### VFPhotoCatcher
-依赖: VFPhotoCommon, VFUObjsRegistar  
+依赖: VFPhotoCommon, VFUObjsRegistrar  
 组件: VFBackgroundCaptureComponent, VFPostProcessComponent  
 Actor: PhotoCathcer, Photo2D, Photo3D, VFPlaneActor  
 世界子系统: VFBackgroundWorldSubsystem  
@@ -1153,7 +1153,7 @@ classDiagram
 
       +virtual void FoldUp()
       +virtual void PlaceDown()
-      +void SetViewFrustumVisible(const bool &Visiblity)
+      +void SetViewFrustumVisible(const bool &Visibility)
     }
 
     class AVFPhoto3DSteppable {

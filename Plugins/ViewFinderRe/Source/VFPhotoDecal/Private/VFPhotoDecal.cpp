@@ -36,8 +36,8 @@ AVFPhotoDecal::AVFPhotoDecal()
     Decal->SetupAttachment(RootComponent);
     static ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialSelector(
         TEXT("/ViewFinderRe/Materials/Decal/MI_Decal_Photolize.MI_Decal_Photolize"));
-    Matirial = MaterialSelector.Object;
-    Decal->SetDecalMaterial(Matirial);
+    Material = MaterialSelector.Object;
+    Decal->SetDecalMaterial(Material);
     Decal->SetHiddenInGame(true);
 
     Helper = CreateDefaultSubobject<UVFHelperComponent>("Helper");

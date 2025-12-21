@@ -134,7 +134,7 @@ public:
 	virtual UMaterialInstanceDynamic *GetMaterialInstance_Implementation();
 
 	UPROPERTY()
-	TObjectPtr<UMaterialInterface> Matirial;
+	TObjectPtr<UMaterialInterface> Material;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<UMaterialInstanceDynamic> MaterialInstance;

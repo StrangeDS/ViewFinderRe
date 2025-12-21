@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
-#include "VFUObjsRegistarWorldSubsystem.generated.h"
+#include "VFUObjsRegistrarWorldSubsystem.generated.h"
 
 USTRUCT(BlueprintType)
 struct FVFUObjs
@@ -31,11 +31,11 @@ Note: Does not manage lifecycle; manual unregistration is required.
 Order is not guaranteed; uses RemoveSwap.
 */
 UCLASS(ClassGroup = (ViewFinder))
-class VFUOBJSREGISTAR_API UVFUObjsRegistarWorldSubsystem : public UWorldSubsystem
+class VFUOBJSREGISTRAR_API UVFUObjsRegistrarWorldSubsystem : public UWorldSubsystem
 {
 	GENERATED_BODY()
 
-	UVFUObjsRegistarWorldSubsystem();
+	UVFUObjsRegistrarWorldSubsystem();
 
 public:
 	virtual void Initialize(FSubsystemCollectionBase &Collection) override;
@@ -43,30 +43,30 @@ public:
 	virtual void Deinitialize() override;
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder|UObjsRegistar",
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder|UObjsRegistrar",
 			  meta = (DefaultToSelf = "Obj"))
 	bool Register(UObject *Obj,
 				  const FString &Channel = TEXT(""),
 				  TSubclassOf<UObject> ObjClass = nullptr);
 
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder|UObjsRegistar",
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder|UObjsRegistrar",
 			  meta = (DefaultToSelf = "Obj"))
 	bool Unregister(UObject *Obj,
 					const FString &Channel = TEXT(""),
 					TSubclassOf<UObject> ObjClass = nullptr);
 
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder|UObjsRegistar")
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder|UObjsRegistrar")
 	void ClearInvalidInChannel(const FString &Channel = TEXT(""),
 							   bool bForceGarbage = true);
 
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder|UObjsRegistar")
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder|UObjsRegistrar")
 	void ClearAllInChannel(const FString &Channel = TEXT(""),
 						   bool bForceGarbage = true);
 
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder|UObjsRegistar")
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder|UObjsRegistrar")
 	void ClearAll(bool bForceGarbage = true);
 
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder|UObjsRegistar",
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder|UObjsRegistrar",
 			  meta = (DisplayName = "GetUObjs"))
 	TArray<UObject *> K2_GetUObjs(const FString &Channel = TEXT(""),
 								  TSubclassOf<UObject> ObjClass = nullptr);
@@ -76,19 +76,19 @@ public:
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder|DMCompPool")
-	TMap<FString, FVFRegisterChannel> ChannelsRegisted;
+	TMap<FString, FVFRegisterChannel> ChannelsRegistered;
 };
 
 template <typename T>
-inline TArray<T *> UVFUObjsRegistarWorldSubsystem::GetUObjs(
+inline TArray<T *> UVFUObjsRegistrarWorldSubsystem::GetUObjs(
 	const FString &Channel,
 	TSubclassOf<UObject> ObjClass)
 {
 	TArray<T *> Objs;
-	if (!ChannelsRegisted.Contains(Channel))
+	if (!ChannelsRegistered.Contains(Channel))
 		return Objs;
 
-	auto &Table = ChannelsRegisted[Channel].Table;
+	auto &Table = ChannelsRegistered[Channel].Table;
 	if (!Table.Contains(ObjClass))
 		return Objs;
 

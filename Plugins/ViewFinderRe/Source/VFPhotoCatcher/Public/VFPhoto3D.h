@@ -40,7 +40,7 @@ public:
 	virtual void PlaceDown();
 
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")
-	void SetViewFrustumVisible(const bool &Visiblity);
+	void SetViewFrustumVisible(const bool &Visibility);
 
 	UFUNCTION(BlueprintCallable, CallInEditor, Category = "ViewFinder")
 	void SetVFDMCompsEnabled(const bool &Enabled, const bool IncludingActor = true);
