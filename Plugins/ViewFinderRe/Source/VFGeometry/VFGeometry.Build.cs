@@ -40,7 +40,6 @@ public class VFGeometry : ModuleRules
 				"Engine",
 				"DeveloperSettings",
 				"GeometryFramework",
-				"PhysicsCore",
 
 				"VFCommon",
 			}
