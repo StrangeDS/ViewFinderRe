@@ -22,7 +22,7 @@ public:
 		const TSubclassOf<UVFDynamicMeshComponent> &Class);
 
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	static bool ReturnVFDMComp(UObject *Outer);
+	static bool ReturnVFDMComp(UVFDynamicMeshComponent *Outer);
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")

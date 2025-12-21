@@ -215,6 +215,9 @@ bool AVFPhoto2D::ReattachToComponent(USceneComponent *Target)
 
 void AVFPhoto2D::CopyRecursivePhoto3D(UObject *Sender)
 {
+	if (IsValid(Photo3D))
+		return;
+
 	auto Photo3DOuter = Cast<AVFPhoto3D>(Sender);
 	if (!IsValid(Photo3DOuter))
 	{
@@ -225,9 +228,11 @@ void AVFPhoto2D::CopyRecursivePhoto3D(UObject *Sender)
 	auto Photo3DNew = UVFPCatcherFunctions::CloneActorRuntimeRecursive<AVFPhoto3D>(Photo3DOuter);
 	Photo3DNew->RecordProperty(Photo3DOuter->ViewFrustumRecorder,
 							   Photo3DOuter->bOnlyOverlapWithHelper,
-							   Photo3DOuter->ObjectTypesToOverlap);
+							   Photo3DOuter->ObjectTypesToOverlap,
+							   EVFPhoto3DState::Folded);
 	SetPhoto3D(Photo3DNew);
-	FoldUp();
+	// If FoldUp() is called, it will be called placeDown() once more when rewinding.
+	State = EVFPhoto2DState::Folded;
 }
 
 UVFHelperComponent *AVFPhoto2D::GetHelper_Implementation()

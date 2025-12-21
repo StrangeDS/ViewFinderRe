@@ -112,7 +112,12 @@ void AVFPhotoCatcher_PickUp::DropDown_Implementation()
     if (!bPickedUp)
         return;
 
-    if (!Pawn->InputEnabled())
+    /*
+    Do not drop during preview, as the Pawn's input is disabled.
+    But note that the Pawn's input is also disabled during rewinding.
+    Therefore, it would be better to design a state machine.
+    */
+    if (!Pawn->InputEnabled() && UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
         return;
 
     auto PC = PlayerController;

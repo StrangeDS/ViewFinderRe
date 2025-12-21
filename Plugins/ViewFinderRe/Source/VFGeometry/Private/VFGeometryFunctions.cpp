@@ -45,18 +45,23 @@ UVFDynamicMeshComponent *UVFGeometryFunctions::GetVFDMComp(
 	return Comp;
 }
 
-bool UVFGeometryFunctions::ReturnVFDMComp(UObject *Obj)
+bool UVFGeometryFunctions::ReturnVFDMComp(UVFDynamicMeshComponent *Comp)
 {
-	check(Obj);
-	auto World = Obj->GetWorld();
+	check(Comp);
+
+	if (!GetDefault<UVFGeometryDeveloperSettings>()->bUseVFDMCompsPool)
+	{
+		Comp->DestroyComponent();
+		return true;
+	}
+
+	auto World = Comp->GetWorld();
 	check(World);
 
-	if (GetDefault<UVFGeometryDeveloperSettings>()->bUseVFDMCompsPool)
-	{
-		if (auto PoolSystem = World->GetSubsystem<UVFUObjsPoolWorldSubsystem>();
-			ensureMsgf(PoolSystem, TEXT("%s invalid PoolSystem."), __FUNCTIONW__))
-			return PoolSystem->Return(Obj);
-	}
+	if (auto PoolSystem = World->GetSubsystem<UVFUObjsPoolWorldSubsystem>();
+		ensureMsgf(PoolSystem, TEXT("%s invalid PoolSystem."), __FUNCTIONW__))
+		return PoolSystem->Return(Comp);
+
 	return false;
 }
 

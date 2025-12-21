@@ -113,8 +113,6 @@ void UVFDMSteppableComponent::ReplaceMeshForComponent(UPrimitiveComponent *Sourc
 
 void UVFDMSteppableComponent::IntersectMeshWithDMComp(UDynamicMeshComponent *Tool)
 {
-    Super::IntersectMeshWithDMComp(Tool);
-
     if (auto StepsRecorder = UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
     {
         Steps.Add(FVFDMCompStep{
@@ -122,6 +120,8 @@ void UVFDMSteppableComponent::IntersectMeshWithDMComp(UDynamicMeshComponent *Too
             RequestACopiedMesh(),
             StepsRecorder->Time});
     }
+
+    Super::IntersectMeshWithDMComp(Tool);
 }
 
 void UVFDMSteppableComponent::SubtractMeshWithDMComp(UDynamicMeshComponent *Tool)
@@ -183,10 +183,6 @@ void UVFDMSteppableComponent::TickBackward_Implementation(float Time)
                     VF_LOG(Error, TEXT("%s: fails to ReturnComp."), __FUNCTIONW__);
                 }
             }
-            else
-            {
-                DestroyComponent(false);
-            }
 
             if (NeedToDestroyActor)
             {
@@ -209,6 +205,7 @@ void UVFDMSteppableComponent::TickBackward_Implementation(float Time)
         case UVFDMCompStepOperation::UnionMeshWithDMComp:
         {
             MeshObject->SetMesh(StepInfo.Mesh->GetMeshRef());
+            UpdateSimlpeCollision();
             break;
         }
         default:
