@@ -110,6 +110,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	float RewindCurFactor = 3.0f;
 
+	// TIME_MIN < TimeOfStart <= Time <= TimeOfEnd < TIME_MAX
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	float Time = TickInterval;
 
@@ -121,11 +122,11 @@ public:
 	float TimeSinceLastTick = 0.f;
 
 public:
-	// Use current time when it < 0.
+	// Use current time when it < TIME_MIN.
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void SetTimeOfStart(float Start = -1.0f);
 
-	// Use TIME_MAX when it < 0.
+	// Use TIME_MAX - TickInterval when it < 0.
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void SetTimeOfEnd(float End = -1.0f);
 
@@ -134,7 +135,7 @@ public:
 
 	// Timer rewind minimum value (start time)
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
-	float TimeOfStart = TIME_MIN;
+	float TimeOfStart = Time;
 
 	// Timer rewind maximum value (end time)
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")

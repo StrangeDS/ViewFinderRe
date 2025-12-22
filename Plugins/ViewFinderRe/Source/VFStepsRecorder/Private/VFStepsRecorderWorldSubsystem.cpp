@@ -108,6 +108,12 @@ void UVFStepsRecorderWorldSubsystem::SubmitStep(UObject *Sender, FVFStepInfo Inf
 
 void UVFStepsRecorderWorldSubsystem::TickForward(float DeltaTime)
 {
+    if (Time >= TIME_MAX)
+    {
+        Time = TIME_MAX;
+        return;
+    }
+
     Time = FMath::Min(Time, TimeOfEnd);
 
     for (auto It = TickTargets.CreateIterator(); It; ++It)
@@ -126,12 +132,17 @@ void UVFStepsRecorderWorldSubsystem::TickForward(float DeltaTime)
 
 void UVFStepsRecorderWorldSubsystem::TickBackward(float DeltaTime)
 {
-    if (Time <= TimeOfStart)
+    // Do not rewind to TIME_MIN.
+    if (Time <= TIME_MIN)
     {
-        Time = TimeOfStart;
+        Time = TIME_MIN;
         EndRewinding();
         return;
     }
+
+    // Rewind to TimeOfStart at most.
+    if (Time <= TimeOfStart)
+        Time = TimeOfStart;
 
     while (!Infos.IsEmpty())
     {
@@ -160,6 +171,9 @@ void UVFStepsRecorderWorldSubsystem::TickBackward(float DeltaTime)
         if (IsValid(Target.GetObject()))
             IVFStepsRecordInterface::Execute_TickBackward(Target.GetObject(), Time);
     }
+
+    if (Time <= TimeOfStart)
+        EndRewinding();
 }
 
 void UVFStepsRecorderWorldSubsystem::RecordTransform(
@@ -261,22 +275,20 @@ void UVFStepsRecorderWorldSubsystem::EndRewinding()
 
 void UVFStepsRecorderWorldSubsystem::SetTimeOfStart(float Start)
 {
-    if (Start < 0.f)
+    if (Start <= TIME_MIN)
         Start = Time;
 
-    if (Start > Time)
-        VF_LOG(Warning, TEXT("%s: TimeOfStart(%f) is later than current(%f)"),
-               __FUNCTIONW__, Start, Time);
-
     TimeOfStart = Start;
+    check(TimeOfStart <= TimeOfEnd);
 }
 
 void UVFStepsRecorderWorldSubsystem::SetTimeOfEnd(float End)
 {
-    if (End < 0.f)
-        End = TIME_MAX;
+    if (End < 0.f || End >= TIME_MAX)
+        End = TIME_MAX - TickInterval;
 
     TimeOfEnd = End;
+    check(TimeOfStart <= TimeOfEnd);
 }
 
 float UVFStepsRecorderWorldSubsystem::GetTimeOfMin()
