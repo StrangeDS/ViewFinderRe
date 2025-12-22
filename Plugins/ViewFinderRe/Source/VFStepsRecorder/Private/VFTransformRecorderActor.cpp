@@ -9,9 +9,9 @@
 
 static FTransform TransformLerp(const FTransform &Original, const FTransform &Target, float delta)
 {
-	FRotator Rot = FMath::Lerp(Original.Rotator(), Target.Rotator(), delta);
+	FQuat Quat = FMath::Lerp(Original.GetRotation(), Target.GetRotation(), delta);
 	FVector Loc = FMath::Lerp(Original.GetLocation(), Target.GetLocation(), delta);
-	return FTransform(Rot, Loc, Original.GetScale3D());
+	return FTransform(Quat, Loc, Original.GetScale3D());
 }
 
 bool FVFTransCompInfo::operator==(const FVFTransCompInfo &Other) const
@@ -118,7 +118,7 @@ void AVFTransformRecorderActor::ReCollectComponents_Implementation()
 			else if (Overlap->Mobility != EComponentMobility::Movable)
 				continue;
 			else
-				Components.Emplace(Overlap);
+				Components.AddUnique(Overlap);
 		}
 	}
 
@@ -198,6 +198,8 @@ void AVFTransformRecorderActor::TickBackward_Implementation(float Time)
 	}
 
 	auto TimeLast = Steps.Last().Time;
+	if (Time < TimeLast)
+		return;
 
 	for (auto It = CompInfoMap.CreateIterator(); It; ++It)
 	{

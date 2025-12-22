@@ -285,6 +285,9 @@ void AVFCharacter::TickBackward_Implementation(float Time)
 	}
 
 	auto &Step = Steps.Last();
+	if (Time < Step.Time)
+		return;
+
 	auto Delta = StepsRecorder->GetDeltaTime() / (StepsRecorder->GetTime() - Step.Time);
 	Delta = FMath::Min(Delta, 1.0f);
 	SetActorLocation(FMath::Lerp(GetActorLocation(), Step.Location, Delta));
