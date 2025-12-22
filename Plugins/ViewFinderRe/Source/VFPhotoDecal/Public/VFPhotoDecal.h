@@ -133,10 +133,10 @@ public:
 	UMaterialInstanceDynamic *GetMaterialInstance();
 	virtual UMaterialInstanceDynamic *GetMaterialInstance_Implementation();
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<UMaterialInterface> Material;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	TObjectPtr<UMaterialInstanceDynamic> MaterialInstance;
 
 public:
