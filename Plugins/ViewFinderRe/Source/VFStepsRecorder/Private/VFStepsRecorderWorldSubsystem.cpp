@@ -2,7 +2,6 @@
 
 #include "VFStepsRecorderWorldSubsystem.h"
 
-#include "TimerManager.h"
 #include "UObject/Package.h"
 #include "Algo/BinarySearch.h"
 
@@ -308,31 +307,37 @@ int UVFStepsRecorderWorldSubsystem::GetSizeRecommended()
 
 void UVFStepsRecorderWorldSubsystem::RewindToLastKey()
 {
-    float TimeOfTarget = TimeOfStart;
     for (int i = Infos.Num() - 1; i >= 0; i--)
     {
         if (Infos[i].bIsKeyFrame)
         {
-            TimeOfTarget = Infos[i].Time;
+            TimeOfRewindingTarget = Infos[i].Time;
             break;
         }
     }
 
-    TimeOfTarget = TimeOfTarget - TickInterval;
-    float TimeSpan = Time - TimeOfTarget;
+    float TimeSpan = Time - TimeOfRewindingTarget;
     auto Settings = GetDefault<UVFStepsRecorderDeveloperSettings>();
     float TimeOfBackard = TimeSpan / Settings->StepsRecorderRewindFactor;
     TimeOfBackard = FMath::Min(TimeOfBackard, Settings->StepsRecorderTimeOfRewindToLastKey);
     RewindCurFactor = TimeSpan / TimeOfBackard;
 
-    GetWorld()->GetTimerManager().SetTimer(
-        RewindHandle, [this, TimeSpan]()
-        {
-            RewindCurFactor = GetDefault<UVFStepsRecorderDeveloperSettings>()->StepsRecorderRewindFactor;
-            EndRewinding(); },
-        TimeOfBackard,
-        false);
+    OnTickTime.AddUniqueDynamic(this, &UVFStepsRecorderWorldSubsystem::CheckRewoundToLastKeyPoint);
+
     StartRewinding();
+}
+
+void UVFStepsRecorderWorldSubsystem::CheckRewoundToLastKeyPoint(float TimeCur)
+{
+    if (TimeCur > TimeOfRewindingTarget)
+        return;
+
+    TimeOfRewindingTarget = TimeOfStart;
+    RewindCurFactor = GetDefault<UVFStepsRecorderDeveloperSettings>()->StepsRecorderRewindFactor;
+
+    OnTickTime.RemoveDynamic(this, &UVFStepsRecorderWorldSubsystem::CheckRewoundToLastKeyPoint);
+
+    EndRewinding();
 }
 
 UVFStepsRecorderWorldSubsystem *UVFStepsRecorderWorldSubsystem::GetStepsRecorder(

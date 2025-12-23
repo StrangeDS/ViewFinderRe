@@ -160,10 +160,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	void RewindToLastKey();
 
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	void CheckRewoundToLastKeyPoint(float TimeCur);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	float TimeOfRewindToLastKey = 3.0f;
 
-	FTimerHandle RewindHandle;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	float TimeOfRewindingTarget = TimeOfStart;
 
 public:
 	/*
