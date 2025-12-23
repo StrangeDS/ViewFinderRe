@@ -86,6 +86,7 @@ void AVFPhotoCatcher_PickUp::PickUp_Implementation(USceneComponent *ToAttach)
     if (bPickedUp)
         return;
     auto Transform = GetActorTransform();
+    auto Parent = GetAttachParentActor();
 
     AttachToComponent(ToAttach, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
     RootComponent->SetRelativeTransform(IdleTrans);
@@ -96,7 +97,7 @@ void AVFPhotoCatcher_PickUp::PickUp_Implementation(USceneComponent *ToAttach)
         FVFPhotoCatcherPickUpStepInfo Info(
             EVFPhotoCatcherPickUpOption::PickedUp,
             Transform,
-            nullptr);
+            Parent);
         StepInfos.Emplace(Info);
         StepsRecorder->SubmitStep(
             this,
@@ -265,14 +266,16 @@ bool AVFPhotoCatcher_PickUp::StepBack_Implementation(FVFStepInfo &StepInfo)
         auto Info = StepInfos.Pop(false);
         DropDown();
         SetActorTransform(Info.Transform);
+        if (IsValid(Info.ParentOrPlayerController))
+            AttachToActor(Info.ParentOrPlayerController, FAttachmentTransformRules::KeepWorldTransform);
         return true;
     }
     case EVFPhotoCatcherPickUpOption::DroppedDown:
     {
         auto Info = StepInfos.Pop(false);
-        if (IsValid(Info.PlayerController))
+        if (auto PC = Cast<APlayerController>(Info.ParentOrPlayerController); IsValid(PC))
         {
-            Execute_Interact(this, Info.PlayerController);
+            Execute_Interact(this, PC);
             return true;
         }
         StepInfos.Pop();

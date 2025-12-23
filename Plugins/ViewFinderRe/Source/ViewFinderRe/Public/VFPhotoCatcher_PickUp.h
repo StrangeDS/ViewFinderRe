@@ -35,7 +35,7 @@ struct FVFPhotoCatcherPickUpStepInfo
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
 			  meta = (EditCondition = "Option == EVFPhotoCatcherPickUpOption::DroppedDown"))
-	TObjectPtr<APlayerController> PlayerController;
+	TObjectPtr<AActor> ParentOrPlayerController;
 };
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
