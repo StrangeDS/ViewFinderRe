@@ -20,18 +20,17 @@ struct FVFTransCompInfo
 	FTransform Transform = FTransform::Identity;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
-	FVector Velocity = FVector::ZeroVector;
+	FVector LinearVelocity = FVector::ZeroVector;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	FVector AngularVelocity = FVector::ZeroVector;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	bool Visible = false;
 
 	FVFTransCompInfo() {}
 
-	FVFTransCompInfo(USceneComponent *Comp)
-		: Component(Comp),
-		  Transform(Comp->GetComponentTransform()),
-		  Velocity(Comp->GetComponentVelocity()),
-		  Visible(Comp->IsVisible()) {};
+	FVFTransCompInfo(USceneComponent *Comp);
 
 	bool operator==(const FVFTransCompInfo &Other) const;
 

@@ -14,13 +14,27 @@ static FTransform TransformLerp(const FTransform &Original, const FTransform &Ta
 	return FTransform(Quat, Loc, Original.GetScale3D());
 }
 
+FVFTransCompInfo::FVFTransCompInfo(USceneComponent *Comp)
+	: Component(Comp),
+	  Transform(Comp->GetComponentTransform()),
+	  Visible(Comp->IsVisible())
+{
+	if (auto PrimComp = Cast<UPrimitiveComponent>(Comp))
+	{
+		LinearVelocity = PrimComp->GetPhysicsLinearVelocity();
+		AngularVelocity = PrimComp->GetPhysicsAngularVelocityInRadians();
+	}
+}
+
 bool FVFTransCompInfo::operator==(const FVFTransCompInfo &Other) const
 {
 	if (Component != Other.Component)
 		return false;
 	if (Visible != Other.Visible)
 		return false;
-	if (Velocity != Other.Velocity)
+	if (LinearVelocity != Other.LinearVelocity)
+		return false;
+	if (AngularVelocity != Other.AngularVelocity)
 		return false;
 	return Transform.Equals(Other.Transform);
 }
@@ -35,7 +49,7 @@ bool FVFTransCompInfo::IsChanged(const FVFTransCompInfo &InfoNew) const
 	if (!Visible)
 		return false;
 
-	return Velocity != InfoNew.Velocity || !Transform.Equals(InfoNew.Transform);
+	return *this != InfoNew;
 }
 
 AVFTransformRecorderActor::AVFTransformRecorderActor()
@@ -197,10 +211,7 @@ void AVFTransformRecorderActor::TickBackward_Implementation(float Time)
 		Steps.Pop(false);
 	}
 
-	auto TimeLast = Steps.Last().Time;
-	if (Time < TimeLast)
-		return;
-
+	auto &Step = Steps.Last();
 	for (auto It = CompInfoMap.CreateIterator(); It; ++It)
 	{
 		auto &[Comp, Info] = *It;
@@ -211,9 +222,17 @@ void AVFTransformRecorderActor::TickBackward_Implementation(float Time)
 			continue;
 		}
 
-		auto Delta = StepsRecorder->GetDeltaTime() / (StepsRecorder->GetTime() - TimeLast);
-		Delta = FMath::Min(Delta, 1.0f);
-		Comp->SetWorldTransform(TransformLerp(Comp->GetComponentTransform(), Info.Transform, Delta));
-		Comp->ComponentVelocity = FMath::Lerp(Comp->GetComponentVelocity(), Info.Velocity, Delta);
+		auto Delta = (Time - Step.Time) / StepsRecorder->GetDeltaTime();
+		Delta = FMath::Max(Delta, 0.f);
+		Delta = FMath::Min(Delta, 1.f);
+
+		Comp->SetWorldTransform(TransformLerp(Info.Transform, CompInfoMap[Comp].Transform, Delta));
+		if (auto PrimComp = Cast<UPrimitiveComponent>(Comp))
+		{
+			PrimComp->SetPhysicsLinearVelocity(
+				FMath::Lerp(Info.LinearVelocity, CompInfoMap[Comp].LinearVelocity, Delta));
+			PrimComp->SetPhysicsAngularVelocityInRadians(
+				FMath::Lerp(Info.AngularVelocity, CompInfoMap[Comp].AngularVelocity, Delta));
+		}
 	}
 }
