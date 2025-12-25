@@ -110,10 +110,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	float RewindCurFactor = 3.0f;
 
-	// TIME_MIN < TimeOfStart <= Time <= TimeOfEnd < TIME_MAX
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	float Time = TickInterval;
-
 	// Custom tick interval, default is 20 frames per second
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	float TickInterval = 0.05f;
@@ -121,26 +117,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
 	float TimeSinceLastTick = 0.f;
 
+	// TIME_MIN < TimeOfStart <= Time <= TimeOfEnd < TIME_MAX
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+	float Time = TickInterval;
+
 public:
-	// Use current time when it < TIME_MIN.
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void SetTimeOfStart(float Start = -1.0f);
-
-	// Use TIME_MAX - TickInterval when it < 0.
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void SetTimeOfEnd(float End = -1.0f);
-
-	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
-	FVFStepsRecorderDelegate OnSetTimeOfStart;
-
-	// Timer rewind minimum value (start time)
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
-	float TimeOfStart = Time;
-
-	// Timer rewind maximum value (end time)
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
-	float TimeOfEnd = TIME_MAX;
-
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
 	static float GetTimeOfMin();
 
@@ -152,6 +133,32 @@ public:
 
 	// Timer maximum time value (recommended max time)
 	static inline const float TIME_MAX = 1e6;
+
+public:
+	// Use current time when it < TIME_MIN.
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	void SetTimeOfStart(float Start = -1.0f);
+
+	// Use TIME_MAX - TickInterval when it < 0.
+	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+	void SetTimeOfEnd(float End = -1.0f);
+
+	UFUNCTION(BlueprintPure, Category = "ViewFinder")
+	float GetTimeOfStart();
+
+	UFUNCTION(BlueprintPure, Category = "ViewFinder")
+	float GetTimeOfEnd();
+
+	UPROPERTY(BlueprintAssignable, Category = "ViewFinder")
+	FVFStepsRecorderDelegate OnSetTimeOfStart;
+
+	// Timer rewind minimum value (start time)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	float TimeOfStart = Time;
+
+	// Timer rewind maximum value (end time)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+	float TimeOfEnd = TIME_MAX;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "ViewFinder")

@@ -290,6 +290,16 @@ void UVFStepsRecorderWorldSubsystem::SetTimeOfEnd(float End)
     check(TimeOfStart <= TimeOfEnd);
 }
 
+float UVFStepsRecorderWorldSubsystem::GetTimeOfStart()
+{
+    return TimeOfStart;
+}
+
+float UVFStepsRecorderWorldSubsystem::GetTimeOfEnd()
+{
+    return TimeOfEnd;
+}
+
 float UVFStepsRecorderWorldSubsystem::GetTimeOfMin()
 {
     return TIME_MIN;
