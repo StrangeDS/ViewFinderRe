@@ -163,33 +163,25 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
                            &bBgPhotoCaptureTempRT]()
     {
         // Remove VFDMComps used for replacement in the original ULevel
-        TArray<USceneComponent *> Children;
+        TArray<UVFDynamicMeshComponent *> VFDMComps;
         for (auto &Comp : CompsOverlapped)
         {
             // Overlap-detected dynamic meshes indicate pre-existence.
             if (Cast<UVFDynamicMeshComponent>(Comp))
-            {
                 continue;
-            }
 
-            /*
-            Iterate through child components, locate and delete those VFDMComps
-            to restore their matching SourceComponent.
-            Note: Components with bSimulatePhysics set to true are being omitted.
-            */
-            Comp->GetChildrenComponents(false, Children);
-            for (auto &Child : Children)
+            // delete newly created ones and restore their SourceComponent.
+            Comp->GetOwner()->GetComponents<UVFDynamicMeshComponent>(VFDMComps, false);
+            for (auto &VFDMComp : VFDMComps)
             {
-                if (auto VFDMComp = Cast<UVFDynamicMeshComponent>(Child))
+                if (CompsOverlapped.Contains(VFDMComp->GetSourceComponent()))
                 {
-                    if (VFDMComp->GetSourceComponent() == Comp)
-                    {
-                        VFDMComp->RestoreSourceComponent();
-                        VFDMComp->DestroyComponent();
-                    }
+                    VFDMComp->RestoreSourceComponent();
+                    VFDMComp->DestroyComponent();
                 }
             }
         }
+        VFDMComps.Reset();
         CompsOverlapped.Reset();
 
         if (Texture2D)
@@ -554,28 +546,6 @@ void AVFPhotoCatcherPref::PrefabricateAPhotoLevel()
     }
 
     LevelInstance->ExitEdit();
-
-    // Manually invoke CaptureScene again in the original ULevel to update the texture.
-    {
-        TArray<AVFPhoto2D *> Photo2DsOrigial;
-        for (auto &Comp : CompsOverlapped)
-        {
-            auto Actor = Comp->GetOwner();
-            if (auto Photo2D = Cast<AVFPhoto2D>(Actor))
-            {
-                if (Photo2D->bIsRecursive)
-                {
-                    Photo2DsOrigial.AddUnique(Photo2D);
-                }
-            }
-        }
-        for (auto &Photo2D : Photo2DsOrigial)
-        {
-            Photo2D->GetStaticMeshInEditor()->SetMaterial(MaterialIndex, MICAsset);
-        }
-        PhotoCapture->CaptureScene();
-        PhotoCapture->TextureTarget->UpdateTexture2D(TextureAsset, TextureAsset->Source.GetFormat());
-    }
 
     ClearTemporary();
 

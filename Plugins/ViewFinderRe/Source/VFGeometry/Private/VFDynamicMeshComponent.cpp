@@ -61,12 +61,9 @@ void UVFDynamicMeshComponent::Init(UPrimitiveComponent *Source)
     During the copying actors process in photo-taking workflow, UVFDynamicMeshComponents will be disassembled (Actor copying), then reassembled.
     Errors will occur if it's a root component. See UVFFunctions::CloneActorRuntime() for details.
     */
-    if (GetAttachParent() == nullptr)
-    {
-        VF_LOG(Warning,
-               TEXT("%s is RootComponent in %s."),
-               *GetName(), *GetOwner()->GetName());
-    }
+    ensureAlwaysMsgf(GetOwner()->GetRootComponent() != this,
+                     TEXT("%s is RootComponent in %s."),
+                     *GetName(), *GetOwner()->GetName());
 
     // Components obtained from the pool have inconsistent properties and need manual synchronization
     if (auto DMComp = Cast<UVFDynamicMeshComponent>(Source))
