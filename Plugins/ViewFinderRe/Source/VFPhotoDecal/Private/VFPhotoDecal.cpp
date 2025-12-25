@@ -62,6 +62,8 @@ void AVFPhotoDecal::OnConstruction(const FTransform &Transform)
     ViewFrustum->RegenerateViewFrustum(ViewAngle, AspectRatio, StartDis, EndDis);
     FVector Scale = Decal->GetRelativeScale3D();
     Decal->SetRelativeScale3D(FVector(Scale.X, Scale.Y, Scale.Y / AspectRatio));
+    Decal->SetRelativeRotation(FRotator::ZeroRotator);
+    Decal->SetRelativeLocation(FVector(FMath::Abs(Decal->GetRelativeLocation().X), 0.f, 0.f));
 }
 
 void AVFPhotoDecal::UpdateMaterialParams()
