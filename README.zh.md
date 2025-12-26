@@ -29,7 +29,7 @@
 ### :video_game: 复刻机制
 - **照片⇄物体** - 完整的拍照放置流程, 支持预制照片
 - **图案⇄物体** - 支持基础和带场景切割的转换  
-- **时间回溯系统** - 支持所有机制的撤销重做
+- **时间回溯系统** - 支持所有机制的回溯
 - **进阶功能** - 替身显示, 滤镜照片, 递归照片等
 
 <a id="hammer_and_wrench-设计特色"></a>
@@ -41,7 +41,7 @@
 
 <a id="dart-演示关卡"></a>
 ### :dart: 演示内容
-- **演示关卡(L_Demo)** - 展示所有功能, 附带文字讲解
+- **演示关卡(L_Demo)** - 展示所有功能, 附带(中英)文字讲解
 - **全机制回溯支持** - 演示关卡内所有操作均可撤销
 - **视频演示** - [**UE5 插件 ViewFinderRe**](https://www.bilibili.com/video/BV1HgBoB4EMd/)
 
@@ -62,7 +62,7 @@
   - 大量可配置参数暴露, 无需编码即可调试
 - 可使用蓝图实现自定义逻辑, 理论上覆盖ViewFinder所有相关玩法
   - 滤镜门没做, 详见[未实现猜测](#未实现猜测)中关于滤镜门的表述
-- 内置编辑器工具, 支持跨关卡预制照片, 递归照片
+- 提供基础的编辑器工作流, 支持跨关卡预制照片, 递归照片
 
 **对于UE学习者**
 - 完整开源代码, 讲解游戏机制的技术实现方式
@@ -272,7 +272,7 @@
 
 #### 最小支持(最少影响)
 如果你尝试过`新建新关卡 > 开放世界`, 将会出现报错, 原因是不支持地形  
-我们也使用这个为例子: 设置仅支持(影响1)的Actor:
+我们也使用这个为例子: 设置仅支持(影响)的Actor:
 1. 打开现有开放世界地图, 或者`新建新关卡 > 开放世界`
 2. 重载游戏模式为`BP_VF_GameMode`
 3. 搜索蓝图`BP_PhotoCatcher_PickUp`, 并拖入到场景中
@@ -446,6 +446,7 @@
     - 最开始的为了解决流式关卡加载, 回溯到`TIME_MIN`会销毁的问题
     - 又考虑到时间区间确实可以是一个玩法小机制, 故作保留
   - 宏`DECLARE_STEPSRECORDER_SUBSYSTEM_ACCESSOR`, 用来简化子系统的声明和使用
+  - TIME_MIN < TimeOfStart <= Time <= TimeOfEnd < TIME_MAX
 
 ### *制作递归照片*
 1. 搭建好场景
@@ -562,17 +563,17 @@ ViewFinder中的案例: 部分物体的图案在特定角度变回为物体; 场
 贴花需要改造: 近小远大符合透视, 且只显示在第一个表面. 详细见[*贴花透视投影*](#贴花透视投影)  
 图案->物体: 也需要之前的流程, 但不显示贴花, 而是物体  
 - Result (R):  
-1. 基础类`PhotoDecal`提供基础的图案⇄物体功能
+1. 基础类`AVFPhotoDecal`提供基础的图案⇄物体功能
      - 可设置`bOnlyCatchManagedActors`控制`PrimitiveRenderMode`
      - 携带视锥, 可视化范围, 为后续的场景破坏提供可能
-2. 衍生出`_Hide`, 特定位置触发物体->图案
+2. 衍生出`BP_PhotoDecalSteppable_Hide`, 特定位置触发物体->图案
     - 附带一个碰撞检测, 来触发物体变成图案
     - 退出区域, 将进行还原, 便于测试
-    - 固定性变化应当使用Actor的碰撞
-3. 衍生出`_Show`, 自动调用物体->图案, 条件触发图案->物体
+    - 更自由地触发逻辑, 应当使用单独的碰撞Actor
+3. 衍生出`BP_PhotoDecalSteppable_Show`, 自动调用物体->图案, 条件触发图案->物体
     - 携带一个碰撞, 检测玩家相机的Transform来进行触发(允许误差)
     - 参数设置是否通过视锥来切割当前场景
-    - 一个简单的矫正到正确Transform的功能
+    - 一个简单的, 矫正到目标Transform的功能
 
 ### *动态网格*
 现在我们开始考虑如何实现拍照功能  
@@ -722,14 +723,14 @@ ViewFinder中, 场景中存在一开始就存在的照片, 它可以是完全风
 - Situation (S):  
 动态网格体在进行多次布尔操作后, 需要回溯到之前的样子  
 动态网格体组件回溯到生成装载之前, 是否需要卸载掉?  
-官方提供一个动态网格体的对象池  
+官方提供一个动态网格体(`UDynamicMesh`)的对象池  
 - Task (T):  
 动态网格体组件需要还原之前的动态网格体, 考虑使用布尔运算的逆操作, 但这样就需要知道布尔运算的另一个对象. 每个组件的每次都需要这样的记录, 使得复杂度极高  
 另一个思路是在进行布尔运算之前, 就记录一次动态网格体, 这样只占用内存, 回溯将不再需要实时运算. 使用官方的对象池应当会有较好性能  
 动态网格体组件在回溯到装载之前, 理应被卸掉
 卸载和装载, 这明显应该是个对象池  
 - Action (A):  
-制作动态网格体组件的对象池, 且支持回溯的动态网格体内部还需持有动态网格体的对象池
+制作动态网格体组件(`UDynamicMeshComponent`)的对象池, 且支持回溯的动态网格体内部还需持有动态网格体的对象池
 - Result (R):  
 制作了世界子系统, 支持实现了接口的任意UObject对象的池化, 支持根据类型的预生成  
 
@@ -839,7 +840,8 @@ ViewFinder中: 可以对一些物体进行交互; 可以切换相机, 相片组,
 ### *插件依赖及处理*
 动态网格的布尔运算, 使用了插件`GeometryScript`  
 考虑插件本应该的独立性, 便将需要的代码剥离到本地  
-考虑插件`GeometryScript`未来的维护升级, 应当可选对外部插件的使用, 即可选"使用插件API/本地代码"
+考虑插件`GeometryScript`未来的维护升级, 应当可选对外部插件的使用
+即应该可选"使用插件API/本地代码"
 - 在一个文件内, 使用条件编译宏来控制
   - 方法简单易懂, 但可读性差
   - 切换较为方便: 手动开关插件, 同步宏. 否则编译错误
@@ -847,7 +849,7 @@ ViewFinder中: 可以对一些物体进行交互; 可以切换相机, 相片组,
   - 支持未来可能更多的策略实现
   - 策略类即便没有被使用, 也会被编译, 插件依赖反而变成硬性要求
 - 模块级别的策略模式
-  - 模块VFGeometryBase定义策略接口, 模块`VFGSGeometryScriptNative`为本地代码实现, 模块`VFGSGeometryScript`则是依赖接口API
+  - 模块VFGeometryBase定义策略接口, 模块`VFGSGeometryScriptNative`为本地代码实现, 模块`VFGSGeometryScript`则是依赖插件API
   - 避免编译错误: 
     - 策略实现模块不自动启用
     - 在`FVFGeometryBaseModule::StartupModule()`中根据插件`GeometryScript`的使用情况自动启用策略实现模块
@@ -881,10 +883,10 @@ ViewFinder中相机的FOV和宽高比是存在不同的
 视锥也能设置参数  
 - Action (A):  
 使用动态网格体来生成视锥  
-动态网格体生成一个形状的正规做法是继承FMeshShapeGenerator写出一个形状  
+动态网格体生成一个形状的正规做法是继承`FMeshShapeGenerator`写出一个形状  
 - Result (R):  
-FFrustumGenerator支持设置FOV, 宽高比, 近和远平面  
-VFGSGeometryScript的视锥实现, 是将一个立方体的点移动到指定位置  
+`VFGSGeometryScriptNative`中实现了`FFrustumGenerator`, 支持设置FOV, 宽高比, 近和远平面  
+`VFGSGeometryScript`的视锥实现, 是将一个立方体的点移动到指定位置  
 
 ## 其它
 这里是一些资料和个人所想, 以及杂七杂八的东西
@@ -907,7 +909,7 @@ graph TD
     subgraph GeometryModules [几何处理模块]
         VFGeometryBase[VFGeometryBase<br/>几何策略接口定义]
         
-        VFGSGeometryScript[VFGSGeometryScript<br/>GeometryScript实现]
+        VFGSGeometryScript[VFGSGeometryScript<br/>依赖GeometryScript实现]
         VFGSGeometryScriptNative[VFGSGeometryScriptNative<br/>本地化实现]
         
         VFGeometry[VFGeometry<br/>几何模块中间层]

@@ -41,7 +41,7 @@ Maintained in Chinese and translated into English with the assistance of AI.
 
 <a id="dart-demo-content"></a>
 ### :dart: Demo Content
-- **Demo Level(L_Demo)** - Showcasing the complete, hands-on experience with detailed commentary.
+- **Demo Level(L_Demo)** - Showcasing the complete, hands-on experience with detailed commentary(with English and Chinese).
 - **Full Time Rewind Support** - Rewind any moment and replay from there within the demo.
 - **Video Demonstration** - [UE5 plugin ViewFinderRe](https://www.bilibili.com/video/BV1HgBoB4EMd)
 
@@ -62,7 +62,7 @@ Maintained in Chinese and translated into English with the assistance of AI.
   - A wide range of configurable parameters are exposed, allowing for parameter adjustment without coding
 - Can be extended via Blueprints to inject custom logic, which theoretically covers all three core gameplay mechanics of the ViewFinder
   - The filter gate feature has not been implemented; refer to the Unimplemented Hypotheses section for details regarding the filter gate[Implementation Speculation](#implementation-speculation)
-- Built-in editor tools support cross-level pre-made photos and recursive photos
+- Provide basic editor workflow, support cross level prefabrication photos, recursive photos
 
 **For UE Learners**
 - Fully open-sourced code, and ‌explanations for gameplay mechanics.
@@ -445,6 +445,7 @@ For a more detailed explanation, you can also refer to [Time Rewinding Subsystem
     - Initially added to solve issues when rewinding to `TIME_MIN` would destroy actors in streaming levels.
     - Kept as the concept of a bounded rewind window could be a useful gameplay mechanic.
   - The `DECLARE_STEPSRECORDER_SUBSYSTEM_ACCESSOR` macro, which simplifies subsystem accessor declaration and usage.
+  - TIME_MIN < TimeOfStart <= Time <= TimeOfEnd < TIME_MAX.
 
 ### *Prefabricating a Recursive Photo*
 1. Set up your scene.
@@ -567,11 +568,11 @@ Derived classes handle specific behaviors. Triggers could be Actors or component
 2. Derived class `BP_PhotoDecalSteppable_Hide`: Triggers Object -> Projection at specific locations.
     - Uses a collision volume to trigger the transformation.
     - Reverts the change upon exiting the volume, facilitating testing.
-    - Permanent changes should use Actor collision.
+    - For more flexible activation of logic, a dedicated Collision Actor should be used.
 3. Derived class `BP_PhotoDecalSteppable_Show`: Automatically performs Object -> Projection, conditionally triggers Projection -> Object.
     - Uses a collision volume checking the player camera's Transform (with tolerance) as the trigger.
     - Configurable option to slice the current scene using the View Frustum.
-    - Includes a simple function to correct the object's Transform.
+    - Includes a simple function to snap to the target Transform.
 
 
 ### *Dynamic Mesh*
@@ -725,7 +726,7 @@ Considering the requirements for rewinding:
 - Situation (S):  
 A dynamic mesh(DynamicMeshComponent holding), after multiple Boolean operations, needs to revert to a previous DynamicMesh.  
 Should the DynamicMeshComponent be detached when rewinding to a state before it was originally attached?  
-The engine provides an object pool for dynamic meshes.  
+The engine provides an object pool for `UDynamicMesh`.  
 - Task (T):  
 The DynamicMeshComponent needs to restore its previous dynamic mesh.
   - One approach: Use the inverse of the Boolean operation. However, this requires knowing the other operand used in the original operation. Recording this for every operation on every component would lead to extremely high complexity.
@@ -733,7 +734,7 @@ The DynamicMeshComponent needs to restore its previous dynamic mesh.
 The DynamicMeshComponent should be detached when rewinding to a point before it was attached.  
 The process of attaching and detaching clearly suggests using an object pool.  
 - Action (A):  
-Create an object pool specifically for DynamicMeshComponents. Furthermore, a rewind-compatible dynamic mesh needs to internally hold its own object pool for the mesh data (`UDynamicMesh`/`FDynamicMesh3`).  
+Create an object pool specifically for `UDynamicMeshComponent`. Furthermore, a rewind-compatible dynamic mesh needs to internally hold its own object pool for the mesh data (`UDynamicMesh`/`FDynamicMesh3`).  
 - Result (R):  
 Implemented a World Subsystem that supports object pooling for any UObject implementing the relevant interface, including pre-generation based on type.  
 
@@ -843,7 +844,8 @@ Operations like equipping/activating devices are implemented within the devices 
 ### *Plugin Dependencies and Their Handling*
 Boolean operations for dynamic meshes utilize the `GeometryScript` plugin.  
 To maintain the plugin's intended independence, necessary code was ported locally.  
-Considering the future maintenance and upgrades of the `GeometryScript` plugin, usage of external plugin APIs should be optional, i.e., choosing between "Use Plugin API" / "Use Local Code".  
+Considering the future maintenance and upgrades of the `GeometryScript` plugin.
+Usage of external plugin APIs should be optional, i.e., choosing between "Use Plugin API" / "Use Local Code".  
 - Conditional Compilation within a Single File: Use preprocessor macros
   - The method is simple and easy to understand, but has poor readability. 
   - Switching is relatively convenient: manually enable/disable the plugin and synchronize the macro. Otherwise, a compilation error occurs.
@@ -888,7 +890,7 @@ The view frustum needs to be configurable with these parameters.
 Use a Dynamic Mesh to generate the view frustum.  
 The standard approach for generating a shape with a Dynamic Mesh is to create a class inheriting from `FMeshShapeGenerator` to define the custom shape.  
 - Result (R):  
-The `FFrustumGenerator` class supports configuring the FOV, aspect ratio, and near/far planes.  
+The class `FFrustumGenerator` in `VFGSGeometryScriptNative` supports configuring the FOV, aspect ratio, and near/far planes.  
 The view frustum implementation in `VFGSGeometryScript` works by moving the vertices of a base cube to the calculated positions defining the frustum volume.  
 
 ## Others
@@ -912,7 +914,7 @@ graph TD
     subgraph GeometryModules [Geometry Modules]
         VFGeometryBase[VFGeometryBase<br/>Geometry Strategy Interface]
 
-        VFGSGeometryScript[VFGSGeometryScript<br/>GeometryScript Implementation]
+        VFGSGeometryScript[VFGSGeometryScript<br/>Implementing relies on GeometryScript]
         VFGSGeometryScriptNative[VFGSGeometryScriptNative<br/>Native Implementation]
 
         VFGeometry[VFGeometry<br/>Geometry Module Middleware]
