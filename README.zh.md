@@ -43,7 +43,7 @@
 ### :dart: 演示内容
 - **演示关卡(L_Demo)** - 展示所有功能, 附带文字讲解
 - **全机制回溯支持** - 演示关卡内所有操作均可撤销
-- **视频演示** - [待录制]
+- **视频演示** - [**UE5 插件 ViewFinderRe**](https://www.bilibili.com/video/BV1HgBoB4EMd/)
 
 <a id="warning-已知问题"></a>
 ### :warning: 已知问题
@@ -216,11 +216,14 @@
 
 #### 使用插件
 1. 解压插件放置到YourProject/Plugins/下. 如果Plugins文件夹不存在, 需要手动创建
-2. 打开你的项目, 在插件面板中, 搜索ViewFinderRe并启用
+2. 重新打开你的项目(编译插件). 在插件面板中, 搜索ViewFinderRe并启用
 3. 完成[前置准备](#前置准备)
 #### 体验演示地图
 1. 打开演示地图: Plugins/ViewFinderRe/Content/Maps/L_Demo
-2. 运行, 场景中附带了讲解, Have fun!
+2. 运行, 场景中附带了讲解, 本地化支持中/英. Have fun!
+
+[**演示视频1**](https://www.bilibili.com/video/BV1HgBoB4EMd/?&p=1): 游玩Demo地图全流程  
+[**演示视频2**](https://www.bilibili.com/video/BV1HgBoB4EMd/?&p=2): *使用插件*, 进行*前置准备*和*最少操作*进行快速上手, 中/英文支持  
 
 努力上架Fab中…
 
@@ -250,8 +253,8 @@
       2. 实测5.6.1不需要手动关闭
    2. `Custom Depth-Stencil Pass`, 设置为`EnabledWithStencil`
       1. 如不开启, 滤镜后处理出错
-5. `ProjectSettings > ViewFinderRe > VFGeometryDeveloperSettings > GeometryStrategyClass``改为VFGSGeometryScriptNative`
-6. 重启编辑器
+5. `ProjectSettings > ViewFinderRe > VFGeometryDeveloperSettings > GeometryStrategyClass`改为`VFGSGeometryScriptNative`
+6. 最后一步(必要的): **重启项目**
 
 #### 设计考虑
 `从偷懒上说`, 场景最好什么都不用动, 相机一视同仁, 都可拍照复制  
@@ -265,7 +268,7 @@
 3. 搜索蓝图`BP_PhotoCatcher_PickUp`, 并拖入到场景中
 4. 运行, 拾取`PhotoCatcher`, 拍照, 放置照片
 
-你可能触发了断点(Mesh Xxx bAllowCPUAccess needs to be true)参看[bAllowCPUAccess](#ballowcpuaccess)
+你可能触发了断点(Mesh Xxx bAllowCPUAccess needs to be true). 参看[bAllowCPUAccess](#ballowcpuaccess)
 
 #### 最小支持(最少影响)
 如果你尝试过`新建新关卡 > 开放世界`, 将会出现报错, 原因是不支持地形  
@@ -280,6 +283,8 @@
    1. 其上添加`VFHelper`组件, 配置无需改动
    2. `项目设置 > ViewFinderRe > VFPhotoCommonDeveloperSettings`中, 修改`Helper Getting`为`By Get Component by Class`
 6. 运行, 拾取`PhotoCatcher`, 拍照, 放置照片
+
+[**演示视频3**](https://www.bilibili.com/video/BV1HgBoB4EMd/?&p=3): 从一个全新的世界分区地图, 演示*最小支持*
 
 你应当写自己的交互逻辑. 提供的游戏模式仅作为体验和测试, 其包括了:
 1. `BP_VF_HUD`: 简单显示时间的UHD
@@ -308,13 +313,19 @@
    1. 调整参数: 例如视锥视角, `Only Overlap with Helper`, `Object Types to Overlap`等
    2. `Only Actors Catched`有数据的时候, 只会对这些照相.
    3. `Actors to Ignore`则可以排除想要忽略的内容
-4. 在细节面板中, 点击`Prefabricate A Photo Level`按钮调用CallInEditor函数, 制作`_Photo`
+4. 关于`PlaneActor`:
+   1. 设置`BP_PhotoCatcherPref`的`bGenerateAPlaneActor`为`false`, 其将不会生成.
+   2. 背景面`PlaneActor`的捕获依赖世界子系统, 编辑器世界下实现较为麻烦. 需要手动处理:  
+      切换到`BackgroundCapture`组件, 设置其`ShowOnlyActors`列表, 这些Actor将会出现在`PlaneActor`上.
+5. 在细节面板中, 点击`Prefabricate A Photo Level`按钮调用CallInEditor函数, 制作`_Photo`
    1. 选择路径保存新关卡, 推荐与当前关卡同一层级, 并加上后缀`_Photo`
    2. 无视并确认接下来出现的警告: `Actor BP_Photo3DSteppable is referenced by other Actors/objects.Do you really want to delete it? This will break references.`
    3. 在选择的路径下, 除了刚刚创建的新关卡, 还会生成2个纹理, 2个材质实例. 它们分别是相片的纹理和材质实例, 和背景图片的纹理和材质实例
-5. `_Photo`关卡就是一张预制的照片, 你可以把它放置在其它关卡中, 它会以照片存在
-6. 注意: 删除的时候, 请先删除纹理和材质实例资产, 然后再删除地图_Photo
+6. `_Photo`关卡就是一张预制的照片, 你可以把它放置在其它关卡中, 它会以照片存在
+7. 注意: 删除的时候, 请先删除纹理和材质实例资产, 然后再删除地图_Photo
    1. 不然会出现编辑器崩溃, 原因未知, 猜测可能是循环引用的问题
+
+[**演示视频4**](https://www.bilibili.com/video/BV1HgBoB4EMd/?&p=4): 从一个全新关卡预制照片, 正确的删除操作
 
 ### *图案->物体*
 1. 搭建场景
@@ -334,7 +345,10 @@
 5. 使用关卡蓝图, 使用其引用手动调用`ReplaceWithDecal`
    1. 在编辑器中, 图案中光照可能很奇怪, 但打包后就是正常的
    2. 如果想保证光照正常, 可以使用`Delay`节点, 延迟0.2秒
-6. 勾选了`Keep First Replacement`, 时间回溯将不会回溯"第一次变成图案"的操作
+7. 勾选了`bPersistent`, 将不会被时间回溯销毁
+8. 勾选了`bKeepFirstReplacement`, 时间回溯将不会回溯"第一次变成图案"
+
+[**演示视频5**](https://www.bilibili.com/video/BV1HgBoB4EMd/?&p=5): 从一个全新关卡搭建图案->物体
 
 ### *物体->图案*
 1. 搭建场景
@@ -351,6 +365,7 @@
       1. 相机的宽高比被这两个属性锁定, 修改会自动调整相机的宽高比
       2. 影响贴花的质量
 4. 移动DetectionArea的位置和大小, 它就是触发隐藏的区域
+5. 勾选了`bKeepFirstReplacement`, 时间回溯将不会回溯"第一次变成图案"
 
 ### *可配置项*
 1. 蓝图中暴露了许多可配置属性, 它们的类别都是`ViewFinder`, 你还可以通过属性分段`ViewFinderRe`来进行筛选
@@ -377,6 +392,8 @@
   3. 原关卡之前的Pref相机的细节面板下, 点击UpdateMIC按钮
   4. 可考虑使用插件ActorPalette来同步位置
 
+[**演示视频6**](https://www.bilibili.com/video/BV1HgBoB4EMd/?&p=6): 里层照片拍摄`一般`和`挂载Helper组件的蓝图类`; 外层照片放入`任意Actor`, 甚至是里层照片
+
 ### *使用替身*
 首先是一个简单使用, 让任意Actor被拍照时, 使用一个替身
 1. 添加`Helper`组件, 并进行配置:
@@ -392,6 +409,8 @@
 - 在由c++类继承接口出来的, 如`BP_PawnStandInSteppable`, 它是正常工作的, 你可以通过该函数获得原Actor的引用
 - 在纯蓝图类, 如`BP_CubeStandIn`, 它不会正常工作， 你需要参照`BP_CubeStandIn`创建一个蓝图变量进行记录
 - 原因还未确定
+
+[**演示视频7**](https://www.bilibili.com/video/BV1HgBoB4EMd/?&p=7): 从模板关卡任意Actor实现替身效果, 并制作一个替身类实现瞬移
 
 ### *使用时间回溯系统*
 先介绍两种使用方式
@@ -412,9 +431,11 @@
 2. 拍照后, 创建一个`FVFStepInfo`, 并标注为关键时间点, 提交(`SubmitStep`)给回溯系统
 3. 重写`StepBack`函数, 该信息会在对应时间点退回, 根据信息的内容做对应的反操作
    1. 这里并没有任何操作, 你可能感到疑惑
-   2. `Photo2D`和`Photo3D`的销毁交予了它们自身, 即回溯到创建的时间就销毁
+   2. `Photo2DSteppable`和`Photo3DSteppable`的销毁交由了它们自身, 即回溯到创建的时间就销毁
    3. 这是自我管理的想法, 更自由也能避免太多逻辑交叉
-   4. `Photo2D`和`Photo3D`都进行了自我管理, 于是"回溯到上个关键点"就由`PhotoCatcher`进行了
+   4. `Photo2DSteppable`和`Photo3DSteppable`都进行了自我管理, 于是"回溯到上个关键点"就由`PhotoCatcherSteppable`进行了
+
+**演示视频7**中也有一个简单的`StepBack`使用: 销毁自身
 
 你还可以查看[回溯子系统](#回溯子系统), 有更详尽的解释
 - `VFStepsRecorderWorldSubsystem`还提供了:
@@ -457,6 +478,11 @@
 4. 修改`ViewFinderRe.uplugin`, 删除对于模块`VFGSGeometryScript`的描述
 5. 可选, 修改`FVFGeometryBaseModule::StartupModule()`, 删除关于`VFGSGeometryScript`模块的加载
 6. 如果出错了可修改`DefaultViewFinderReSettings.ini`, 删除`GeometryStrategyClass`配置, 退回到使用`VFGSNone`
+
+[**演示视频8**](https://www.bilibili.com/video/BV1HgBoB4EMd/?&p=8):
+1. 切换几何策略实现(包括使用`GeometryScript`插件), 错误的插件`GeometryScript`剥离, 以及挽救方法
+2. 剥离模块VFGSGeometryScript, 并编译插件, 将不会出现该模块的dll文件
+3. 几何策略模块不自动启用, 是由`VFGeometryBase`模块根据插件`GeometryScript`的情况进行加载
 
 ## 常见问题
 
@@ -1557,7 +1583,7 @@ Actor失效: 使用Helper就完事了
 
 ### *Demo流程设计*
 基础实现:  
-1. 物理方块回溯(未重置速度).  初步熟悉时间回溯.
+1. 物理方块回溯.  初步熟悉时间回溯.
 2. 物理物体位于高处, 需旋转/放置头顶. 相片内的物理方块支持回溯. 不同的天空盒.
 3. 透视图案生成地形. 透视图案只会出现在第一个面. 不同的天空盒. 支持回溯.
 4. 相片内可以有相机. 拍照复制物体/照片. 回溯到上个关键时间节点.

@@ -43,7 +43,7 @@ Maintained in Chinese and translated into English with the assistance of AI.
 ### :dart: Demo Content
 - **Demo Level(L_Demo)** - Showcasing the complete, hands-on experience with detailed commentary.
 - **Full Time Rewind Support** - Rewind any moment and replay from there within the demo.
-- **Walkthrough Video** - [To be Added]
+- **Video Demonstration** - [UE5 plugin ViewFinderRe](https://www.bilibili.com/video/BV1HgBoB4EMd)
 
 <a id="warning-known-issues"></a>
 ### :warning: Known Issues
@@ -103,7 +103,7 @@ Maintained in Chinese and translated into English with the assistance of AI.
   - [*Configuring Photo-Taking Behavior \& Inserting Custom Logic*](#configuring-photo-taking-behavior--inserting-custom-logic)
   - [*Prefabricating A Photo*](#prefabricating-a-photo)
   - [*Projection-\>Object*](#projection-object)
-  - [*Projection-\>Object*](#projection-object-1)
+  - [*Object-\>Projection*](#object-projection)
   - [*Configuration*](#configuration)
 - [Advanced Usage](#advanced-usage)
   - [*Advanced Prefabrication of Photos*](#advanced-prefabrication-of-photos)
@@ -214,12 +214,15 @@ Alternatively, you can directly open the project to get started. It's a minimal 
 
 #### Using the Plugin
 1. Extract the plugin into `YourProject/Plugins/`. If the Plugins folder does not exist, create it manually.
-2. Open your project. In the Plugins panel, search for `ViewFinderRe` and enable it.
+2. Reopen your project (compile the plugin). In the Plugins panel, search for `ViewFinderRe` and enable it.
 3. Complete the [Prerequisites](#prerequisites).
 
 #### Try out the demo
 1. Open the demo map: `Plugins/ViewFinderRe/Content/Maps/L_Demo`
-2. Click Play in Editor to run the demo. Explanations are provided in the scene. Have fun!
+2. Click Play in Editor to run the demo. Explanations are provided in the scene (with localization support for Chinese/English). Have fun!
+
+[**Demo Video 1**](https://www.bilibili.com/video/BV1HgBoB4EMd/?&p=1): Full walkthrough of the demo map
+[**Demo Video 2**](https://www.bilibili.com/video/BV1HgBoB4EMd/?&p=2): *Using the Plugin*, covering *prerequisites* and *minimal steps* to *Get Started*. Chinese/English localization is supported.
 
 Working on getting this onto Fab...
 
@@ -249,8 +252,8 @@ This section defines project-specific terms and clarifies potential ambiguities.
       2. `Note`: This conflict was not observed in version 5.6.1.
    2. Set `Custom Depth-Stencil Pass` to `EnabledWithStencil`
       1. If not, the post process filters will not work correctly.
-5. Navigate to `ProjectSettings > ViewFinderRe > VFGeometryDeveloperSettings` and set `GeometryStrategyClass` to `GeometryStrategyClass改为VFGSGeometryScriptNative`
-6. Restart the editor
+5. Navigate to `ProjectSettings > ViewFinderRe > VFGeometryDeveloperSettings` and set `GeometryStrategyClass` to `VFGSGeometryScriptNative`.
+6. Final step (required): Restart the project.
 
 #### Design Considerations
 `For Simplicity`: Ideally, the plugin would work out-of-the-box in any scene, treating all actors equally and allowing any of them to be taken photos.  
@@ -280,6 +283,8 @@ We will use this situation as an example to set up support for specific Actors o
       2. In `Project Settings > ViewFinderRe > VFPhotoCommonDeveloperSettings`, change the `Helper Getting` option to `By Get Component by Class`.
 6. Run the game. Pick up the `PhotoCatcher`, take a photo, and place the photo.
 
+[**Demo Video 3**](https://www.bilibili.com/video/BV1HgBoB4EMd/?&p=3): Demonstrates the `minimal steps`, starting from a fresh World Partition map.
+
 You should implement your own interaction logic. The provided GameMode is for demonstration and testing purposes only, and includes the following class overrides:
 1. `BP_VF_HUD`: A simple HUD that displays the current time.
 2. `BP_VF_PlayerController`: Handles input for time rewinding.
@@ -307,13 +312,19 @@ For the purpose and execution order of the `VFHelper`'s dynamic multicast events
    1. Adjust parameters, such as the `View Angle` to the view frustum, `Only Overlap with Helper`, `Object Types to Overlap`, etc.
    2. When the `Only Actors Catched` array contains data, it will only process those actors.
    3. Use the `Actors to Ignore` array to exclude specific actors.
-4. In the Details panel, click the `Prefabricate A Photo Level` button (a CallInEditor function) to generate the "_Photo" level.
+4. Regarding `PlaneActor`:
+   1. Set `bGenerateAPlaneActor` of `BP_PhotoCatcherPref` to false. It will not be generated.
+   2. The capture for the background plane (PlaneActor) relies on the World Subsystem, which is complex to implement within the Editor world. Manual handling is required:
+   Switch to the `BackgroundCapture` component and set its `ShowOnlyActors` list. These Actors will appear on the `PlaneActor`.
+5. In the Details panel, click the `Prefabricate A Photo Level` button (a CallInEditor function) to generate the `_Photo` level.
    1. Choose a path to save the new level. It's recommended to save it at the same directory level as the current level and add the `_Photo` suffix.
    2. Ignore and confirm the subsequent warning: `Actor BP_Photo3DSteppable is referenced by other Actors/objects. Do you really want to delete it? This will break references.`
    3. In the selected path, besides the new level, two textures and two material instances will be generated. These are the texture and material instance for the photo itself, and the texture and material instance for the background image.
-5. The `_Photo` level is a prefabricated photo. You can place it in other levels where it will exist as a photo.
-6. Important: When deleting, first delete the generated texture and material instance assets, then delete the `_Photo` map.
+6. The `_Photo` level is a prefabricated photo. You can place it in other levels where it will exist as a photo.
+7. Important: When deleting, first delete the generated texture and material instance assets, then delete the `_Photo` map.
    1. Failure to follow this order may cause the editor to crash. The cause is unknown, but it is suspected to be a circular reference issue.
+
+[**Demo video 4**](https://www.bilibili.com/video/BV1HgBoB4EMd/?&p=4): Prefabricating a photo from a new level, and the correct deletion workflow.
 
 ### *Projection->Object*
 1. Set up your scene.
@@ -333,9 +344,12 @@ For the purpose and execution order of the `VFHelper`'s dynamic multicast events
 5. In the Level Blueprint, get a reference to this actor and manually call its `ReplaceWithDecal` function.
    1. Note: Lighting might appear incorrect in the editor, but it will be correct in the packaged build.
    2. To ensure correct lighting in the editor, you can use a Delay node (e.g., 0.2 seconds) before calling the function.
-6.  If `Keep First Replacement` is checked, time rewinding will not revert the operation of being replaced with a projection for the first time.
+6. If `bKeepFirstReplacement` is checked, time rewinding will not revert the first operation of being replaced with a projection.
+7. If `bPersistent` is checked, it will not be destroyed by time rewinding.
 
-### *Projection->Object*
+[**Demo video 5**](https://www.bilibili.com/video/BV1HgBoB4EMd/?&p=5): Building from a "Projection->Object" in a new level.
+
+### *Object->Projection*
 1. Set up your scene.
 2. Place a `BP_PhotoDecalSteppable_Show` actor and use `Pilot` to position it correctly.
    1. Adjust the view frustum's Far Plane. An excessively distant plane is unnecessary; a closer plane improves performance.
@@ -350,6 +364,7 @@ For the purpose and execution order of the `VFHelper`'s dynamic multicast events
       1. These properties lock the camera's aspect ratio. Modifying them will automatically adjust the camera's Field of View.
       2. They affect the final quality of the projection.
 4. Position and scale the `DetectionArea` component. This defines the volume that triggers the hiding of the managed actors.
+5. If `bPersistent` is checked, it will not be destroyed by time rewinding.
 
 ### *Configuration*
 1. Many properties are exposed as configurable in the Blueprints. You can find them under the `ViewFinder` category, or filter by the `ViewFinderRe` property section.
@@ -376,6 +391,8 @@ The following outlines the Prefabricating process, ordered from least to most fl
   3. In the Details panel of the original `BP_PhotoCatcherPref` camera, click the `UpdateMIC` button.
   4. Consider using the `ActorPalette` plugin to synchronize positions.
 
+[**Demo video 6**](https://www.bilibili.com/video/BV1HgBoB4EMd/?&p=6): Capturing an inner photo of `general` or `Blueprint classes with a Helper component`; placing `any Actor`, even the inner photo, into the outer photo.
+
 ### *Using a Stand-In*
 First, a basic example to make any Actor use a Stand-In when photographed:
 1. Add a `Helper` component and configure it:
@@ -391,6 +408,8 @@ Important notes regarding `IVFStandInInterface::GetOriginalActor`:
 - In C++-based classes (e.g., `BP_PawnStandInSteppable`), it works correctly, and you can use this function to get a reference to the original Actor.
 - In pure Blueprint classes (e.g., `BP_CubeStandIn`), it does not work as expected. You must create a Blueprint variable to manually store a reference to the original Actor, as demonstrated in `BP_CubeStandIn`.
 - The root cause for this inconsistency is currently undetermined.
+
+[**Demo video 7**](https://www.bilibili.com/video/BV1HgBoB4EMd/?&p=7): Creating a stand-in for any Actor in a template level, and implementing teleportation.
 
 ### *Using the Time Rewinding System*
 This section introduces two primary methods of use.
@@ -411,9 +430,11 @@ Example using a `PhotoCatcher` (as in `AVFPhotoCatcherSteppable`):
 2. After taking a photo, it creates an `FVFStepInfo` instance, marks it as a keyframe, and submits it to the rewinding system via `SubmitStep`.
 3. It overrides the `StepBack` function. When the rewinding reaches this keyframe, the corresponding reverse operation is performed.
    1. You might notice that no direct action happens here.
-   2. The destruction of the `Photo2D` and `Photo3D` is handled by the objects themselves—they are destroyed when rewinding reaches their creation point.
+   2. The destruction of the `Photo2DSteppable` and `Photo3DSteppable` is handled by the objects themselves—they are destroyed when rewinding reaches their creation point.
    3. This reflects a design philosophy of self-management, offering greater freedom and avoiding overly intertwined logic.
-   4. Because both `Photo2D` and `Photo3D` manage themselves, the act of "rewinding to the previous keyframe" is effectively initiated by the `PhotoCatcher`.
+   4. Because both `Photo2DSteppable` and `Photo3DSteppable` manage themselves, the act of "rewinding to the previous keyframe" is effectively initiated by the `PhotoCatcherSteppable`.
+
+**Demo video 7** also includes a simple demonstration of StepBack usage: destroying itself.
 
 For a more detailed explanation, you can also refer to [Time Rewinding Subsystem](#time-rewinding-subsystem).
 - `VFStepsRecorderWorldSubsystem` also provides:
@@ -456,6 +477,11 @@ This process is more complex. Using `L_A7` as an example:
 4. Modify `ViewFinderRe.uplugin` and remove the module description for `VFGSGeometryScript`.
 5. (Optional) Modify `FVFGeometryBaseModule::StartupModule()` and remove the code responsible for loading the `VFGSGeometryScript` module.
 6. If errors occur, you can modify `DefaultViewFinderReSettings.ini` by deleting the `GeometryStrategyClass` configuration, which will fall back to using `VFGSNone`.
+
+[**Demo video 8**](https://www.bilibili.com/video/BV1HgBoB4EMd/?&p=8):
+1. Switching the implementation of `VFGeometryStrategyInterface` (including using the `GeometryScript` plugin), incorrect plugin `GeometryScript` stripping, and recovery methods.
+2. Stripping the `VFGSGeometryScript` module and compiling the plugin, these will prevent the corresponding DLL file for that module from being generated.
+3. Geometry strategy modules are not enabled automatically; they are loaded by the `VFGeometryBase` module based on the availability of the `GeometryScript` plugin.
 
 ## FAQ
 
@@ -1562,7 +1588,7 @@ Chapter 5 Main Scene
 
 ### *Demo Walkthrough Design*
 Basic Levels:  
-1. Physics cube rewinding (velocity not reset). Introduces time rewinding.
+1. Physics cube rewinding. Introduces time rewinding.
 2. Physics object placed high up, requires rotation/placement overhead. Physics cubes inside photos support rewinding. Different skyboxes.
 3. Perspective projection creates Level. Projection only appears on the first surface hit. Different skyboxes. Supports rewinding.
 4. Photos can contain PhotoCatcher. Taking photos duplicates objects/photos. Rewind to the previous keyframe.
