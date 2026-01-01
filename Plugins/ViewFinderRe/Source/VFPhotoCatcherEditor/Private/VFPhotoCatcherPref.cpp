@@ -2,6 +2,7 @@
 
 #include "VFPhotoCatcherPref.h"
 
+#include "Runtime/Launch/Resources/Version.h"
 #include "Materials/MaterialInstanceConstant.h"
 
 #include "VFLog.h"
@@ -582,7 +583,11 @@ void AVFPhotoCatcherPref::UpdateMIC()
         }
 
         PhotoCapture->CaptureScene();
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION > 4
+        PhotoCapture->TextureTarget->UpdateTexture(Texture2DAsset);
+#else
         PhotoCapture->TextureTarget->UpdateTexture2D(Texture2DAsset, Texture2DAsset->Source.GetFormat());
+#endif
 
         if (bPhotoCaptureTempRT)
         {
@@ -606,7 +611,11 @@ void AVFPhotoCatcherPref::UpdateMIC()
         }
 
         BackgroundCapture->CaptureScene();
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION > 4
+        BackgroundCapture->TextureTarget->UpdateTexture(BgTexture2DAsset);
+#else
         BackgroundCapture->TextureTarget->UpdateTexture2D(BgTexture2DAsset, BgTexture2DAsset->Source.GetFormat());
+#endif
 
         if (bPhotoCaptureTempRT)
         {
