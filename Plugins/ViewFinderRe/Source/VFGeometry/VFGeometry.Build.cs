@@ -39,6 +39,7 @@ public class VFGeometry : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"DeveloperSettings",
+				"GeometryCore",
 				"GeometryFramework",
 
 				"VFCommon",

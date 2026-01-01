@@ -2,6 +2,7 @@
 
 #include "VFGSGeometryScript.h"
 
+#include "Runtime/Launch/Resources/Version.h"
 #include "GeometryScript/CollisionFunctions.h"
 #include "GeometryScript/MeshAssetFunctions.h"
 #include "GeometryScript/MeshBasicEditFunctions.h"
@@ -248,7 +249,11 @@ FGeometryScriptCopyMeshFromComponentOptions Convert(
     FGeometryScriptCopyMeshFromComponentOptions Options{
         Options_.bWantNormals,
         Options_.bWantTangents,
-        Convert(Options_.RequestedLOD)};
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 5
+        Options_.bWantInstanceColors,
+#endif
+        Convert(Options_.RequestedLOD),
+    };
     return Options;
 }
 #endif // Macro MANUAL_CONVERT ends.
@@ -259,102 +264,6 @@ FGeometryScriptCopyMeshFromComponentOptions Convert(
 #include "Selections/MeshConnectedComponents.h"
 #include "ShapeApproximation/MeshSimpleShapeApproximation.h"
 #include "Async/ParallelFor.h"
-
-using namespace UE::Geometry;
-
-// from GeometryScript/CollisionFunctions.cpp UELocal::ComputeCollisionFromMesh()
-static void ComputeCollisionFromMesh(
-    const FDynamicMesh3 &Mesh,
-    FKAggregateGeom &GeneratedCollision,
-    FVF_GeometryScriptCollisionFromMeshOptions &Options)
-{
-    FPhysicsDataCollection NewCollision;
-
-    FMeshConnectedComponents Components(&Mesh);
-    Components.FindConnectedTriangles();
-    int32 NumComponents = Components.Num();
-
-    TArray<FDynamicMesh3> Submeshes;
-    TArray<const FDynamicMesh3 *> SubmeshPointers;
-
-    if (NumComponents == 1)
-    {
-        SubmeshPointers.Add(&Mesh);
-    }
-    else
-    {
-        Submeshes.SetNum(NumComponents);
-        SubmeshPointers.SetNum(NumComponents);
-        ParallelFor(NumComponents, [&](int32 k)
-                    {
-			FDynamicSubmesh3 Submesh(&Mesh, Components[k].Indices, (int32)EMeshComponents::None, false);
-			Submeshes[k] = MoveTemp(Submesh.GetSubmesh());
-			SubmeshPointers[k] = &Submeshes[k]; });
-    }
-
-    FMeshSimpleShapeApproximation ShapeGenerator;
-    ShapeGenerator.InitializeSourceMeshes(SubmeshPointers);
-
-    ShapeGenerator.bDetectSpheres = Options.bAutoDetectSpheres;
-    ShapeGenerator.bDetectBoxes = Options.bAutoDetectBoxes;
-    ShapeGenerator.bDetectCapsules = Options.bAutoDetectCapsules;
-
-    ShapeGenerator.MinDimension = Options.MinThickness;
-
-    switch (Options.Method)
-    {
-    case EVF_GeometryScriptCollisionGenerationMethod::AlignedBoxes:
-        ShapeGenerator.Generate_AlignedBoxes(NewCollision.Geometry);
-        break;
-    case EVF_GeometryScriptCollisionGenerationMethod::OrientedBoxes:
-        ShapeGenerator.Generate_OrientedBoxes(NewCollision.Geometry);
-        break;
-    case EVF_GeometryScriptCollisionGenerationMethod::MinimalSpheres:
-        ShapeGenerator.Generate_MinimalSpheres(NewCollision.Geometry);
-        break;
-    case EVF_GeometryScriptCollisionGenerationMethod::Capsules:
-        ShapeGenerator.Generate_Capsules(NewCollision.Geometry);
-        break;
-    case EVF_GeometryScriptCollisionGenerationMethod::ConvexHulls:
-        ShapeGenerator.bSimplifyHulls = Options.bSimplifyHulls;
-        ShapeGenerator.HullTargetFaceCount = Options.ConvexHullTargetFaceCount;
-        if (Options.MaxConvexHullsPerMesh > 1)
-        {
-            ShapeGenerator.ConvexDecompositionMaxPieces = Options.MaxConvexHullsPerMesh;
-            ShapeGenerator.ConvexDecompositionSearchFactor = Options.ConvexDecompositionSearchFactor;
-            ShapeGenerator.ConvexDecompositionErrorTolerance = Options.ConvexDecompositionErrorTolerance;
-            ShapeGenerator.ConvexDecompositionMinPartThickness = Options.ConvexDecompositionMinPartThickness;
-            ShapeGenerator.Generate_ConvexHullDecompositions(NewCollision.Geometry);
-        }
-        else
-        {
-            ShapeGenerator.Generate_ConvexHulls(NewCollision.Geometry);
-        }
-        break;
-    case EVF_GeometryScriptCollisionGenerationMethod::SweptHulls:
-        ShapeGenerator.bSimplifyHulls = Options.bSimplifyHulls;
-        ShapeGenerator.HullSimplifyTolerance = Options.SweptHullSimplifyTolerance;
-        ShapeGenerator.Generate_ProjectedHulls(NewCollision.Geometry,
-                                               static_cast<FMeshSimpleShapeApproximation::EProjectedHullAxisMode>(Options.SweptHullAxis));
-        break;
-    case EVF_GeometryScriptCollisionGenerationMethod::MinVolumeShapes:
-        ShapeGenerator.Generate_MinVolume(NewCollision.Geometry);
-        break;
-    }
-
-    if (Options.bRemoveFullyContainedShapes && Components.Num() > 1)
-    {
-        NewCollision.Geometry.RemoveContainedGeometry();
-    }
-
-    if (Options.MaxShapeCount > 0 && Options.MaxShapeCount < Components.Num())
-    {
-        NewCollision.Geometry.FilterByVolume(Options.MaxShapeCount);
-    }
-
-    NewCollision.CopyGeometryToAggregate();
-    GeneratedCollision = NewCollision.AggGeom;
-}
 
 UDynamicMesh *UVFGSGeometryScript::
     SetDynamicMeshCollisionFromMesh_Implementation(
