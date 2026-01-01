@@ -2,6 +2,8 @@
 
 #include "VFPhotoContainerSteppable.h"
 
+#include "Runtime/Launch/Resources/Version.h"
+
 #include "VFPhoto2D.h"
 #include "VFStepsRecorderWorldSubsystem.h"
 
@@ -194,6 +196,10 @@ void AVFPhotoContainerSteppable::TickBackward_Implementation(float Time)
             return;
         }
 
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 5
+        Steps.Pop(EAllowShrinking::No);
+#else
         Steps.Pop(false);
+#endif
     }
 }

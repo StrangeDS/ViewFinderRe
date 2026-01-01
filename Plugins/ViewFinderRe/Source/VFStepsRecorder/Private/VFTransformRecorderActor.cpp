@@ -4,6 +4,7 @@
 
 #include "Components/PrimitiveComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 #include "VFLog.h"
 
@@ -208,7 +209,11 @@ void AVFTransformRecorderActor::TickBackward_Implementation(float Time)
 			CompInfoMap[Comp] = Info;
 		}
 
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 5
+		Steps.Pop(EAllowShrinking::No);
+#else
 		Steps.Pop(false);
+#endif
 	}
 
 	auto &Step = Steps.Last();

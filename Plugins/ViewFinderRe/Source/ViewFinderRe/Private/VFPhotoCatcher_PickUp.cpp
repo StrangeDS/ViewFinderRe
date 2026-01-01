@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "InputMappingContext.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 #include "VFLog.h"
 #include "VFPhotoCaptureComponent.h"
@@ -263,7 +264,11 @@ bool AVFPhotoCatcher_PickUp::StepBack_Implementation(FVFStepInfo &StepInfo)
     {
     case EVFPhotoCatcherPickUpOption::PickedUp:
     {
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 5
+        auto Info = StepInfos.Pop(EAllowShrinking::No);
+#else
         auto Info = StepInfos.Pop(false);
+#endif
         DropDown();
         SetActorTransform(Info.Transform);
         if (IsValid(Info.ParentOrPlayerController))
@@ -272,7 +277,11 @@ bool AVFPhotoCatcher_PickUp::StepBack_Implementation(FVFStepInfo &StepInfo)
     }
     case EVFPhotoCatcherPickUpOption::DroppedDown:
     {
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 5
+        auto Info = StepInfos.Pop(EAllowShrinking::No);
+#else
         auto Info = StepInfos.Pop(false);
+#endif
         if (auto PC = Cast<APlayerController>(Info.ParentOrPlayerController); IsValid(PC))
         {
             Execute_Interact(this, PC);

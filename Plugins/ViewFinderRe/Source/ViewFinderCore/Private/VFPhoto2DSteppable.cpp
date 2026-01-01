@@ -2,6 +2,8 @@
 
 #include "VFPhoto2DSteppable.h"
 
+#include "Runtime/Launch/Resources/Version.h"
+
 #include "VFStepsRecorderWorldSubsystem.h"
 #include "VFPCommonFunctions.h"
 
@@ -97,7 +99,11 @@ bool AVFPhoto2DSteppable::StepBack_Implementation(FVFStepInfo &StepInfo)
     }
     case EVFPhoto2DSteppableOperation::ReattachTo:
     {
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 5
+        auto HierarchyInfo = HierarchyRecorder.Pop(EAllowShrinking::No);
+#else
         auto HierarchyInfo = HierarchyRecorder.Pop(false);
+#endif
         ReattachToComponent(HierarchyInfo.AttachParent);
         SetActorRelativeLocation(HierarchyInfo.RelativeTramsform.GetTranslation());
         SetActorRelativeRotation(HierarchyInfo.RelativeTramsform.GetRotation());

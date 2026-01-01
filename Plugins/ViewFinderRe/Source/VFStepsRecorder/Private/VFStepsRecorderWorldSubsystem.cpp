@@ -4,6 +4,7 @@
 
 #include "UObject/Package.h"
 #include "Algo/BinarySearch.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 #include "VFLog.h"
 #include "VFStepsRecordInterface.h"
@@ -162,7 +163,11 @@ void UVFStepsRecorderWorldSubsystem::TickBackward(float DeltaTime)
                 *Info.Info,
                 *Info.Sender->GetName());
         }
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 5
+        Infos.Pop(EAllowShrinking::No);
+#else
         Infos.Pop(false);
+#endif
     }
 
     for (auto &Target : TickTargets)

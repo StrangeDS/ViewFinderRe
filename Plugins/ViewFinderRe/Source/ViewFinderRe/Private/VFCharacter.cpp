@@ -12,6 +12,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "Kismet/KismetSystemLibrary.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 #include "VFLog.h"
 #include "VFInteractInterface.h"
@@ -281,7 +282,11 @@ void AVFCharacter::TickBackward_Implementation(float Time)
 			GetCharacterMovement()->Velocity = StepInfo.Velocity;
 		GetController()->SetControlRotation(StepInfo.Rotator);
 
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 5
+		Steps.Pop(EAllowShrinking::No);
+#else
 		Steps.Pop(false);
+#endif
 	}
 
 	auto &Step = Steps.Last();

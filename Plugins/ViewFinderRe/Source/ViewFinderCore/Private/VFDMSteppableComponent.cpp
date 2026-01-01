@@ -3,6 +3,7 @@
 #include "VFDMSteppableComponent.h"
 
 #include "Engine/World.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 #include "VFLog.h"
 #include "VFStepsRecorderWorldSubsystem.h"
@@ -211,6 +212,10 @@ void UVFDMSteppableComponent::TickBackward_Implementation(float Time)
         default:
             break;
         }
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 5
+        Steps.Pop(EAllowShrinking::No);
+#else
         Steps.Pop(false);
+#endif
     }
 }
