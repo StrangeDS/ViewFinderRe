@@ -12,7 +12,7 @@ Developed with UE5.3.2 released.
 The project is empty, with all code and contents in the plugin.  
 **Tested only on Windows. Standalone only.**  
 Is Based on DynamicMeshComponent, with an optional dependency on the Plugin
-[GeometryScript](https://img.shields.io/badge/Plugin-GeometryScript-Green.svg).  
+[GeometryScript](https://dev.epicgames.com/documentation/en-us/unreal-engine/geometry-scripting-users-guide-in-unreal-engine).  
 Maintenance is volunteer-based and does not guarantee updates.
 
 [![License](https://img.shields.io/badge/license-MPL2.0-blue.svg)](LICENSE)
@@ -221,8 +221,8 @@ Alternatively, you can directly open the project to get started. It's a minimal 
 1. Open the demo map: `Plugins/ViewFinderRe/Content/Maps/L_Demo`
 2. Click Play in Editor to run the demo. Explanations are provided in the scene (with localization support for Chinese/English). Have fun!
 
-[**Demo Video 1**](https://www.bilibili.com/video/BV1HgBoB4EMd/?&p=1): Full walkthrough of the demo map
-[**Demo Video 2**](https://www.bilibili.com/video/BV1HgBoB4EMd/?&p=2): *Using the Plugin*, covering *prerequisites* and *minimal steps* to *Get Started*. Chinese/English localization is supported.
+[**Demo Video 1**](https://www.bilibili.com/video/BV1HgBoB4EMd/?&p=1): Full walkthrough of the demo map.  
+[**Demo Video 2**](https://www.bilibili.com/video/BV1HgBoB4EMd/?&p=2): *Using the Plugin*, covering *prerequisites* and *minimal steps* to *Get Started*. Chinese/English localization is supported.  
 
 Working on getting this onto Fab...
 
@@ -530,7 +530,7 @@ No perfect solution has been found. The current outcome is:
 ### *Disabling VSM*
 Virtual Shadow Maps (VSM) need be disabled.  
 Scene Capture is incompatible with Virtual Shadow Maps. When VSM is enabled, captured shadows may exhibit blocky artifacts or missing parts.  
-VSM is disabled by default in this project. [Official documentation regarding this issue](https://dev.epicgames.com/documentation/en-us/unreal-engine/virtual-shadow-maps-in-unreal-engine#scene-capture).  
+VSM is disabled by default in this project. [Official documentation regarding this issue](https://dev.epicgames.com/documentation/en-us/unreal-engine/virtual-shadow-maps-in-unreal-engine?application_version=5.3#scenecapture).  
 However, in version 5.6.1, no issues were observed during testing, although no official announcement confirming a fix has been found.
 
 ### *No Level Streaming Implementation*
@@ -993,7 +993,7 @@ An independent UObject registration system (does not manage lifecycle).
 #### VFStepsRecorder
 Interface: VFStepsRecordInterface  
 Subsystem: VFStepsRecorderWorldSubsystem  
-Actor: VFTransformRecordVolume, VFTransformRecorderActor  
+Actor: VFTransformRecorderActor  
 DeveloperSettings: Tick interval, rewind time multiplier, pre-allocated array size, etc.  
 
 <!-- Geometry Strategy Definition and Implementation -->

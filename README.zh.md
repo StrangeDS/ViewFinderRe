@@ -11,7 +11,7 @@
 使用UE5.3.2发行版开发, 包装成插件, 项目是一个空壳  
 **仅测试Windows, 单机不支持网络**  
 基于动态网格体组件. 依赖插件
-[GeometryScript](https://img.shields.io/badge/Plugin-GeometryScript-Green.svg)
+[GeometryScript](https://dev.epicgames.com/documentation/zh-cn/unreal-engine/geometry-scripting-users-guide-in-unreal-engine)
 (可选), 可独立使用  
 随缘更新和维护, 也可能不再更新  
 
@@ -531,7 +531,7 @@
 ### *关闭VSM*
 需要关闭VSM(Virtual Shadow Map)  
 场景捕捉与虚拟阴影贴图不兼容. 在使用VSM时, 捕捉到的阴影会出现块状缺失  
-项目已关闭VSM. [官方对此问题的描述](https://dev.epicgames.com/documentation/en-us/unreal-engine/virtual-shadow-maps-in-unreal-engine#scene-capture)  
+项目已关闭VSM. [官方对此问题的描述](https://dev.epicgames.com/documentation/en-us/unreal-engine/virtual-shadow-maps-in-unreal-engine?application_version=5.3#scenecapture)  
 但在5.6.1版本下, 实测没有问题, 但没找到已修复的相关公告  
 
 ### *没做关卡切换*
@@ -988,7 +988,7 @@ graph TD
 #### VFStepsRecorder
 接口: VFStepsRecordInterface  
 世界子系统: VFStepsRecorderWorldSubsystem  
-Actor: VFTransformRecordVolume, VFTransformRecorderActor  
+Actor: VFTransformRecorderActor  
 配置类: tick间隔, 回溯时间倍率, 预分配数组大小等  
 
 <!-- 几何策略的定义和实现 -->
