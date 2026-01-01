@@ -146,6 +146,30 @@ static EGeometryScriptBooleanOperation Convert(
     return Operation;
 }
 
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6
+static EGeometryScriptBooleanOutputSpace Convert(
+    const E_VFGeometryScriptBooleanOutputSpace &OutSpace_)
+{
+    EGeometryScriptBooleanOutputSpace OutSpace;
+    switch (OutSpace_)
+    {
+    case E_VFGeometryScriptBooleanOutputSpace::TargetTransformSpace:
+        OutSpace = EGeometryScriptBooleanOutputSpace::TargetTransformSpace;
+        break;
+    case E_VFGeometryScriptBooleanOutputSpace::ToolTransformSpace:
+        OutSpace = EGeometryScriptBooleanOutputSpace::ToolTransformSpace;
+        break;
+    case E_VFGeometryScriptBooleanOutputSpace::SharedTransformSpace:
+        OutSpace = EGeometryScriptBooleanOutputSpace::SharedTransformSpace;
+        break;
+    default:
+        OutSpace = EGeometryScriptBooleanOutputSpace::TargetTransformSpace;
+        break;
+    }
+    return OutSpace;
+}
+#endif
+
 static FGeometryScriptMeshBooleanOptions Convert(
     const FVF_GeometryScriptMeshBooleanOptions &Options_)
 {
@@ -155,7 +179,7 @@ static FGeometryScriptMeshBooleanOptions Convert(
         Options_.SimplifyPlanarTolerance,
 #if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6
         Options_.bAllowEmptyResult,
-        Options_.OutputTransformSpace,
+        Convert(Options_.OutputTransformSpace),
 #endif
     };
     return Options;

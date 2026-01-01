@@ -23,7 +23,7 @@ struct FVFPhoto2DHierarchyInfo
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
-	USceneComponent *AttachParent;
+	USceneComponent *AttachParent = nullptr;
 
 	// Scaling is not managed by this and will be ignored.
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
