@@ -15,7 +15,8 @@ enum class EVF_GeometryScriptCollisionGenerationMethod : uint8
 	Capsules = 3,
 	ConvexHulls = 4,
 	SweptHulls = 5,
-	MinVolumeShapes = 6
+	MinVolumeShapes = 6,
+	LevelSets = 7,
 };
 
 UENUM(BlueprintType)
@@ -27,7 +28,7 @@ enum class EVF_GeometryScriptSweptHullAxis : uint8
 	/** Use X/Y/Z axis with smallest axis-aligned-bounding-box dimension */
 	SmallestBoxDimension = 3,
 	/** Compute projected hull for each of X/Y/Z axes and use the one that has the smallest volume  */
-	SmallestVolume = 4
+	SmallestVolume = 4,
 };
 
 USTRUCT(BlueprintType)
@@ -91,7 +92,7 @@ enum class EVF_GeometryScriptLODType : uint8
 	MaxAvailable,
 	HiResSourceModel,
 	SourceModel,
-	RenderData
+	RenderData,
 };
 
 USTRUCT(BlueprintType)
@@ -120,6 +121,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
 	bool bIgnoreRemoveDegenerates = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
+	bool bUseBuildScale = true;
 };
 
 // from GeometryScript/MeshBooleanFunctions.h
@@ -128,7 +132,23 @@ enum class EVF_GeometryScriptBooleanOperation : uint8
 {
 	Union,
 	Intersection,
-	Subtract
+	Subtract,
+	TrimInside,
+	TrimOutside,
+	NewPolyGroupInside UMETA(DisplayName = "New PolyGroup Inside"),
+	NewPolyGroupOutside UMETA(DisplayName = "New PolyGroup Outside"),
+};
+
+// Options for the output coordinate space for the mesh boolean result
+UENUM(BlueprintType)
+enum class E_VFGeometryScriptBooleanOutputSpace : uint8
+{
+	// Transform the boolean result into the local space of the target mesh
+	TargetTransformSpace,
+	// Transform the boolean result into the local space of the tool mesh
+	ToolTransformSpace,
+	// Keep the boolean result in the shared space where the boolean was computed
+	SharedTransformSpace,
 };
 
 USTRUCT(BlueprintType)
@@ -144,6 +164,14 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
 	float SimplifyPlanarTolerance = 0.01f;
+
+	// Whether to allow the Mesh Boolean operation to generate an empty mesh as its result
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
+	bool bAllowEmptyResult = false;
+
+	// The coordinate space to use for the result mesh
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
+	E_VFGeometryScriptBooleanOutputSpace OutputTransformSpace = E_VFGeometryScriptBooleanOutputSpace::TargetTransformSpace;
 };
 
 USTRUCT(BlueprintType)
@@ -173,14 +201,14 @@ enum class EVF_GeometryScriptPrimitivePolygroupMode : uint8
 {
 	SingleGroup = 0,
 	PerFace = 1,
-	PerQuad = 2
+	PerQuad = 2,
 };
 
 UENUM(BlueprintType)
 enum class EVF_GeometryScriptPrimitiveUVMode : uint8
 {
 	Uniform = 0,
-	ScaleToFill = 1
+	ScaleToFill = 1,
 };
 
 USTRUCT(BlueprintType)
@@ -196,6 +224,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
 	EVF_GeometryScriptPrimitiveUVMode UVMode = EVF_GeometryScriptPrimitiveUVMode::Uniform;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
+	int32 MaterialID = 0;
 };
 
 // from GeometryScript/SceneUtilityFunctions.h
@@ -209,6 +240,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
 	bool bWantTangents = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
+	bool bWantInstanceColors = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Options)
 	FVF_GeometryScriptMeshReadLOD RequestedLOD = FVF_GeometryScriptMeshReadLOD();

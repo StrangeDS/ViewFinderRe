@@ -46,6 +46,11 @@ static EGeometryScriptCollisionGenerationMethod Convert(
     case EVF_GeometryScriptCollisionGenerationMethod::MinVolumeShapes:
         Method = EGeometryScriptCollisionGenerationMethod::MinVolumeShapes;
         break;
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 5
+    case EVF_GeometryScriptCollisionGenerationMethod::LevelSets:
+        Method = EGeometryScriptCollisionGenerationMethod::LevelSets;
+        break;
+#endif
     default:
         Method = EGeometryScriptCollisionGenerationMethod::ConvexHulls;
         break;
@@ -100,7 +105,8 @@ static FGeometryScriptCollisionFromMeshOptions Convert(
         Options_.SweptHullSimplifyTolerance,
         Convert(Options_.SweptHullAxis),
         Options_.bRemoveFullyContainedShapes,
-        Options_.MaxShapeCount};
+        Options_.MaxShapeCount,
+    };
     return Options;
 }
 
@@ -119,6 +125,20 @@ static EGeometryScriptBooleanOperation Convert(
     case EVF_GeometryScriptBooleanOperation::Subtract:
         Operation = EGeometryScriptBooleanOperation::Subtract;
         break;
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6
+    case EVF_GeometryScriptBooleanOperation::TrimInside:
+        Operation = EGeometryScriptBooleanOperation::TrimInside;
+        break;
+    case EVF_GeometryScriptBooleanOperation::TrimOutside:
+        Operation = EGeometryScriptBooleanOperation::TrimOutside;
+        break;
+    case EVF_GeometryScriptBooleanOperation::NewPolyGroupInside:
+        Operation = EGeometryScriptBooleanOperation::NewPolyGroupInside;
+        break;
+    case EVF_GeometryScriptBooleanOperation::NewPolyGroupOutside:
+        Operation = EGeometryScriptBooleanOperation::NewPolyGroupOutside;
+        break;
+#endif
     default:
         Operation = EGeometryScriptBooleanOperation::Subtract;
         break;
@@ -132,7 +152,12 @@ static FGeometryScriptMeshBooleanOptions Convert(
     FGeometryScriptMeshBooleanOptions Options{
         Options_.bFillHoles,
         Options_.bSimplifyOutput,
-        Options_.SimplifyPlanarTolerance};
+        Options_.SimplifyPlanarTolerance,
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6
+        Options_.bAllowEmptyResult,
+        Options_.OutputTransformSpace,
+#endif
+    };
     return Options;
 }
 
@@ -142,7 +167,11 @@ static FGeometryScriptCopyMeshFromAssetOptions Convert(
     FGeometryScriptCopyMeshFromAssetOptions Options{
         Options_.bApplyBuildSettings,
         Options_.bRequestTangents,
-        Options_.bIgnoreRemoveDegenerates};
+        Options_.bIgnoreRemoveDegenerates,
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 6
+        Options_.bUseBuildScale,
+#endif
+    };
     return Options;
 };
 
@@ -176,7 +205,8 @@ static FGeometryScriptMeshReadLOD Convert(
 {
     FGeometryScriptMeshReadLOD LOD{
         Convert(LOD_.LODType),
-        LOD_.LODIndex};
+        LOD_.LODIndex,
+    };
     return LOD;
 };
 
@@ -188,7 +218,8 @@ FGeometryScriptMeshSelfUnionOptions Convert(
         Options_.bTrimFlaps,
         Options_.bSimplifyOutput,
         Options_.SimplifyPlanarTolerance,
-        Options_.WindingThreshold};
+        Options_.WindingThreshold,
+    };
     return Options;
 }
 
@@ -239,7 +270,11 @@ FGeometryScriptPrimitiveOptions Convert(
     FGeometryScriptPrimitiveOptions Options{
         Convert(Options_.PolygroupMode),
         Options_.bFlipOrientation,
-        Convert(Options_.UVMode)};
+        Convert(Options_.UVMode),
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 5 && ENGINE_PATCH_VERSION >= 2
+        Options_.MaterialID,
+#endif
+    };
     return Options;
 }
 
