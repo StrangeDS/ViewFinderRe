@@ -17,7 +17,7 @@
 
 [![License](https://img.shields.io/badge/license-MPL2.0-blue.svg)](LICENSE)
 [![Contact](https://img.shields.io/badge/Contact-Bilibili-green.svg)](https://space.bilibili.com/239325439)
-[![FAB Store Page](https://img.shields.io/badge/FAB_store_Page-yellow.svg)]()
+[![FAB Store Page](https://img.shields.io/badge/FAB_store_Page-yellow.svg)](https://www.fab.com/zh-cn/listings/4073449a-9a03-4581-9ac4-3a8159e03860)
 
 :book: [**中文**](README.zh.md) | [**English**](README.md)  
 维护中文文档, 使用AI辅助翻译其它版本  
