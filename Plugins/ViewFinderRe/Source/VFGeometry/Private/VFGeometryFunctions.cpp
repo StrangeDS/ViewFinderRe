@@ -9,8 +9,6 @@
 
 #include "VFLog.h"
 
-using namespace UE::Geometry;
-
 #define LOCTEXT_NAMESPACE "UVFGeometryFunctions"
 
 #include "VFDynamicMeshComponent.h"
