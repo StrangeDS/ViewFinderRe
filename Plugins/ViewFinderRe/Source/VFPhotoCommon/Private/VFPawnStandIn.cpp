@@ -3,6 +3,7 @@
 #include "VFPawnStandIn.h"
 
 #include "GameFramework/Pawn.h"
+#include "GameFramework/Actor.h"
 #include "Engine/StaticMesh.h"
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"

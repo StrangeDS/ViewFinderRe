@@ -3,6 +3,7 @@
 #include "VFPhoto2D.h"
 
 #include "Engine/Texture2D.h"
+#include "Engine/StaticMesh.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Components/StaticMeshComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"

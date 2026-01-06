@@ -2,6 +2,8 @@
 
 #include "VFPhotoContainer_Input.h"
 
+#include "Engine/LocalPlayer.h"
+#include "GameFramework/PlayerController.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputMappingContext.h"
 

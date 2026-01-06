@@ -3,17 +3,15 @@
 #include "VFGeometryFunctions.h"
 
 #include "Engine/World.h"
-#if WITH_EDITOR
-#include "Editor.h"
-#endif
+#include "Engine/StaticMesh.h"
+#include "VFDynamicMeshComponent.h"
 
+#include "VFGeometryDeveloperSettings.h"
+#include "VFUObjsPoolWorldSubsystem.h"
+#include "VFGeometryStrategyInterface.h"
 #include "VFLog.h"
 
 #define LOCTEXT_NAMESPACE "UVFGeometryFunctions"
-
-#include "VFDynamicMeshComponent.h"
-#include "VFGeometryDeveloperSettings.h"
-#include "VFUObjsPoolWorldSubsystem.h"
 
 bool UVFGeometryFunctions::IsEditorCreated(UObject *Object)
 {
@@ -63,8 +61,6 @@ bool UVFGeometryFunctions::ReturnVFDMComp(UVFDynamicMeshComponent *Comp)
 	return false;
 }
 
-#include "VFGeometryStrategyInterface.h"
-
 UObject *UVFGeometryFunctions::GetGeometryStrategyCDO()
 {
 	auto GBSettings = GetDefault<UVFGeometryDeveloperSettings>();
@@ -86,8 +82,6 @@ UDynamicMesh *UVFGeometryFunctions::SetDynamicMeshCollisionFromMesh(
 		ToDynamicMeshComponent,
 		Options);
 }
-
-#include "Engine/StaticMesh.h"
 
 UDynamicMesh *UVFGeometryFunctions::CopyMeshFromStaticMesh(
 	UStaticMesh *FromStaticMeshAsset,

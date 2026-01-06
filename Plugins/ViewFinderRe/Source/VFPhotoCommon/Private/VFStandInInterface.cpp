@@ -2,6 +2,8 @@
 
 #include "VFStandInInterface.h"
 
+#include "GameFramework/Actor.h"
+
 #include "VFHelperComponent.h"
 
 void IVFStandInInterface::SetOriginalActor_Implementation(AActor *Original)

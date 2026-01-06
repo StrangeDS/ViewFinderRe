@@ -2,10 +2,13 @@
 
 #include "VFPhotoCatcher_PickUp.h"
 
+#include "TimerManager.h"
+#include "Engine/LocalPlayer.h"
+#include "GameFramework/PlayerController.h"
+#include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "InputMappingContext.h"
 #include "Runtime/Launch/Resources/Version.h"
 
 #include "VFLog.h"

@@ -1,6 +1,10 @@
 // Copyright 2026, StrangeDS. All Rights Reserved.
 
 #include "VFBackgroundWorldSubsystem.h"
+
+#include "Engine/World.h"
+#include "GameFramework/Actor.h"
+
 #include "VFUObjsRegistrarWorldSubsystem.h"
 
 bool UVFBackgroundWorldSubsystem::Register(AActor *Background)

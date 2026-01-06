@@ -7,9 +7,13 @@
 #include "Kismet/GameplayStatics.h"
 #endif
 
+#include "Engine/World.h"
 #include "Engine/Texture2D.h"
 #include "Engine/StaticMesh.h"
+#include "UObject/ConstructorHelpers.h"
 #include "Components/StaticMeshComponent.h"
+#include "Materials/MaterialInterface.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 #include "VFHelperComponent.h"
 #include "VFPhotoCatcher.h"

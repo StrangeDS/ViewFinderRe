@@ -5,6 +5,7 @@
 #include "TextureResource.h"
 #include "Engine/Texture2D.h"
 #include "Engine/TextureRenderTarget2D.h"
+#include "GameFramework/Actor.h"
 #include "Materials/MaterialInstanceDynamic.h"
 
 #include "VFLog.h"
