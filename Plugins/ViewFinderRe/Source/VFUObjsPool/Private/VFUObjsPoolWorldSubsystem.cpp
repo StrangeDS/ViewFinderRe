@@ -38,6 +38,8 @@ UObject *UVFUObjsPoolWorldSubsystem::GetOrCreateAsUObject(
 
     ObjRes = NewObject<UObject>(Outer, ObjClass, NAME_None);
     PoolsOfAll.FindOrAdd(ObjClass).Objs.Add(ObjRes);
+
+    IVFPoolableInterface::Execute_AfterGet(ObjRes);
     return ObjRes;
 }
 
@@ -49,7 +51,7 @@ bool UVFUObjsPoolWorldSubsystem::Return(UObject *Obj)
     if (!PoolsOfAll.Contains(ObjClass) || !PoolsOfAll[ObjClass].Objs.Contains(Obj))
         return false;
 
-    IVFPoolableInterface::Execute_AfterGet(Obj);
+    IVFPoolableInterface::Execute_BeforeReturn(Obj);
     Obj->Rename(nullptr, this);
     PoolsOfAvailable.FindOrAdd(ObjClass).Objs.AddUnique(Obj);
     return true;
