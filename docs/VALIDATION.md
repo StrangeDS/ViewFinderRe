@@ -13,3 +13,9 @@ For this Mac validation only, an ignored standalone harness adds Mac to platform
 Run the Editor automation prefix `ViewFinderRe` for logic tests, and `ViewFinderRe.Integration.CapturePlaceWithoutManager` with a non-null RHI for capture/placement. Use a CPU-accessible test mesh. The local Delivery folder contains the exact preparation script, commands, raw logs and JSON results.
 
 Independent review: GPT-6.1-Sol reviewed the changes and rechecked the fixes. Its final review was limited to the changed lifecycle, rewind and integration paths, not a proof of general correctness. CameraManager fallback keeps upstream post-process behavior: filters specifically requiring a CameraComponent are not extended by this patch.
+
+## Readability pass
+
+The generic integration code now uses consistent four-space Allman formatting, explicit branch braces, and grouped declarations. Container lookup, first-photo activation, camera-holder binding, view tracking and equipment registration have separate names and responsibilities. The duplicated pawn-velocity restore path is shared. Public comments describe inputs, outputs and ownership; implementation comments explain lifecycle and rewind decisions. No new fallback layer or defensive error-handling framework was added. UObject and Blueprint event boundaries retain their lifetime checks.
+
+The public interfaces and intended behavior are unchanged. The refactor was independently checked with GPT-6.1-Sol, rebuilt on UE 5.7 and rerun as one full Metal automation suite: all 10 tests passed, including the capture/place integration test (one existing performance warning).

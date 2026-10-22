@@ -8,120 +8,128 @@
 #include "VFPhotoCatcher_PickUp.generated.h"
 
 class UInputMappingContext;
+class UCameraComponent;
 
 class AVFPhotoContainer;
 
 UENUM()
 enum class EVFPhotoCatcherPickUpOption : uint8
 {
-	PickedUp,
-	DroppedDown,
-	Activate,
-	Deactivate,
-	MAX,
+    PickedUp,
+    DroppedDown,
+    Activate,
+    Deactivate,
+    MAX,
 };
 
 USTRUCT(BlueprintType)
 struct FVFPhotoCatcherPickUpStepInfo
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	EVFPhotoCatcherPickUpOption Option = EVFPhotoCatcherPickUpOption::MAX;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+    EVFPhotoCatcherPickUpOption Option = EVFPhotoCatcherPickUpOption::MAX;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
-			  meta = (EditCondition = "Option == EVFPhotoCatcherPickUpOption::PickedUp"))
-	FTransform Transform;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+              meta = (EditCondition = "Option == EVFPhotoCatcherPickUpOption::PickedUp"))
+    FTransform Transform;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
-			  meta = (EditCondition = "Option == EVFPhotoCatcherPickUpOption::DroppedDown"))
-	TObjectPtr<AActor> ParentOrPlayerController;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
+              meta = (EditCondition = "Option == EVFPhotoCatcherPickUpOption::DroppedDown"))
+    TObjectPtr<AActor> ParentOrPlayerController;
 
+    /** Activation state before a drop, restored independently of the pickup attachment. */
     UPROPERTY()
     bool bWasActive = true;
 };
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
 class VIEWFINDERRE_API AVFPhotoCatcher_PickUp : public AVFPhotoCatcher_Interact,
-												public IVFActivatableInterface
+                                                public IVFActivatableInterface
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
     AVFPhotoCatcher_PickUp();
-	virtual bool Interact_Implementation(APlayerController *Controller) override;
+    virtual bool Interact_Implementation(APlayerController *Controller) override;
     virtual void Tick(float DeltaSeconds) override;
     virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 
-	virtual AVFPhoto2D *TakeAPhoto_Implementation() override;
+    virtual AVFPhoto2D *TakeAPhoto_Implementation() override;
 
-	virtual void CloseToPreview_Implementation() override;
+    virtual void CloseToPreview_Implementation() override;
 
-	virtual void LeaveFromPreview_Implementation() override;
+    virtual void LeaveFromPreview_Implementation() override;
 
 public:
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
-	void PickUp(USceneComponent *ToAttach);
-	virtual void PickUp_Implementation(USceneComponent *ToAttach);
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
+    void PickUp(USceneComponent *ToAttach);
+    virtual void PickUp_Implementation(USceneComponent *ToAttach);
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
-	void DropDown();
-	virtual void DropDown_Implementation();
+    UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "ViewFinder")
+    void DropDown();
+    virtual void DropDown_Implementation();
 
 protected:
+    void BindHolder(APawn *NewPawn, APlayerController *Controller);
+    void UnbindHolderCallbacks();
+    void ConfigureViewTracking(UCameraComponent *Camera);
+    void RegisterWithEquipmentOwner();
     void ReleasePreviewInput();
+
     UFUNCTION()
-    void HandleHolderDestroyed(AActor* Actor);
+    void HandleHolderDestroyed(AActor *Actor);
     UFUNCTION()
-    void HandleHolderControllerChanged(APawn* Holder, AController* OldController, AController* NewController);
+    void HandleHolderControllerChanged(APawn *Holder, AController *OldController, AController *NewController);
+    /** Scoped by the drop inverse so pickup does not activate a previously inactive camera. */
     bool bRestoringInactivePickup = false;
+    /** True only when this camera changed the pawn's input boolean from enabled to disabled. */
     bool bOwnsPreviewInput = false;
     bool bFollowCameraManager = false;
     FTransform CameraRelativeTransform;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TObjectPtr<UInputMappingContext> HoldingMappingContext;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+    TObjectPtr<UInputMappingContext> HoldingMappingContext;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
-	bool bPickedUp = false;
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
+    bool bPickedUp = false;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
-	bool bReady = false;
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
+    bool bReady = false;
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder",
-			  meta = (NoEditInline))
-	TObjectPtr<AVFPhotoContainer> Container;
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder", meta = (NoEditInline))
+    TObjectPtr<AVFPhotoContainer> Container;
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void CloseToPreview_Move();
+    UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+    void CloseToPreview_Move();
 
-	UFUNCTION(BlueprintCallable, Category = "ViewFinder")
-	void LeaveFromPreview_Move();
+    UFUNCTION(BlueprintCallable, Category = "ViewFinder")
+    void LeaveFromPreview_Move();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder", meta = (MakeEditWidget))
-	FTransform IdleTrans = FTransform(FRotator::ZeroRotator, FVector(100.0f, 20.0f, -20.0f));
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder", meta = (MakeEditWidget))
+    FTransform IdleTrans = FTransform(FRotator::ZeroRotator, FVector(100.0f, 20.0f, -20.0f));
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder", meta = (MakeEditWidget))
-	FTransform PreviewTrans = FTransform(FRotator::ZeroRotator, FVector(17.5f, 0.f, 0.f));
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder", meta = (MakeEditWidget))
+    FTransform PreviewTrans = FTransform(FRotator::ZeroRotator, FVector(17.5f, 0.f, 0.f));
 
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
-	FTimerHandle PreviewTimeHandle;
+    UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = "ViewFinder")
+    FTimerHandle PreviewTimeHandle;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
-	float PreviewMoveInterval = 0.02f;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+    float PreviewMoveInterval = 0.02f;
 
 public: // IVFActivatableInterface
-	virtual void Activate_Implementation() override;
+    virtual void Activate_Implementation() override;
 
-	virtual void Deactivate_Implementation() override;
+    virtual void Deactivate_Implementation() override;
 
-	virtual bool CanActivate_Implementation() override;
+    virtual bool CanActivate_Implementation() override;
 
-	virtual bool IsActive_Implementation() override;
+    virtual bool IsActive_Implementation() override;
 
 public:
-	virtual bool StepBack_Implementation(FVFStepInfo &StepInfo) override;
+    virtual bool StepBack_Implementation(FVFStepInfo &StepInfo) override;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-	TArray<FVFPhotoCatcherPickUpStepInfo> StepInfos;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+    TArray<FVFPhotoCatcherPickUpStepInfo> StepInfos;
 };

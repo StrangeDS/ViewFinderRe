@@ -2,71 +2,64 @@
 
 #pragma once
 
-#include "Components/ActorComponent.h"
 #include "CoreMinimal.h"
+#include "Components/ActorComponent.h"
 #include "VFStepsRecordInterface.h"
 #include "VFTimeRewindComponent.generated.h"
-
 
 class UVFStepsRecorderWorldSubsystem;
 class APawn;
 
-/**
- * Local copy of FVFPawnTransformInfo from VFCharacter.h to avoid pulling in
- * the full AVFCharacter header and its dependencies.
- */
+/** A pawn pose and velocity sampled at the rewind subsystem's time. */
 USTRUCT(BlueprintType)
-struct FVFPawnRewindSample {
-  GENERATED_USTRUCT_BODY()
+struct FVFPawnRewindSample
+{
+    GENERATED_USTRUCT_BODY()
 
-  UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
-  FVector Location = FVector::ZeroVector;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+    FVector Location = FVector::ZeroVector;
 
-  UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
-  FVector Velocity = FVector::ZeroVector;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+    FVector Velocity = FVector::ZeroVector;
 
-  UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
-  FRotator Rotator = FRotator::ZeroRotator;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+    FRotator Rotator = FRotator::ZeroRotator;
 
-  UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
-  float Time = 0.f;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ViewFinder")
+    float Time = 0.f;
 
-  FVFPawnRewindSample() {};
+    FVFPawnRewindSample() = default;
 
-  FVFPawnRewindSample(APawn *Pawn, float TimeIn);
+    FVFPawnRewindSample(APawn *Pawn, float TimeIn);
 
-  FVFPawnRewindSample(const FVFPawnRewindSample &Other,
-                            float TimeIn);
+    FVFPawnRewindSample(const FVFPawnRewindSample &Other, float TimeIn);
 
-  bool operator==(const FVFPawnRewindSample &Other) const;
+    bool operator==(const FVFPawnRewindSample &Other) const;
 };
 
-UCLASS(Blueprintable, ClassGroup = (ViewFinder),
-       meta = (BlueprintSpawnableComponent))
-class VIEWFINDERRE_API UVFTimeRewindComponent : public UActorComponent,
-                                        public IVFStepsRecordInterface {
-  GENERATED_BODY()
+/** Records pawn movement through the world rewind subsystem without requiring AVFCharacter. */
+UCLASS(Blueprintable, ClassGroup = (ViewFinder), meta = (BlueprintSpawnableComponent))
+class VIEWFINDERRE_API UVFTimeRewindComponent : public UActorComponent, public IVFStepsRecordInterface
+{
+    GENERATED_BODY()
 
 public:
-  UVFTimeRewindComponent();
+    UVFTimeRewindComponent();
 
-  virtual void BeginPlay() override;
-  virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+    virtual void BeginPlay() override;
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-public:
-  virtual void TickForward_Implementation(float Time) override;
+    virtual void TickForward_Implementation(float Time) override;
 
-  virtual void TickBackward_Implementation(float Time) override;
+    virtual void TickBackward_Implementation(float Time) override;
 
-
-public:
-  UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
-  TArray<FVFPawnRewindSample> Steps;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder")
+    TArray<FVFPawnRewindSample> Steps;
 
 private:
-  /** Cached pointer to the world subsystem, lazy-initialized. */
-  UPROPERTY()
-  mutable TObjectPtr<UVFStepsRecorderWorldSubsystem> StepsRecorder = nullptr;
+    /** Cached pointer to the world subsystem, lazy-initialized. */
+    UPROPERTY()
+    mutable TObjectPtr<UVFStepsRecorderWorldSubsystem> StepsRecorder = nullptr;
 
-  UVFStepsRecorderWorldSubsystem *GetStepsRecorder() const;
+    UVFStepsRecorderWorldSubsystem *GetStepsRecorder() const;
 };
