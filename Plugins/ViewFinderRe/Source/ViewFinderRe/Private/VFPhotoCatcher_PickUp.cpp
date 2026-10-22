@@ -15,49 +15,131 @@
 #include "VFPhotoCaptureComponent.h"
 #include "VFPCommonFunctions.h"
 #include "VFCharacter.h"
+#include "VFEquipmentManagerComponent.h"
+#include "VFPhotoContainerManagerComponent.h"
+#include "Camera/PlayerCameraManager.h"
+
+AVFPhotoCatcher_PickUp::AVFPhotoCatcher_PickUp()
+{
+    PrimaryActorTick.bCanEverTick = true;
+    PrimaryActorTick.bStartWithTickEnabled = false;
+    PrimaryActorTick.TickGroup = TG_PostUpdateWork;
+}
 
 bool AVFPhotoCatcher_PickUp::Interact_Implementation(APlayerController *Controller)
 {
+    if (bPickedUp || !IsValid(Controller) || !IsValid(Controller->GetPawn())) return false;
+    APawn* NewPawn = Controller->GetPawn();
+    UCameraComponent* Camera = NewPawn->FindComponentByClass<UCameraComponent>();
+    if (!Camera && (!IsValid(Controller->PlayerCameraManager) || !NewPawn->GetRootComponent())) return false;
     EnableInteract(false);
     Execute_EndAiming(this, Controller);
     PlayerController = Controller;
-    Pawn = PlayerController->GetPawn();
+    Pawn = NewPawn;
+    Pawn->OnDestroyed.AddUniqueDynamic(this, &ThisClass::HandleHolderDestroyed);
+    Pawn->ReceiveControllerChangedDelegate.AddUniqueDynamic(this, &ThisClass::HandleHolderControllerChanged);
     ActorsToIgnore.AddUnique(Pawn);
-    // Needs to be overridden based on the character.
-    if (auto VFCharacter = Cast<AVFCharacter>(Pawn))
+    PickUp(Camera ? static_cast<USceneComponent*>(Camera) : Pawn->GetRootComponent());
+    bFollowCameraManager = !Camera;
+    if (bFollowCameraManager)
     {
-        if (auto ToAttach = Pawn->GetComponentByClass<UCameraComponent>())
-        {
-            PickUp(ToAttach);
-            TScriptInterface<IVFActivatableInterface> Equipment(this);
-            VFCharacter->AddEquipment(Equipment);
-            VFCharacter->SwitchEquipment(Equipment);
-            return true;
-        }
+        DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+        CameraRelativeTransform = IdleTrans;
+        PrimaryActorTick.bCanEverTick = true;
+        PrimaryActorTick.TickGroup = TG_PostUpdateWork;
+        SetActorTickEnabled(true);
     }
+    TScriptInterface<IVFActivatableInterface> Equipment(this);
+    if (auto* Character = Cast<AVFCharacter>(Pawn))
+    {
+        Character->AddEquipment(Equipment);
+        if (!bRestoringInactivePickup) Character->SwitchEquipment(Equipment);
+    }
+    else if (auto* Manager = Pawn->FindComponentByClass<UVFEquipmentManagerComponent>())
+    {
+        Manager->AddEquipment(Equipment);
+        if (!bRestoringInactivePickup) Manager->SwitchEquipment(Equipment);
+    }
+    else if (!bRestoringInactivePickup)
+        IVFActivatableInterface::Execute_TryActivate(this);
+    return true;
+}
 
-    VF_LOG(Warning, TEXT("%s has something wrong."), __FUNCTIONW__);
-    return false;
+void AVFPhotoCatcher_PickUp::Tick(float DeltaSeconds)
+{
+    Super::Tick(DeltaSeconds);
+    if (!bFollowCameraManager || !bPickedUp) return;
+    if (!IsValid(Pawn) || !IsValid(PlayerController) || PlayerController->GetPawn() != Pawn)
+    {
+        ReleasePreviewInput();
+        DropDown();
+        return;
+    }
+    if (auto* Camera = PlayerController->PlayerCameraManager.Get())
+    {
+        const FTransform View(Camera->GetCameraRotation(), Camera->GetCameraLocation());
+        SetActorTransform(CameraRelativeTransform * View);
+    }
+}
+
+void AVFPhotoCatcher_PickUp::EndPlay(const EEndPlayReason::Type Reason)
+{
+    ReleasePreviewInput();
+    if (IsValid(Pawn))
+    {
+        Pawn->OnDestroyed.RemoveDynamic(this, &ThisClass::HandleHolderDestroyed);
+        Pawn->ReceiveControllerChangedDelegate.RemoveDynamic(this, &ThisClass::HandleHolderControllerChanged);
+        if (auto* Manager = Pawn->FindComponentByClass<UVFEquipmentManagerComponent>())
+            Manager->RemoveEquipment(this);
+    }
+    if (IsValid(PlayerController) && Execute_IsActive(this)) Execute_Deactivate(this);
+    GetWorldTimerManager().ClearTimer(PreviewTimeHandle);
+    Super::EndPlay(Reason);
 }
 
 AVFPhoto2D *AVFPhotoCatcher_PickUp::TakeAPhoto_Implementation()
 {
-    if (!bReady)
-        return nullptr;
-
-    if (IsValid(Pawn) && Pawn->Implements<UVFPhotoContainerInterface>())
-    {
-        auto Photo2D = Super::TakeAPhoto_Implementation();
-        IVFPhotoContainerInterface::Execute_TakeIn(Pawn, Photo2D);
-    }
+    if (!bReady || !IsValid(Pawn)) return nullptr;
+    auto* Photo = Super::TakeAPhoto_Implementation();
+    UObject* Recipient = nullptr;
+    if (UVFPhotoContainerManagerComponent::TryTakeIn(Pawn, Photo, &Recipient) &&
+        IsValid(Recipient) && Recipient->Implements<UVFActivatableInterface>() &&
+        IVFActivatableInterface::Execute_IsActive(Recipient))
+        Execute_Deactivate(this);
     LeaveFromPreview();
+    return Photo;
+}
 
-    return nullptr;
+void AVFPhotoCatcher_PickUp::ReleasePreviewInput()
+{
+    if (bOwnsPreviewInput && IsValid(Pawn))
+        // Pawn's controller may already have changed when this delegate runs.
+        // nullptr releases only the input suppression owned by this camera.
+        Pawn->EnableInput(nullptr);
+    bOwnsPreviewInput = false;
+}
+void AVFPhotoCatcher_PickUp::HandleHolderDestroyed(AActor* Actor)
+{
+    ReleasePreviewInput();
+    DropDown();
+}
+void AVFPhotoCatcher_PickUp::HandleHolderControllerChanged(APawn* Holder, AController* OldController, AController* NewController)
+{
+    if (NewController != PlayerController)
+    {
+        ReleasePreviewInput();
+        DropDown();
+    }
 }
 
 void AVFPhotoCatcher_PickUp::CloseToPreview_Implementation()
 {
-    Pawn->DisableInput(PlayerController);
+    if (!IsValid(Pawn) || !IsValid(PlayerController)) return;
+    if (!bOwnsPreviewInput && Pawn->InputEnabled())
+    {
+        Pawn->DisableInput(PlayerController);
+        bOwnsPreviewInput = true;
+    }
 
     GetWorldTimerManager().ClearTimer(PreviewTimeHandle);
     GetWorldTimerManager().SetTimer(
@@ -70,7 +152,7 @@ void AVFPhotoCatcher_PickUp::CloseToPreview_Implementation()
 
 void AVFPhotoCatcher_PickUp::LeaveFromPreview_Implementation()
 {
-    Pawn->EnableInput(PlayerController);
+    ReleasePreviewInput();
 
     bReady = false;
     EnableScreen(false);
@@ -122,9 +204,16 @@ void AVFPhotoCatcher_PickUp::DropDown_Implementation()
     But note that the Pawn's input is also disabled during rewinding.
     Therefore, it would be better to design a state machine.
     */
-    if (!Pawn->InputEnabled() && UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
+    if (IsValid(Pawn) && !Pawn->InputEnabled() && UVFStepsRecorderWorldSubsystem::GetStepsRecorder(this))
         return;
 
+    ReleasePreviewInput();
+    if (Pawn)
+    {
+        Pawn->OnDestroyed.RemoveDynamic(this, &ThisClass::HandleHolderDestroyed);
+        Pawn->ReceiveControllerChangedDelegate.RemoveDynamic(this, &ThisClass::HandleHolderControllerChanged);
+    }
+    const bool bWasActive = Execute_IsActive(this);
     auto PC = PlayerController;
 
     ActorsToIgnore.AddUnique(GetAttachParentActor());
@@ -136,6 +225,15 @@ void AVFPhotoCatcher_PickUp::DropDown_Implementation()
         VFCharacter->RemoveEquipment(Equipment);
     }
 
+    else if (IsValid(Pawn))
+    {
+        if (auto* Manager = Pawn->FindComponentByClass<UVFEquipmentManagerComponent>())
+            Manager->RemoveEquipment(this);
+    }
+    if (IsValid(PlayerController) && Execute_IsActive(this)) Execute_Deactivate(this);
+    GetWorldTimerManager().ClearTimer(PreviewTimeHandle);
+    bFollowCameraManager = false;
+    SetActorTickEnabled(false);
     Pawn = nullptr;
     PlayerController = nullptr;
     bPickedUp = false;
@@ -147,7 +245,8 @@ void AVFPhotoCatcher_PickUp::DropDown_Implementation()
         FVFPhotoCatcherPickUpStepInfo Info(
             EVFPhotoCatcherPickUpOption::DroppedDown,
             GetActorTransform(),
-            PC);
+            PC,
+            bWasActive);
         StepInfos.Emplace(Info);
         StepsRecorder->SubmitStep(
             this,
@@ -160,6 +259,20 @@ void AVFPhotoCatcher_PickUp::DropDown_Implementation()
 
 void AVFPhotoCatcher_PickUp::CloseToPreview_Move()
 {
+    if (bFollowCameraManager)
+    {
+        const float Alpha = FMath::Clamp(PreviewMoveInterval / FMath::Max(TimeOfClose, SMALL_NUMBER), 0.f, 1.f);
+        CameraRelativeTransform = UVFPCommonFunctions::TransformLerp(CameraRelativeTransform, PreviewTrans, Alpha);
+        bReady = CameraRelativeTransform.Equals(PreviewTrans, 0.05f);
+        if (bReady)
+        {
+            CameraRelativeTransform = PreviewTrans;
+            GetWorldTimerManager().ClearTimer(PreviewTimeHandle);
+            SetViewFrustumVisible(true);
+            EnableScreen(true);
+        }
+        return;
+    }
     auto TransCur = RootComponent->GetRelativeTransform();
     bReady = TransCur.Equals(PreviewTrans);
     if (bReady)
@@ -180,6 +293,17 @@ void AVFPhotoCatcher_PickUp::CloseToPreview_Move()
 
 void AVFPhotoCatcher_PickUp::LeaveFromPreview_Move()
 {
+    if (bFollowCameraManager)
+    {
+        const float Alpha = FMath::Clamp(PreviewMoveInterval / FMath::Max(TimeOfLeave, SMALL_NUMBER), 0.f, 1.f);
+        CameraRelativeTransform = UVFPCommonFunctions::TransformLerp(CameraRelativeTransform, IdleTrans, Alpha);
+        if (CameraRelativeTransform.Equals(IdleTrans, 0.05f))
+        {
+            CameraRelativeTransform = IdleTrans;
+            GetWorldTimerManager().ClearTimer(PreviewTimeHandle);
+        }
+        return;
+    }
     auto TransCur = RootComponent->GetRelativeTransform();
     if (TransCur.Equals(IdleTrans))
     {
@@ -196,6 +320,7 @@ void AVFPhotoCatcher_PickUp::LeaveFromPreview_Move()
 
 void AVFPhotoCatcher_PickUp::Activate_Implementation()
 {
+    if (!IsValid(PlayerController) || !IsValid(Pawn)) return;
     SetActorHiddenInGame(false);
 
     if (IsValid(HoldingMappingContext))
@@ -221,6 +346,7 @@ void AVFPhotoCatcher_PickUp::Activate_Implementation()
 
 void AVFPhotoCatcher_PickUp::Deactivate_Implementation()
 {
+    if (!IsValid(PlayerController)) { SetActorHiddenInGame(true); return; }
     RemovePostProcessFromPlayerCamera();
 
     if (IsValid(HoldingMappingContext))
@@ -287,7 +413,9 @@ bool AVFPhotoCatcher_PickUp::StepBack_Implementation(FVFStepInfo &StepInfo)
 #endif
         if (auto PC = Cast<APlayerController>(Info.ParentOrPlayerController); IsValid(PC))
         {
+            TGuardValue<bool> RestoreGuard(bRestoringInactivePickup, !Info.bWasActive);
             Execute_Interact(this, PC);
+            if (!Info.bWasActive) SetActorHiddenInGame(true);
             return true;
         }
         StepInfos.Pop();

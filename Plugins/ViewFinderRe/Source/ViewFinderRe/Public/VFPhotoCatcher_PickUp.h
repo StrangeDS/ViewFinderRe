@@ -36,6 +36,9 @@ struct FVFPhotoCatcherPickUpStepInfo
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "ViewFinder",
 			  meta = (EditCondition = "Option == EVFPhotoCatcherPickUpOption::DroppedDown"))
 	TObjectPtr<AActor> ParentOrPlayerController;
+
+    UPROPERTY()
+    bool bWasActive = true;
 };
 
 UCLASS(Blueprintable, ClassGroup = (ViewFinder))
@@ -45,7 +48,10 @@ class VIEWFINDERRE_API AVFPhotoCatcher_PickUp : public AVFPhotoCatcher_Interact,
 	GENERATED_BODY()
 
 public:
+    AVFPhotoCatcher_PickUp();
 	virtual bool Interact_Implementation(APlayerController *Controller) override;
+    virtual void Tick(float DeltaSeconds) override;
+    virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 
 	virtual AVFPhoto2D *TakeAPhoto_Implementation() override;
 
@@ -63,6 +69,15 @@ public:
 	virtual void DropDown_Implementation();
 
 protected:
+    void ReleasePreviewInput();
+    UFUNCTION()
+    void HandleHolderDestroyed(AActor* Actor);
+    UFUNCTION()
+    void HandleHolderControllerChanged(APawn* Holder, AController* OldController, AController* NewController);
+    bool bRestoringInactivePickup = false;
+    bool bOwnsPreviewInput = false;
+    bool bFollowCameraManager = false;
+    FTransform CameraRelativeTransform;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ViewFinder")
 	TObjectPtr<UInputMappingContext> HoldingMappingContext;
 

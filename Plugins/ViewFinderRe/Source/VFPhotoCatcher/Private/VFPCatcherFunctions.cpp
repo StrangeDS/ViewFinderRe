@@ -3,6 +3,7 @@
 #include "VFPCatcherFunctions.h"
 
 #include "Engine/World.h"
+#include "LandscapeProxy.h"
 
 #include "VFDynamicMeshComponent.h"
 #include "VFGeometryFunctions.h"
@@ -128,6 +129,7 @@ TArray<UVFDynamicMeshComponent *> UVFPCatcherFunctions::CheckVFDMComps(
 	for (UPrimitiveComponent *Component : Components)
 	{
 		AActor *Actor = Component->GetOwner();
+        if (Actor->IsA<ALandscapeProxy>()) continue;
 
 		auto hasVFDMComp = Actor->GetComponentByClass<UVFDynamicMeshComponent>();
 		if (IsValid(hasVFDMComp))
