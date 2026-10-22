@@ -84,7 +84,7 @@ void AVFPhotoCatcher_Interact::AddPostProcessToPlayerCamera()
 	if (!ensureMsgf(PlayerController, TEXT("%s invalid PlayerController."), __FUNCTIONW__))
 		return;
 
-	if (PostProcess->IsAnyRule())
+	if (IsValid(PlayerController->GetPawn()) && PostProcess->IsAnyRule())
 	{
 		if (auto Camera = PlayerController->GetPawn()->GetComponentByClass<UCameraComponent>())
 		{
@@ -98,7 +98,7 @@ void AVFPhotoCatcher_Interact::RemovePostProcessFromPlayerCamera()
 	if (!ensureMsgf(PlayerController, TEXT("%s invalid PlayerController."), __FUNCTIONW__))
 		return;
 
-	if (PostProcess->IsAnyRule())
+	if (IsValid(PlayerController->GetPawn()) && PostProcess->IsAnyRule())
 	{
 		if (auto Camera = PlayerController->GetPawn()->GetComponentByClass<UCameraComponent>())
 		{
