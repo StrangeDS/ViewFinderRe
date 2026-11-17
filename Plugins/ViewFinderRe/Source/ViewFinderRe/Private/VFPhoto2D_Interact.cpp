@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 
 #include "VFPhotoContainerInterface.h"
+#include "VFPhotoContainerManagerComponent.h"
 
 void AVFPhoto2D_Interact::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
@@ -40,10 +41,5 @@ bool AVFPhoto2D_Interact::EndAiming_Implementation(APlayerController *Controller
 
 bool AVFPhoto2D_Interact::Interact_Implementation(APlayerController *Controller)
 {
-    auto Pawn = Controller->GetPawn();
-    if (IsValid(Pawn) && Pawn->Implements<UVFPhotoContainerInterface>())
-    {
-        return IVFPhotoContainerInterface::Execute_TakeIn(Pawn, this);
-    }
-    return false;
+    return IsValid(Controller) && UVFPhotoContainerManagerComponent::TryTakeIn(Controller->GetPawn(), this);
 }

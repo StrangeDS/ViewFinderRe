@@ -14,12 +14,13 @@ AVFPhotoContainer_Input::AVFPhotoContainer_Input()
 
 void AVFPhotoContainer_Input::SetEnabled(const bool &Enabled)
 {
+    if (!IsValid(PlayerController)) return;
 	Super::SetEnabled(Enabled);
 
 	if (bEnabled)
 	{
 		auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
-		if (Subsystem)
+		if (Subsystem && IsValid(MappingContext))
 			Subsystem->AddMappingContext(MappingContext, 2);
 		EnableInput(PlayerController);
 	}
@@ -27,7 +28,7 @@ void AVFPhotoContainer_Input::SetEnabled(const bool &Enabled)
 	{
 		DisableInput(PlayerController);
 		auto Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
-		if (Subsystem)
+		if (Subsystem && IsValid(MappingContext))
 			Subsystem->RemoveMappingContext(MappingContext);
 	}
 }
@@ -44,7 +45,7 @@ void AVFPhotoContainer_Input::Deactivate_Implementation()
 
 bool AVFPhotoContainer_Input::CanActivate_Implementation()
 {
-	return Num() > 0;
+	return IsValid(PlayerController) && Num() > 0;
 }
 
 bool AVFPhotoContainer_Input::IsActive_Implementation()

@@ -26,6 +26,9 @@ public class ViewFinderRe : ModuleRules
 			new string[]
 			{
 				"Core",
+                "CoreUObject",
+                "Engine",
+                "VFStepsRecorder",
 
 				"VFCommon",
 				"VFInteract",
@@ -37,14 +40,14 @@ public class ViewFinderRe : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"CoreUObject",
-				"Engine",
 				"EnhancedInput",
 				"UMG",
+                "RenderCore",
+                "VFGeometry",
+                "GeometryFramework",
 
 				"VFPhotoCommon",
 				"VFPhotoCatcher",
-				"VFStepsRecorder",
 			}
 			);
 

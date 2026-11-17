@@ -39,6 +39,7 @@ public class VFPhotoCatcher : ModuleRules
 				"Engine",
 				"DeveloperSettings",
 				"GeometryFramework",
+                "Landscape",
 
 				"VFCommon",
 				"VFGeometry",

@@ -151,7 +151,11 @@ void UVFStepsRecorderWorldSubsystem::TickBackward(float DeltaTime)
             break;
 
         if (!IsValid(Info.Sender))
+        {
+            // A destroyed sender cannot undo its step, but must not block older steps.
+            Infos.RemoveAt(Infos.Num() - 1);
             continue;
+        }
 
         bool handled = IVFStepsRecordInterface::Execute_StepBack(Info.Sender, Info);
         if (!handled)
